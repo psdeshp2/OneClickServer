@@ -1,0 +1,319 @@
+/*
+* Licensed to the Apache Software Foundation (ASF) under one or more
+* contributor license agreements.  See the NOTICE file distributed with
+* this work for additional information regarding copyright ownership.
+* The ASF licenses this file to You under the Apache License, Version 2.0
+* (the "License"); you may not use this file except in compliance with
+* the License.  You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+.scriptonly {
+	display: none;
+}
+
+.scriptoff {
+	display: inline;
+}
+.compstatelink {
+	color: red;
+}
+
+.compstatelink a {
+	color: red;
+}
+
+.compstatelink a:hover {
+	background: #CCCCCC;
+	text-decoration: none;
+}
+
+#expauthul li {
+	list-style-type: disc;
+}
+
+.shown {
+	display: block;
+}
+
+.hidden {
+	display: none;
+}
+
+.hlrow td {
+	background: #ffff88;
+}
+
+.hlrow th {
+	background: #ffff88;
+}
+
+.hlcol {
+	background: #ccccff;
+}
+
+.nohlcol {
+	background: #ededed;
+}
+
+.rightborder {
+	border-right: 1px solid #000000;
+}
+
+.preferenceslist {
+	display: block;
+	list-style-type: none;
+	margin: 0 1px 0 0;
+	padding: 0;
+	text-align: left;
+}
+
+.preferenceslist a {
+	font-size: 15px;
+}
+
+.whenusefieldset {
+	border-width: 0px;
+}
+
+.errormsg {
+	float: right;
+	width: 100px;
+}
+
+#resStatusText {
+	width: 100%;
+	height: 100%;
+}
+
+#resStatusText table {
+	border-spacing: 5px 0px;
+	margin: 0px 0px 0px 0px;
+}
+
+#resStatusText table td {
+	padding: 0 3px;
+}
+
+#resStatusText table th {
+	padding: 0 3px;
+}
+
+.resStatusColState {
+	border-right: 1px solid #000000;
+}
+
+.resStatusColEst {
+	border-right: 1px solid #000000;
+}
+
+.usergrouptable {
+	empty-cells: hide;
+	border-spacing: 0px;
+	border-collapse: collapse;
+}
+
+.usergrouptable form {
+	margin: 0;
+}
+
+.usergrouptable td {
+	padding-left: 1px;
+	border: solid 1px #000000;
+}
+
+.usergrouptable th {
+	border: solid 1px #000000;
+}
+
+.resourcegrouptable form {
+	margin: 0;
+}
+
+.resourcegrouptable {
+	border-spacing: 0px;
+	border-collapse: collapse;
+}
+
+.resourcegrouptable th {
+	border: solid 1px #000000;
+}
+
+.resourcegrouptable td {
+	padding-left: 1px;
+	border: solid 1px #000000;
+}
+
+#layouttable {
+	border: solid 1px #000000;
+	border-spacing: 0px;
+	border-collapse: collapse;
+}
+
+#layouttable td, #layouttable th {
+	vertical-align: top;
+	border: solid 1px #000000;
+}
+
+#ttlayout {
+	border-spacing: 0px;
+	border-collapse: collapse;
+}
+
+#ttlayout td {
+	border: solid 1px #eeeeee;
+}
+
+#listitems {
+	z-index: -10;
+	position: absolute;
+	left: 50px;
+	top: 100px;
+	background-color: lightblue;
+	border: solid 1px black;
+}
+
+#helpbox {
+	z-index: -10;
+	position: absolute;
+	left: 50px;
+	top: 100px;
+	background-color: #ffffdc;
+	border: solid 1px black;
+}
+
+.dojoDialog {
+	background: #eee;
+	border: 1px solid #999;
+	-moz-border-radius: 5px;
+	padding: 4px;
+}
+
+.vcldocpage ol {
+	list-style-type: decimal;
+}
+
+.vcldocpage ul {
+	list-style-type: disc;
+}
+
+.profileDlg {
+	background: #eee;
+	border: 1px solid #999;
+	-moz-border-radius: 5px;
+	padding: 4px;
+}
+
+.nperrormsg {
+	font-style: italic;
+	color: red;
+}
+
+.rederrormsg {
+	color: red;
+}
+
+#revisiontable th {
+	border: solid 1px #000000;
+	padding: 2px;
+	vertical-align: middle;
+}
+
+#revisiontable td {
+	border: solid 1px #000000;
+	padding: 2px;
+	vertical-align: middle;
+}
+
+.numbers {
+	list-style-type: decimal;
+}
+
+.blockStatusData th {
+	text-align: right;
+	padding-right: 5px;
+}
+
+.closedtreefolder {
+	background: url(../images/closedtreeicon.gif) no-repeat;
+}
+
+.openedtreefolder {
+	background: url(../images/opentreeicon.gif) no-repeat;
+}
+
+.privtreeselected {
+	background-color: #678db2;
+	color: white;
+}
+
+#maintenancenotice {
+	width: 450px;
+	padding: 3px;
+	margin: 5px;
+	border: 1px solid;
+	background-color: #f3f3f3;
+}
+
+#savestatus {
+	color: #008000;
+}
+.noicon {
+	display: none;
+}
+
+.statgraph {
+	width: 400px;
+	height: 310px;
+}
+
+.collapsetable {
+	border-collapse: collapse;
+}
+
+.tablerow0 td {
+	background-color: #dddddd;
+	padding: 2px, 0, 0, 0;
+	color: black;
+}
+
+.tablerow1 td {
+	background-color: #ffffff;
+	padding: 2px, 0, 0, 0;
+	color: black;
+}
+
+.advoptions tr th {
+	text-align: right;
+}
+
+.advoptions tr td {
+	text-align: left;
+}
+
+.highlightnoticewarn {
+	background-color: #ffcccc;
+	border: 2px solid #ff0000;
+	padding: 3px;
+	margin: 10px;
+}
+
+.highlightnoticenotify {
+	background-color: #ccffcc;
+	border: 2px solid #00ff00;
+	padding: 3px;
+	margin: 10px;
+}
+
+#usergroupcontainer table th,
+#usergroupcontainer table td,
+#resourcegroupcontainer table th,
+#resourcegroupcontainer table td {
+	font-size: 1em;
+}

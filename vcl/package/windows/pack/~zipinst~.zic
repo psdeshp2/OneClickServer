@@ -1,0 +1,15 @@
+[install]
+ZipFile=oneclick.zip
+AddUninstall=1
+AddUninstallShortcut=1
+DesktopShortcut=1
+InstallTo=2
+StartMenuShortcut=1
+NoUserInteraction=0
+InstallFolder=%zi.ProgramFiles%\%zi.CompanyName%\%zi.ProductName%
+StartMenuFolder=%zi.CompanyName%\%zi.ProductName%
+ProductVersion=1.0
+Description=VCL OneClick Application
+NoExtraUninstallInfo=0
+NoSuccessMessage=1
+CompanyName=VCL
