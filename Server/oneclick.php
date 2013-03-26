@@ -401,7 +401,7 @@ function editOneClick() {
 	$preduration = $row[4];
 //    print "$preduration\n";
 	$images = getImages();
-	$maxlength = $images[$row[9]]['maxinitialtime'];
+	$maxlength = $images[$row[8]]['maxinitialtime'];
 //    print"$maxlength\n";
 	$maxtimes = getUserMaxTimes();
 //    $abc = $maxtimes['initial'];
@@ -484,7 +484,7 @@ function submitEdit() {
 		$query = "UPDATE oneclick "
 				. "SET duration = $duration, "
 				. "name = '$name', "
-				. "autologin = $autologin, "
+				. "autologin = $autologin "
 				. "WHERE id = $oneclickid";
 		//	$qh = doQuery($query, 101);
 		$qh = doQuery($query, 150);
