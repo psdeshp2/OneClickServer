@@ -102,7 +102,6 @@ function XMLRPCgetImages() {
         $tmp = array('id' => $key,
                      'name' => $val,
                      'description' => $notes['description'],
-                     'ostype' => $notes['ostype'],
                      'usage' => $notes['usage']);
         array_push($return, $tmp);
     }
