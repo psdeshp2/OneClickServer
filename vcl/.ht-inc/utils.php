@@ -4576,7 +4576,7 @@ function getMaxOverlap($userid) {
 /// \brief adds an entry to the request and reservation tables
 ///
 ////////////////////////////////////////////////////////////////////////////////
-function addRequest($forimaging=0, $revisionid=array()) {
+/*function addRequest($oneclickid=0,$forimaging=0, $revisionid=array()) {
 	global $requestInfo, $user;
 	$startstamp = unixToDatetime($requestInfo["start"]);
 	$endstamp = unixToDatetime($requestInfo["end"]);
@@ -4611,7 +4611,8 @@ function addRequest($forimaging=0, $revisionid=array()) {
 	       .        "NOW())";
 	doQuery($query, 136);
 
-	# add single entry to request table
+	if($oneclickid==0) {
+	// Make normal entries to request table without the oneclick parameter
 	$query = "INSERT INTO request "
 	       .        "(stateid, "
 	       .        "userid, "
@@ -4676,12 +4677,297 @@ function addRequest($forimaging=0, $revisionid=array()) {
 		doQuery($query, 133);
 		addSublogEntry($logid, $imageid, $imagerevisionid, $computerid,
 		               $mgmtnodeid, $fromblock, $blockdata);
+		} 
+ 	}else {
+	// Query request table for selected oneclick and user id and return that if exist
+	// or make new entry
+		$selectQuery = "SELECT requestid from reservation where oneclickid = $oneclickid 
+		AND userid = {$user['id']}"
+		
+		$sq = doQuery($selectQuery);
+	
+		if(!$rowsq = mysql_fetch_row($sq)) {
+			// make a new entry with the given oneclickid and userid
+			# add single entry to request table
+	$query = "INSERT INTO request "
+	       .        "(stateid, "
+	       .        "userid, "
+	       .        "oneclickid, "
+	       .        "laststateid, "
+	       .        "logid, "
+	       .        "forimaging, "
+	       .        "start, "
+	       .        "end, "
+	       .        "daterequested) "
+	       . "VALUES "
+	       .       "(13, "
+	       .       "{$user['id']}, "
+	       .       "$oneclickid, "
+	       .       "13, "
+	       .       "$logid, "
+	       .       "$forimaging, "
+	       .       "'$startstamp', "
+	       .       "'$endstamp', "
+	       .       "NOW())";
+	$qh = doQuery($query, 136);
+
+	$qh = doQuery("SELECT LAST_INSERT_ID() FROM request", 134);
+	if(! $row = mysql_fetch_row($qh)) {
+		abort(135);
+	}
+	$requestid = $row[0];
+
+	# add requestid to log entry
+	$query = "UPDATE log "
+	       . "SET requestid = $requestid "
+	       . "WHERE id = $logid";
+	doQuery($query, 101);
+
+	# add an entry to the reservation table for each image
+	# NOTE: make sure parent image is the first entry we add
+	#   so that it has the lowest reservationid
+	foreach($requestInfo["images"] as $key => $imageid) {
+		if(array_key_exists($imageid, $revisionid) &&
+		   ! empty($revisionid[$imageid]))
+			$imagerevisionid = array_shift($revisionid[$imageid]);
+		else
+			$imagerevisionid = getProductionRevisionid($imageid);
+		$computerid = $requestInfo["computers"][$key];
+		$mgmtnodeid = $requestInfo['mgmtnodes'][$key];
+		$fromblock = $requestInfo['fromblock'][$key];
+		if($fromblock)
+			$blockdata = $requestInfo['blockdata'][$key];
+		else
+			$blockdata = array();
+
+		$query = "INSERT INTO reservation "
+		       .        "(requestid, "
+		       .        "computerid, "
+		       .        "imageid, "
+		       .        "imagerevisionid, "
+		       .        "managementnodeid, "
+		       .        "oneclickid, "
+		       .        "userid) "
+		       . "VALUES "
+		       .       "($requestid, "
+		       .       "$computerid, "
+		       .       "$imageid, "
+		       .       "$imagerevisionid, "
+		       .       "$mgmtnodeid, "
+		       .       "$oneclickid, "
+		       .       "{$user['id']})";
+		doQuery($query, 133);
+		addSublogEntry($logid, $imageid, $imagerevisionid, $computerid,
+		               $mgmtnodeid, $fromblock, $blockdata);
+		}
+	} else {
+	// return the already existing request id from reservation table
+		$requestid = $rowsq[0];
+	}
+
 	}
 	// release semaphore lock
 	semUnlock();
 
 	return $requestid;
+}   */ 
+
+
+function addRequest($oneclickid=0,$forimaging=0, $revisionid=array()) {
+	global $requestInfo, $user;
+	$startstamp = unixToDatetime($requestInfo["start"]);
+	$endstamp = unixToDatetime($requestInfo["end"]);
+	$now = time();
+
+	if($requestInfo["start"] <= $now) {
+		$start = unixToDatetime($now);
+		$nowfuture = "now";
+	}
+	else {
+		$start = $startstamp;
+		$nowfuture = "future";
+	}
+
+	addLogEntry($nowfuture, $start, $endstamp, 1, $requestInfo["imageid"]);
+
+	$qh = doQuery("SELECT LAST_INSERT_ID() FROM log", 131);
+	if(! $row = mysql_fetch_row($qh)) {
+		abort(132);
+	}
+	$logid = $row[0];
+
+	$query = "INSERT INTO changelog "
+	       .        "(logid, "
+	       .        "start, "
+	       .        "end, "
+	       .        "timestamp) "
+	       . "VALUES "
+	       .        "($logid, "
+	       .        "'$start', "
+	       .        "'$endstamp', "
+	       .        "NOW())";
+	doQuery($query, 136);
+	
+	if($oneclickid==0) {
+	// Make normal entries to request table without the oneclick parameter
+	$query = "INSERT INTO request "
+	       .        "(stateid, "
+	       .        "userid, "
+	       .        "laststateid, "
+	       .        "logid, "
+	       .        "forimaging, "
+	       .        "start, "
+	       .        "end, "
+	       .        "daterequested) "
+	       . "VALUES "
+	       .       "(13, "
+	       .       "{$user['id']}, "
+	       .       "13, "
+	       .       "$logid, "
+	       .       "$forimaging, "
+	       .       "'$startstamp', "
+	       .       "'$endstamp', "
+	       .       "NOW())";
+	$qh = doQuery($query, 136);
+
+	$qh = doQuery("SELECT LAST_INSERT_ID() FROM request", 134);
+	if(! $row = mysql_fetch_row($qh)) {
+		abort(135);
+	}
+	$requestid = $row[0];
+
+	# add requestid to log entry
+	$query = "UPDATE log "
+	       . "SET requestid = $requestid "
+	       . "WHERE id = $logid";
+	doQuery($query, 101);
+
+	# add an entry to the reservation table for each image
+	# NOTE: make sure parent image is the first entry we add
+	#   so that it has the lowest reservationid
+	foreach($requestInfo["images"] as $key => $imageid) {
+		if(array_key_exists($imageid, $revisionid) &&
+		   ! empty($revisionid[$imageid]))
+			$imagerevisionid = array_shift($revisionid[$imageid]);
+		else
+			$imagerevisionid = getProductionRevisionid($imageid);
+		$computerid = $requestInfo["computers"][$key];
+		$mgmtnodeid = $requestInfo['mgmtnodes'][$key];
+		$fromblock = $requestInfo['fromblock'][$key];
+		if($fromblock)
+			$blockdata = $requestInfo['blockdata'][$key];
+		else
+			$blockdata = array();
+
+		$query = "INSERT INTO reservation "
+		       .        "(requestid, "
+		       .        "computerid, "
+		       .        "imageid, "
+		       .        "imagerevisionid, "
+		       .        "managementnodeid) "
+		       . "VALUES "
+		       .       "($requestid, "
+		       .       "$computerid, "
+		       .       "$imageid, "
+		       .       "$imagerevisionid, "
+		       .       "$mgmtnodeid)";
+		doQuery($query, 133);
+		addSublogEntry($logid, $imageid, $imagerevisionid, $computerid,
+		               $mgmtnodeid, $fromblock, $blockdata);
+		} 
+ 	} else {
+ 		// Query request table for selected oneclick and user id and return that if exist
+	// or make new entry
+		$query = "SELECT requestid from reservation where oneclickid = $oneclickid AND userid = {$user['id']}";
+		
+		$sq = doQuery($query);
+	
+	if(!$rowsq = mysql_fetch_row($sq)) {
+			// make a new entry with the given oneclickid and userid
+			# add single entry to request table
+	$query = "INSERT INTO request "
+	       .        "(stateid, "
+	       .        "userid, "
+	       .        "oneclickid, "
+	       .        "laststateid, "
+	       .        "logid, "
+	       .        "forimaging, "
+	       .        "start, "
+	       .        "end, "
+	       .        "daterequested) "
+	       . "VALUES "
+	       .       "(13, "
+	       .       "{$user['id']}, "
+	       .       "$oneclickid, "
+	       .       "13, "
+	       .       "$logid, "
+	       .       "$forimaging, "
+	       .       "'$startstamp', "
+	       .       "'$endstamp', "
+	       .       "NOW())";
+	$qh = doQuery($query, 136);
+
+	$qh = doQuery("SELECT LAST_INSERT_ID() FROM request", 134);
+	if(! $row = mysql_fetch_row($qh)) {
+		abort(135);
+	}
+	$requestid = $row[0];
+
+	# add requestid to log entry
+	$query = "UPDATE log "
+	       . "SET requestid = $requestid "
+	       . "WHERE id = $logid";
+	doQuery($query, 101);
+
+	# add an entry to the reservation table for each image
+	# NOTE: make sure parent image is the first entry we add
+	#   so that it has the lowest reservationid
+	foreach($requestInfo["images"] as $key => $imageid) {
+		if(array_key_exists($imageid, $revisionid) &&
+		   ! empty($revisionid[$imageid]))
+			$imagerevisionid = array_shift($revisionid[$imageid]);
+		else
+			$imagerevisionid = getProductionRevisionid($imageid);
+		$computerid = $requestInfo["computers"][$key];
+		$mgmtnodeid = $requestInfo['mgmtnodes'][$key];
+		$fromblock = $requestInfo['fromblock'][$key];
+		if($fromblock)
+			$blockdata = $requestInfo['blockdata'][$key];
+		else
+			$blockdata = array();
+
+		$query = "INSERT INTO reservation "
+		       .        "(requestid, "
+		       .        "computerid, "
+		       .        "imageid, "
+		       .        "imagerevisionid, "
+		       .        "managementnodeid, "
+		       .        "oneclickid, "
+		       .        "userid) "
+		       . "VALUES "
+		       .       "($requestid, "
+		       .       "$computerid, "
+		       .       "$imageid, "
+		       .       "$imagerevisionid, "
+		       .       "$mgmtnodeid, "
+		       .       "$oneclickid, "
+		       .       "{$user['id']})";
+		doQuery($query, 133);
+		addSublogEntry($logid, $imageid, $imagerevisionid, $computerid,
+		               $mgmtnodeid, $fromblock, $blockdata);
+		}
+	} else {
+	// return the already existing request id from reservation table
+		$requestid = $rowsq[0];
+	}	// release semaphore lock
+ 	}
+	semUnlock();
+
+	return $requestid;
 }
+
+
+
 
 ////////////////////////////////////////////////////////////////////////////////
 ///

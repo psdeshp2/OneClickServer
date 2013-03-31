@@ -135,7 +135,7 @@ function XMLRPCgetImages() {
 /// \brief tries to make a request\n
 ///
 ////////////////////////////////////////////////////////////////////////////////
-function XMLRPCaddRequest($imageid, $start, $length, $foruser='') {
+function XMLRPCaddRequest($imageid, $start, $length, $oneclickid, $foruser='') {
     global $user;
     $imageid = processInputData($imageid, ARG_NUMERIC);
     $start = processInputData($start, ARG_STRING, 1);
@@ -193,13 +193,21 @@ function XMLRPCaddRequest($imageid, $start, $length, $foruser='') {
 
     $images = getImages();
     $revisionid = getProductionRevisionid($imageid);
-    $rc = isAvailable($images, $imageid, $revisionid, $start, $end);
+
+    $query = "SELECT requestid from reservation where oneclickid = $oneclickid AND userid = {$user['id']}";
+	$sq = doQuery($query);
+	
+	if($rowsq = mysql_fetch_row($sq)) {
+		$rc = isAvailable($images, $imageid, $revisionid, $start, $end,$rowsq[0]);
+    } else {
+    	$rc = isAvailable($images, $imageid, $revisionid, $start, $end);
+    }
     if($rc < 1) {
         addLogEntry($nowfuture, unixToDatetime($start),
                     unixToDatetime($end), 0, $imageid);
         return array('status' => 'notavailable');
     }
-    $return['requestid']= addRequest();
+    $return['requestid']= addRequest($oneclickid);
     $return['status'] = 'success';
     return $return;
 }
