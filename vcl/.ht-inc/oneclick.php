@@ -140,7 +140,8 @@ function newOneClick() {
 	global $user;
 	$uid = $user['id'];
 	//dbConnect();
-	$query = "SELECT oneclick.*, image.prettyname imagename "
+	$query = "SELECT oneclick.id, oneclick.userid, oneclick.imageid, oneclick.name, oneclick.duration, oneclick.autologin, oneclick.status , "
+			. "image.prettyname imagename, oneclick.path "
 			. "FROM oneclick JOIN image ON oneclick.imageid = image.id "
 			. "WHERE oneclick.status = 1 AND oneclick.userid = $uid";
 
@@ -350,7 +351,8 @@ function editOneClick() {
 	$uid = $user['id'];
 //    dbConnect();
 
-	$query = "SELECT oneclick.*, image.prettyname imagename, image.id imageid "
+	$query = "SELECT oneclick.id, oneclick.userid, oneclick.imageid, oneclick.name, oneclick.duration, oneclick.autologin, oneclick.status , "
+			. "image.prettyname imagename, image.id imageid,oneclick.path "
 			. "FROM oneclick JOIN image ON oneclick.imageid = image.id "
 			. "WHERE oneclick.status = 1 AND oneclick.id = $oneclickid AND oneclick.userid = $uid";
 
@@ -377,7 +379,7 @@ function editOneClick() {
 	}
 	$row = mysql_fetch_row($qh);
 	$oneclickname_alias = $row[3];
-	//print "$row[3]";
+
 	if($oneclickname != $oneclickname) {
 		return NULL;
 	}
@@ -396,7 +398,9 @@ function editOneClick() {
 	// Image Type **********************************************************************************************
 	print 'Resource: <strong>' . htmlentities($row[8]) . '</strong><br>';
 	print '<br><br>';
-
+	//print "$row[3]";
+	//print "$row[4]";
+	//print "$row[6]";
 	//Duration **********************************************************************************************
 	$preduration = $row[4];
 //    print "$preduration\n";
@@ -684,4 +688,3 @@ function downloadOneClick() {
 	}
 	
 }
-
