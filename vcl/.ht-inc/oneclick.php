@@ -107,12 +107,14 @@ function newOneClick() {
 	print "<Strong>Duration:</Strong>&nbsp;\n";
 	printSelectInput("length", $lengths, $length, 0, 0, 'reqlength', "onChange='updateWaitTime(0);'");
 	print "<br>\n";
+	print "<b>Path for the application to open: </b>";
+        print '<input type="text" id="newOneClickPath" name="newOneClickPath" width="100px"/>';
 	print "<br><br>\n";
 
 
 // other choice
 	print "<INPUT type=\"checkbox\" name=\"autologin\" value = \"1\">";
-	print "Auto Login";
+	print "Auto Login<br>";
 	print "<br><br>\n";
 	/* print "<INPUT type=\"checkbox\" name=\"notimeout\" value = \"1\">";
 	  print "No TimeOut";
@@ -272,6 +274,7 @@ function submitOneClick() {
 	$name = processInputVar("newOneClickName", ARG_STRING);
 	$duration = processInputVar("length", ARG_NUMERIC);
 	$autologin = processInputVar("autologin", ARG_STRING) == 1 ? 1 : 0;
+	$path = processInputVar("newOneClickPath", ARG_STRING);
 	//connect to the database to insert one button entry
 	//dbConnect();
 	$query = "INSERT INTO oneclick"
@@ -280,14 +283,15 @@ function submitOneClick() {
 			. "name, "
 			. "duration, "
 			. "autologin, "
-			. "status) "
+			. "status, "
+			. "path) "
 			. "VALUES "
 			. "($userid, "
 			. "$imageid, "
 			. "'$name', "
 			. "$duration, "
 			. "$autologin, "
-			. "1) ";
+			. "1, '$path') ";
 	$qh = doQuery($query, 101);
 
 	//dbDisconnect(); //disconnect from database
@@ -384,7 +388,7 @@ function editOneClick() {
 		return NULL;
 	}
 	print '<p>&nbsp;</p>';
-	print '<h2>OneClick Edittor</h2>';
+	print '<h2>OneClick Editor</h2>';
 
 
 
@@ -438,6 +442,9 @@ function editOneClick() {
 		}
 	}
 	print '      </select>';
+        print "<br>\n";
+        print "<b>Path for the application to open: </b>";
+        print '<input type="text" id="editOneClickPath" name="editOneClickPath"  value="' . htmlentities($row[9]) . '" width="100px"/>';
 	print "<br><br>\n";
 	// Auto Login **********************************************************************************************
 	print "<INPUT type=\"checkbox\" name=\"autologin\" value = \"1\"" . ($row[5] == 1 ? "checked=\"checked\"" : "") . ">";
@@ -477,6 +484,7 @@ function submitEdit() {
 	$name = processInputVar("oneClickName", ARG_STRING);
 	$duration = processInputVar("duration", ARG_NUMERIC);
 	$autologin = processInputVar("autologin", ARG_STRING) == 1 ? 1 : 0;
+	$path = processInputVar("editOneClickPath", ARG_STRING);
 //    print "$oneclickid<br>";
 //    //print "$userid<br>";
 //    print "$name<br>";
@@ -488,7 +496,8 @@ function submitEdit() {
 		$query = "UPDATE oneclick "
 				. "SET duration = $duration, "
 				. "name = '$name', "
-				. "autologin = $autologin "
+				. "autologin = $autologin, "
+				. "path = '$path' "
 				. "WHERE id = $oneclickid";
 		//	$qh = doQuery($query, 101);
 		$qh = doQuery($query, 150);
