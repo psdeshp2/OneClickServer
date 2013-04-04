@@ -275,6 +275,7 @@ function submitOneClick() {
 	$duration = processInputVar("length", ARG_NUMERIC);
 	$autologin = processInputVar("autologin", ARG_STRING) == 1 ? 1 : 0;
 	$path = processInputVar("newOneClickPath", ARG_STRING);
+	$path = str_replace('\\','\\\\' , $path);
 	//connect to the database to insert one button entry
 	//dbConnect();
 	$query = "INSERT INTO oneclick"
@@ -485,6 +486,7 @@ function submitEdit() {
 	$duration = processInputVar("duration", ARG_NUMERIC);
 	$autologin = processInputVar("autologin", ARG_STRING) == 1 ? 1 : 0;
 	$path = processInputVar("editOneClickPath", ARG_STRING);
+	$path = str_replace('\\','\\\\' , $path);
 //    print "$oneclickid<br>";
 //    //print "$userid<br>";
 //    print "$name<br>";
