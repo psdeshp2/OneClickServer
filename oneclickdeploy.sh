@@ -18,6 +18,6 @@ sudo cp -f OneClickServer/vcl/.ht-inc/states.php /var/www/html/vcl/.ht-inc/state
 sudo cp -f OneClickServer/vcl/.ht-inc/conf.php /var/www/html/vcl/.ht-inc/conf.php
 sudo cp -fR OneClickServer/vcl/package /var/www/html/vcl/package
 
-sudo /usr/bin/mysql -u root < OneClickServer/oneclickdb.sql
+sudo /usr/bin/mysql -u root -f < OneClickServer/oneclickdb.sql
 
 sudo setfacl -Rm user:apache:rwx /var/www/html/vcl/package/temp
