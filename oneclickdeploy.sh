@@ -17,6 +17,8 @@ sudo cp -f OneClickServer/vcl/.ht-inc/oneclick.php /var/www/html/vcl/.ht-inc/one
 sudo cp -f OneClickServer/vcl/.ht-inc/states.php /var/www/html/vcl/.ht-inc/states.php
 sudo cp -f OneClickServer/vcl/.ht-inc/conf.php /var/www/html/vcl/.ht-inc/conf.php
 sudo cp -fR OneClickServer/vcl/package /var/www/html/vcl/package
+sudo cp -f OneClickServer/core/vcl/lib/VCL/inuse.pm /usr/local/vcl/lib/VCL/inuse.pm
+sudo cp -f OneClickServer/core/vcl/lib/VCL/DataStructure.pm /usr/local/vcl/lib/VCL/DataStructure.pm
 
 sudo /usr/bin/mysql -u root -f < OneClickServer/oneclickdb.sql
 
