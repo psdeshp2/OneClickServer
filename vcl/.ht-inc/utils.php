@@ -1288,6 +1288,7 @@ function getImages($includedeleted=0, $imageid=0) {
 	       .        "i.OSid AS osid, "
 	       .        "o.name AS os, "
 	       .        "o.installtype, "
+	       .        "o.type AS ostype, "
 	       .        "i.minram AS minram, "
 	       .        "i.minprocnumber AS minprocnumber, "
 	       .        "i.minprocspeed AS minprocspeed, "
@@ -4965,8 +4966,6 @@ function addRequest($oneclickid=0,$forimaging=0, $revisionid=array()) {
 
 	return $requestid;
 }
-
-
 
 
 ////////////////////////////////////////////////////////////////////////////////
