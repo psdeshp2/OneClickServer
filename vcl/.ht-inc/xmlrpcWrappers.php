@@ -99,10 +99,12 @@ function XMLRPCgetImages() {
     $return = array();
     foreach($resources['image'] as $key => $val) {
         $notes = getImageNotes($key);
+        $images = getImages(0,$key);
         $tmp = array('id' => $key,
                      'name' => $val,
                      'description' => $notes['description'],
-                     'usage' => $notes['usage']);
+                     'usage' => $notes['usage'],
+                     'ostype' => $images[$key]['ostype']);
         array_push($return, $tmp);
     }
     return $return;
@@ -135,83 +137,78 @@ function XMLRPCgetImages() {
 /// \brief tries to make a request\n
 ///
 ////////////////////////////////////////////////////////////////////////////////
-function XMLRPCaddRequest($imageid, $start, $length, $oneclickid, $foruser='') {
-    global $user;
-    $imageid = processInputData($imageid, ARG_NUMERIC);
-    $start = processInputData($start, ARG_STRING, 1);
-    $length = processInputData($length, ARG_NUMERIC);
-    #$foruser = processInputData($foruser, ARG_STRING, 1);
+function XMLRPCaddRequest($imageid, $start, $length,$oneclickid='', $foruser='') {
+	global $user;
+	$imageid = processInputData($imageid, ARG_NUMERIC);
+	$start = processInputData($start, ARG_STRING, 1);
+	$length = processInputData($length, ARG_NUMERIC);
+	#$foruser = processInputData($foruser, ARG_STRING, 1);
 
-    // make sure user didn't submit a request for an image he
-    // doesn't have access to
-    $resources = getUserResources(array("imageAdmin", "imageCheckOut"));
-    $validImageids = array_keys($resources['image']);
-    if(! in_array($imageid, $validImageids)) {
-        return array('status' => 'error',
-                     'errorcode' => 3,
-                     'errormsg' => "access denied to $imageid");
-    }
+	// make sure user didn't submit a request for an image he 
+	// doesn't have access to
+	$resources = getUserResources(array("imageAdmin", "imageCheckOut"));
+	$validImageids = array_keys($resources['image']);
+	if(! in_array($imageid, $validImageids)) {
+		return array('status' => 'error',
+		             'errorcode' => 3,
+		             'errormsg' => "access denied to $imageid");
+	}
 
-    # validate $start
-    if($start != 'now' && ! is_numeric($start)) {
-        return array('status' => 'error',
-                     'errorcode' => 4,
-                     'errormsg' => "received invalid input for start");
-    }
+	# validate $start
+	if($start != 'now' && ! is_numeric($start)) {
+		return array('status' => 'error',
+		             'errorcode' => 4,
+		             'errormsg' => "received invalid input for start");
+	}
 
-    # validate $length
-    $maxtimes = getUserMaxTimes();
-    if($maxtimes['initial'] < $length) {
-        return array('status' => 'error',
-                     'errorcode' => 6,
-                     'errormsg' => "max allowed initial length is {$maxtimes['initial']} minutes");
-    }
+	# validate $length
+	$maxtimes = getUserMaxTimes();
+	if($maxtimes['initial'] < $length) {
+		return array('status' => 'error',
+		             'errorcode' => 6,
+		             'errormsg' => "max allowed initial length is {$maxtimes['initial']} minutes");
+	}
 
-    $nowfuture = 'future';
-    if($start == 'now') {
-        $start = time();
-        $nowfuture = 'now';
-    }
-    else
-        if($start < (time() - 30))
-            return array('status' => 'error',
-                         'errorcode' => 5,
-                         'errormsg' => "start time is in the past");
-    $start = unixFloor15($start);
-    $end = $start + $length * 60;
-    if($end % (15 * 60))
-        $end = unixFloor15($end) + (15 * 60);
+	$nowfuture = 'future';
+	if($start == 'now') {
+		$start = time();
+		$nowfuture = 'now';
+	}
+	else
+		if($start < (time() - 30))
+			return array('status' => 'error',
+			             'errorcode' => 5,
+			             'errormsg' => "start time is in the past");
+	$start = unixFloor15($start);
+	$end = $start + $length * 60;
+	if($end % (15 * 60))
+		$end = unixFloor15($end) + (15 * 60);
 
-    $max = getMaxOverlap($user['id']);
-    if(checkOverlap($start, $end, $max)) {
-        return array('status' => 'error',
-                     'errorcode' => 7,
-                     'errormsg' => "reservation overlaps with another one you "
-                                 . "have, and you are allowed $max "
-                                 . "overlapping reservations at a time");
-    }
+	$max = getMaxOverlap($user['id']);
+	if(checkOverlap($start, $end, $max)) {
+		return array('status' => 'error',
+		             'errorcode' => 7,
+		             'errormsg' => "reservation overlaps with another one you "
+		                         . "have, and you are allowed $max "
+		                         . "overlapping reservations at a time");
+	}
 
-    $images = getImages();
-    $revisionid = getProductionRevisionid($imageid);
-
-    $query = "SELECT requestid from reservation where oneclickid = $oneclickid AND userid = {$user['id']}";
-	$sq = doQuery($query);
-	
-	if($rowsq = mysql_fetch_row($sq)) {
-		$rc = isAvailable($images, $imageid, $revisionid, $start, $end,$rowsq[0]);
-    } else {
-    	$rc = isAvailable($images, $imageid, $revisionid, $start, $end);
-    }
-    if($rc < 1) {
-        addLogEntry($nowfuture, unixToDatetime($start),
-                    unixToDatetime($end), 0, $imageid);
-        return array('status' => 'notavailable');
-    }
-    $return['requestid']= addRequest($oneclickid);
-    $return['status'] = 'success';
-    return $return;
+	$images = getImages();
+	$revisionid = getProductionRevisionid($imageid);
+	$rc = isAvailable($images, $imageid, $revisionid, $start, $end);
+	if($rc < 1) {
+		addLogEntry($nowfuture, unixToDatetime($start), 
+		            unixToDatetime($end), 0, $imageid);
+		return array('status' => 'notavailable');
+	}
+	if ($oneclickid == '') {
+		$return['requestid']= addRequest(0);
+	} else {
+		$return['requestid']= addRequest($oneclickid);
+	}
+	$return['status'] = 'success';
+	return $return;
 }
-
 ////////////////////////////////////////////////////////////////////////////////
 ///
 /// \fn XMLRPCaddRequestWithEnding($imageid, $start, $end, $foruser)
