@@ -123,6 +123,8 @@ sub process {
 	my $reservation_count     = $self->data->get_reservation_count();
 	my $is_parent_reservation = $self->data->is_parent_reservation();
 	my $request_state_name    = $self->data->get_request_state_name();
+	my $oneclickid	     = $self->data->get_oneclickid();
+
 	
 	if ($request_state_name =~ /reboot|rebootsoft|reboothard/) {
 		notify($ERRORS{'OK'}, 0, "this is a '$request_state_name' request");
@@ -177,6 +179,14 @@ sub process {
 	
 	# Set the user connection timeout limit in minutes
 	my $connect_timeout_limit = 15;
+	
+	# ONECLICK MOD BEGINS
+	my $flag_timeout_warning = 0;
+
+	if ($oneclickid ne -1) {
+		$connect_timeout_limit = 60;
+	}
+	# ONECLICK MOD ENDS
 	
 	# Check if request imaging status has changed
 	# Check if this is an imaging request, causes process to exit if state or laststate = image
@@ -336,7 +346,20 @@ sub process {
 		notify($ERRORS{'OK'}, 0, "end time not yet reached, polling machine for user connection");
 		
 		my $check_connection = $self->os->is_user_connected($connect_timeout_limit);
+
+		# ONECLICK MOD BEGINS
+		my $check_timeout_warning = $self->os->is_user_connected(15);
 		
+		#TEST
+		$check_timeout_warning = 'timeout';
+		$oneclickid = 1;
+		#TEST		
+
+		if ($check_timeout_warning eq "timeout" && !$flag_timeout_warning && $oneclickid ne -1) {
+			$self->_notify_user_before_timeout(45);
+		}
+		# ONECLICK MOD ENDS
+
 		# FOR TESTING
 		#$check_connection = 'timeout';
 		
@@ -759,6 +782,128 @@ EOF
 	
 	return 1;
 } ## end sub _notify_user_endtime
+#/////////////////////////////////////////////////////////////////////////////
+
+# ONECLICK MOD BEGINS
+=head2 _notify_user_before_timeout
+
+ Parameters  : $request_data_hash_reference, $notice_interval
+ Returns     : 1 if successful, 0 otherwise
+ Description : Notifies the user how long they have until the timeout of their
+               request. Based on the user configuration, an e-mail message, IM
+               message, or wall message may be sent. A notice interval string
+               must be passed. Its value should be something like "5 minutes".
+
+=cut
+
+sub _notify_user_before_timeout {
+	my $self            = shift;
+	my $notice_interval = shift;
+	
+	# Check to make sure notice interval is set
+	if (!defined($notice_interval)) {
+		notify($ERRORS{'WARNING'}, 0, "timeout warning message not set, notice interval was not passed");
+		return 0;
+	}
+	
+	my $is_parent_reservation = $self->data->is_parent_reservation();
+	if (!$is_parent_reservation) {
+		notify($ERRORS{'DEBUG'}, 0, "child reservation - not warning user of timeout");
+		return 1;
+	}
+	
+	my $computer_short_name             = $self->data->get_computer_short_name();
+	my $computer_type                   = $self->data->get_computer_type();
+	my $computer_ip_address             = $self->data->get_computer_ip_address();
+	my $image_os_name                   = $self->data->get_image_os_name();
+	my $image_prettyname                = $self->data->get_image_prettyname();
+	my $image_os_type                   = $self->data->get_image_os_type();
+	my $user_affiliation_sitewwwaddress = $self->data->get_user_affiliation_sitewwwaddress();
+	my $user_affiliation_helpaddress    = $self->data->get_user_affiliation_helpaddress();
+	my $user_login_id                   = $self->data->get_user_login_id();
+	my $user_email                      = $self->data->get_user_email();
+	my $user_emailnotices               = $self->data->get_user_emailnotices();
+	my $user_imtype_name                = $self->data->get_user_imtype_name();
+	my $user_im_id                      = $self->data->get_user_im_id();
+	my $request_forimaging 		    = $self->_check_imaging_request();	
+	my $request_id                      = $self->data->get_request_id();
+	
+	my $message;
+	my $subject;
+	my $short_message = "You have $notice_interval until the scheduled timeout of your reservation. VCL Team";
+	
+	$message  = <<"EOF";
+
+You have $notice_interval until the scheduled timeout of your reservation for image $image_prettyname.
+
+Connect to the reservation in order to prevent this timeout.
+
+To edit this reservation:
+-Visit $user_affiliation_sitewwwaddress
+-Select Current Reservations
+
+Thank You,
+VCL Team
+
+
+******************************************************************
+This is an automated notice. If you need assistance please respond 
+with detailed information on the issue and a help ticket will be 
+generated.
+
+To disable email notices
+-Visit $user_affiliation_sitewwwaddress
+-Select User Preferences
+-Select General Preferences
+
+******************************************************************
+EOF
+
+	$subject = "VCL -- $notice_interval until timeout of reservation for $image_prettyname";
+	
+	# Send mail
+	if ($user_emailnotices) {
+		notify($ERRORS{'DEBUG'}, 0, "user $user_login_id email notices enabled - warning user of timeout");
+		mail($user_email, $subject, $message, $user_affiliation_helpaddress);
+	}
+	else {
+		notify($ERRORS{'DEBUG'}, 0, "user $user_login_id email notices disabled - not warning user of timeout");
+	}
+	
+	# Send message to machine
+	if ($computer_type =~ /blade|virtualmachine/) {
+		if ($image_os_type =~ /windows/) {
+			# Notify via windows msg cmd
+			$user_login_id= "administrator" if($request_forimaging);
+			notify_via_msg($computer_short_name, $user_login_id, $short_message);
+		}
+		elsif ($image_os_type =~ /linux/){
+			# Notify via wall
+			notify_via_wall($computer_short_name, $user_login_id, $short_message, $image_os_name, $computer_type);
+		}
+		elsif ($image_os_type =~ /osx/){
+        # Notify via oascript
+        notify_via_oascript($computer_short_name, $user_login_id, $short_message);
+     }
+	} ## end if ($computer_type =~ /blade|virtualmachine/)
+	elsif ($computer_type eq "lab") {
+		# Notify via wall
+		notify_via_wall($computer_ip_address, $user_login_id, $short_message, $image_os_name, $computer_type);
+	}
+	
+	# Send IM
+	if ($user_imtype_name ne "none") {
+		notify($ERRORS{'DEBUG'}, 0, "user $user_login_id IM type: $user_imtype_name - warning user of timeout");
+		notify_via_IM($user_imtype_name, $user_im_id, $message);
+	}
+	else {
+		notify($ERRORS{'DEBUG'}, 0, "user $user_login_id IM type: $user_imtype_name - not warning user of timeout");
+	}
+	
+	return 1;
+} ## end sub _notify_user_before_timeout
+
+# ONECLICK MOD ENDS
 #/////////////////////////////////////////////////////////////////////////////
 
 =head2 _notify_user_disconnect
