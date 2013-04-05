@@ -348,12 +348,7 @@ sub process {
 		my $check_connection = $self->os->is_user_connected($connect_timeout_limit);
 
 		# ONECLICK MOD BEGINS
-		my $check_timeout_warning = $self->os->is_user_connected(15);
-		
-		#TEST
-		$check_timeout_warning = 'timeout';
-		$oneclickid = 1;
-		#TEST		
+		my $check_timeout_warning = $self->os->is_user_connected(15);		
 
 		if ($check_timeout_warning eq "timeout" && !$flag_timeout_warning && $oneclickid ne -1) {
 			$self->_notify_user_before_timeout(45);

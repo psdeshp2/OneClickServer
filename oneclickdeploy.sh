@@ -20,6 +20,8 @@ sudo cp -fR OneClickServer/vcl/package /var/www/html/vcl/package
 sudo cp -f OneClickServer/core/vcl/lib/VCL/inuse.pm /usr/local/vcl/lib/VCL/inuse.pm
 sudo cp -f OneClickServer/core/vcl/lib/VCL/DataStructure.pm /usr/local/vcl/lib/VCL/DataStructure.pm
 
+sudo /etc/init.d/vcld restart
+
 sudo /usr/bin/mysql -u root -f < OneClickServer/oneclickdb.sql
 
 sudo setfacl -Rm user:apache:rwx /var/www/html/vcl/package/temp
