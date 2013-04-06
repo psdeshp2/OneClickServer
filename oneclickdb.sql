@@ -30,15 +30,6 @@ ALTER TABLE oneclick
   DELETE RESTRICT ON UPDATE RESTRICT; 
 
 ALTER TABLE reservation 
-  DROP COLUMN oneclickid; 
-
-ALTER TABLE reservation 
-  DROP COLUMN userid; 
-
-ALTER TABLE request 
-  DROP COLUMN oneclickid; 
-
-ALTER TABLE reservation 
   ADD oneclickid INT(11) after managementnodeid; 
 
 ALTER TABLE reservation 
