@@ -11441,7 +11441,7 @@ sub set_oneclickapp {
 		return 1;
 	}
 
-	my $regedit_command = $system32_path . '/reg.exe ADD \"HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\" /v OneClickDefaultApp /d \"C:\\Windows\\Notepad.exe\" /t REG_SZ';
+	my $regedit_command = $system32_path . '/reg.exe ADD "HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Run" /v OneClickDefaultApp /d "'. $oneclickapp .'" /t REG_SZ /f';
 	my ($reg_add_exit_status, $reg_add_output) = run_ssh_command($computer_node_name, $management_node_keys, $regedit_command);
 
 	if (defined($reg_add_exit_status) && $reg_add_exit_status == 0) {
