@@ -1,11 +1,3 @@
-sudo perl -pi -e 's/PermitRootLogin no/PermitRootLogin yes/g' /etc/ssh/external_sshd_config
-sudo /usr/sbin/sshd -f /etc/ssh/external_sshd_config
-
-sudo passwd root <<EOF
-1Click@VCL
-1Click@VCL
-EOF
-
 sudo yum -qy install git
 
 cd ~
