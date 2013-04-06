@@ -5470,7 +5470,7 @@ sub firewall_enable_rdp_private {
 	# Set the key to allow remote connections whenever enabling RDP
 	# Include this in the SSH command along with the netsh.exe commands rather than calling it separately for faster execution
 	$netsh_command .= $system32_path . '/reg.exe ADD "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server" /t REG_DWORD /v fDenyTSConnections /d 0 /f ; ';
-	
+
 	# Get the public interface name
 	# Add command to disable RDP on public interface if its name is found
 	my $public_interface_name = $self->get_public_interface_name();
@@ -11441,7 +11441,7 @@ sub set_oneclickapp {
 		return 1;
 	}
 
-	my $regedit_command = $system32_path . '/reg.exe ADD \"HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\" /v OneClickDefaultApp /d \"' . $oneclickapp . '\" /t REG_SZ > C:\regerror.log';
+	my $regedit_command = $system32_path . '/reg.exe ADD \"HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\" /v OneClickDefaultApp /d \"C:\\Windows\\Notepad.exe\" /t REG_SZ';
 	my ($reg_add_exit_status, $reg_add_output) = run_ssh_command($computer_node_name, $management_node_keys, $regedit_command);
 
 	if (defined($reg_add_exit_status) && $reg_add_exit_status == 0) {
