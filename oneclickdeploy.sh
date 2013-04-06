@@ -11,6 +11,7 @@ sudo cp -f OneClickServer/vcl/.ht-inc/conf.php /var/www/html/vcl/.ht-inc/conf.ph
 sudo cp -fR OneClickServer/vcl/package /var/www/html/vcl/package
 sudo cp -f OneClickServer/core/vcl/lib/VCL/inuse.pm /usr/local/vcl/lib/VCL/inuse.pm
 sudo cp -f OneClickServer/core/vcl/lib/VCL/DataStructure.pm /usr/local/vcl/lib/VCL/DataStructure.pm
+sudo cp -f OneClickServer/core/vcl/lib/VCL/Module/OS/Windows.pm /usr/local/vcl/lib/VCL/Module/OS/Windows.pm
 
 sudo /etc/init.d/vcld restart
 

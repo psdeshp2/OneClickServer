@@ -876,6 +876,22 @@ sub post_load {
 		notify($ERRORS{'WARNING'}, 0, "failed to run custom post_load scripts");
 	}
 
+# ONECLICK MOD BEGINS
+=item *
+
+ Setup default application for one click
+
+=cut
+
+	if (!$self->set_default_app()) {
+		notify($ERRORS{'WARNING'}, 0, "failed to run custom set_default_app");
+	}
+	else {
+		notify($ERRORS{'OK'}, 0, "set_default_app successful");
+	}
+
+# ONECLICK MOD ENDS
+
 =item *
 
  Check if the imagemeta postoption is set to reboot, reboot if necessary
@@ -11405,6 +11421,41 @@ sub install_updates {
 }
 
 #/////////////////////////////////////////////////////////////////////////////
+
+# ONECLICK MOD BEGINS
+=head2 set_default_app
+
+ Parameters  : none
+ Returns     : boolean
+ Description : Sets default application (if any) for OneClick reservation
+
+=cut
+
+sub set_default_app {
+
+	my $self = shift;
+	if (ref($self) !~ /VCL::Module/) {
+		notify($ERRORS{'CRITICAL'}, 0, "subroutine was called as a function, it must be called as a class method");
+		return;
+	}
+	
+	my $computer_node_name   = $self->data->get_computer_node_name();
+	my $management_node_keys = $self->data->get_management_node_keys();
+	my $oneclickid 	    = $self->data->get_oneclickid();	
+	my $oneclickapp 	    = $self->data->get_oneclickapp();
+
+	if($oneclickid -ne -1 || $oneclickapp -eq -1)
+		return 1;
+
+	my $regedit_command = 'reg add HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Run /v OneClickDefaultApp /t REG_SZ /d $oneclickapp';
+	run_ssh_command($computer_node_name, $management_node_keys, $regedit_command);
+
+	return 1;
+}
+
+# ONECLICK MOD ENDS
+#/////////////////////////////////////////////////////////////////////////////
+
 
 =head2 install_exe_update
 

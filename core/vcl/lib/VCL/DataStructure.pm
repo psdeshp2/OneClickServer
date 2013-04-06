@@ -1227,6 +1227,68 @@ sub get_oneclickid {
 	return $selected_rows[0]{oneclickid};
 } ## end sub get_oneclickid
 
+#/////////////////////////////////////////////////////////////////////////////
+
+=head2 get_oneclickapp
+
+ Parameters  : None
+ Returns     : string
+ Description : 
+
+=cut
+
+sub get_oneclickapp {
+	my $self = shift;
+	my $reservation_id  = $self->get_reservation_id();
+
+	# Create the select statement
+	my $select_statement = "
+	SELECT
+	path
+	FROM
+	oneclick, reservation
+	WHERE
+	reservation.id = $reservation_id
+	AND
+	oneclick.id = reservation.oneclickid
+	";
+
+	# Call the database select subroutine
+	my @selected_rows = database_select($select_statement);
+
+	# Check to make sure 1 row was returned
+	if (scalar @selected_rows == 0) {
+		notify($ERRORS{'WARNING'}, 0, "failed to get oneclick app path for reservation $reservation_id, zero rows were returned from database select");
+		return -1;
+	}
+	elsif (scalar @selected_rows > 1) {
+		notify($ERRORS{'WARNING'}, 0, "failed to get oneclick app path for reservation $reservation_id, " . scalar @selected_rows . " rows were returned from database select");
+		return -1;
+	}
+
+	# Get the single returned row
+	# It contains a hash
+	my $oneclickapp;
+
+	# Return 0 if the column isn't set
+	if (!defined $selected_rows[0]{oneclickapp}) {
+		notify($ERRORS{'OK'}, 0, "oneclick app path is not defined");
+		return -1;
+	}
+	
+	# Make sure we return 0 if remote IP is blank
+	elsif ($selected_rows[0]{oneclickapp} eq '') {
+		notify($ERRORS{'OK'}, 0, "oneclick app path is not set");
+		return -1;
+	}
+	
+	# Set the current value in the request data hash
+	$self->request_data->{reservation}{$reservation_id}{oneclickapp} = $selected_rows[0]{oneclickapp};
+
+	notify($ERRORS{'DEBUG'}, 0, "retrieved oneclick app path for reservation $reservation_id: $selected_rows[0]{oneclickapp}");
+	return $selected_rows[0]{oneclickapp};
+} ## end sub get_oneclickapp 
+
 # ONECLICK MOD - ENDS
 #/////////////////////////////////////////////////////////////////////////////
 
