@@ -1271,22 +1271,22 @@ sub get_oneclickapp {
 	my $oneclickapp;
 
 	# Return 0 if the column isn't set
-	if (!defined $selected_rows[0]{oneclickapp}) {
+	if (!defined $selected_rows[0]{path}) {
 		notify($ERRORS{'OK'}, 0, "oneclick app path is not defined");
 		return -1;
 	}
 	
 	# Make sure we return 0 if remote IP is blank
-	elsif ($selected_rows[0]{oneclickapp} eq '') {
+	elsif ($selected_rows[0]{path} eq '') {
 		notify($ERRORS{'OK'}, 0, "oneclick app path is not set");
 		return -1;
 	}
 	
 	# Set the current value in the request data hash
-	$self->request_data->{reservation}{$reservation_id}{oneclickapp} = $selected_rows[0]{oneclickapp};
+	$self->request_data->{reservation}{$reservation_id}{oneclickapp} = $selected_rows[0]{path};
 
-	notify($ERRORS{'DEBUG'}, 0, "retrieved oneclick app path for reservation $reservation_id: $selected_rows[0]{oneclickapp}");
-	return $selected_rows[0]{oneclickapp};
+	notify($ERRORS{'DEBUG'}, 0, "retrieved oneclick app path for reservation $reservation_id: $selected_rows[0]{path}");
+	return $selected_rows[0]{path};
 } ## end sub get_oneclickapp 
 
 # ONECLICK MOD - ENDS
