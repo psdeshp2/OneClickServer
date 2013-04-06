@@ -11434,14 +11434,27 @@ sub set_oneclickapp {
 	
 	my $computer_node_name   = $self->data->get_computer_node_name();
 	my $management_node_keys = $self->data->get_management_node_keys();
-	my $oneclickapp 	    = $self->data->get_oneclickapp();
+	my $oneclickapp 	     = $self->data->get_oneclickapp();
+	my $system32_path        = $self->get_system32_path() || return;
 
 	if($oneclickapp eq -1) {
 		return 1;
 	}
 
-	my $regedit_command = 'reg add HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Run /v OneClickDefaultApp /t REG_SZ /d $oneclickapp';
-	run_ssh_command($computer_node_name, $management_node_keys, $regedit_command);
+	my $regedit_command = $system32_path . '/reg.exe add HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Run /v OneClickDefaultApp /d ' . $oneclickapp . ' /t REG_SZ /f';
+	my ($reg_add_exit_status, $reg_add_output) = run_ssh_command($computer_node_name, $management_node_keys, $regedit_command);
+
+	if (defined($reg_add_exit_status) && $reg_add_exit_status == 0) {
+		notify($ERRORS{'OK'}, 0, "set registry key to start default application for oneclick");
+	}
+	elsif (defined($reg_add_exit_status)) {
+		notify($ERRORS{'WARNING'}, 0, "failed to set registry key to start default application for oneclick, exit status: $reg_add_exit_status, output:\n@{$reg_add_output}");
+		return 0;
+	}
+	else {
+		notify($ERRORS{'WARNING'}, 0, "failed to run ssh command to set registry key to start default application for oneclick");
+		return;
+	}
 
 	return 1;
 

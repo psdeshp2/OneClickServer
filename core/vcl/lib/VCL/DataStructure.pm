@@ -1268,7 +1268,7 @@ sub get_oneclickapp {
 
 	# Get the single returned row
 	# It contains a hash
-	my $oneclickapp;
+	my $path;
 
 	# Return 0 if the column isn't set
 	if (!defined $selected_rows[0]{path}) {
@@ -1283,7 +1283,7 @@ sub get_oneclickapp {
 	}
 	
 	# Set the current value in the request data hash
-	$self->request_data->{reservation}{$reservation_id}{oneclickapp} = $selected_rows[0]{path};
+	$self->request_data->{reservation}{$reservation_id}{path} = $selected_rows[0]{path};
 
 	notify($ERRORS{'DEBUG'}, 0, "retrieved oneclick app path for reservation $reservation_id: $selected_rows[0]{path}");
 	return $selected_rows[0]{path};
