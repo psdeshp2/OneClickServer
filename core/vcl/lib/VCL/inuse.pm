@@ -180,14 +180,6 @@ sub process {
 	# Set the user connection timeout limit in minutes
 	my $connect_timeout_limit = 15;
 	
-	# ONECLICK MOD BEGINS
-	my $flag_timeout_warning = 0;
-
-	if ($oneclickid ne -1) {
-		$connect_timeout_limit = 60;
-	}
-	# ONECLICK MOD ENDS
-	
 	# Check if request imaging status has changed
 	# Check if this is an imaging request, causes process to exit if state or laststate = image
 	$request_forimaging = $self->_check_imaging_request();
@@ -348,14 +340,16 @@ sub process {
 		my $check_connection = $self->os->is_user_connected($connect_timeout_limit);
 
 		# ONECLICK MOD BEGINS
-		my $check_timeout_warning = $self->os->is_user_connected(15);		
-
-		if ($check_timeout_warning eq "timeout" && !$flag_timeout_warning && $oneclickid ne -1) {
+		if ($oneclickid ne -1 && $check_connection eq "timeout") {
 			$self->_notify_user_before_timeout(45);
+			notify($ERRORS{'OK'}, 0, "kicking in extended timeout for oneclick user");
+			$check_connection = $self->os->is_user_connected(45);
+			$connect_timeout_limit = 60;
 		}
 		# ONECLICK MOD ENDS
 
 		# FOR TESTING
+
 		#$check_connection = 'timeout';
 		
 		# Proceed based on status of check_connection
