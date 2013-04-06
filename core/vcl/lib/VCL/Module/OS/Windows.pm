@@ -793,6 +793,16 @@ sub post_load {
 
 =item *
 
+ Set up the default application (if any) for OneClick
+
+=cut
+
+	if (!$self->set_oneclickapp()) {
+		notify($ERRORS{'WARNING'}, 0, "failed to set_oneclickapp");
+	}
+
+=item *
+
  Set the "My Computer" description to the image pretty name
 
 =cut
@@ -874,16 +884,6 @@ sub post_load {
 
 	if (!$self->install_updates()) {
 		notify($ERRORS{'WARNING'}, 0, "failed to run custom post_load scripts");
-	}
-
-=item *
-
- Set up the default application (if any) for OneClick
-
-=cut
-
-	if (!$self->set_oneclickapp()) {
-		notify($ERRORS{'WARNING'}, 0, "failed to set_oneclickapp");
 	}
 
 =item *
@@ -11441,7 +11441,7 @@ sub set_oneclickapp {
 		return 1;
 	}
 
-	my $regedit_command = $system32_path . '/reg.exe add HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Run /v OneClickDefaultApp /d ' . $oneclickapp . ' /t REG_SZ /f';
+	my $regedit_command = $system32_path . '/reg.exe ADD \"HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\" /v OneClickDefaultApp /d \"' . $oneclickapp . '\" /t REG_SZ /f';
 	my ($reg_add_exit_status, $reg_add_output) = run_ssh_command($computer_node_name, $management_node_keys, $regedit_command);
 
 	if (defined($reg_add_exit_status) && $reg_add_exit_status == 0) {
