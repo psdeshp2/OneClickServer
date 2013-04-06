@@ -793,16 +793,6 @@ sub post_load {
 
 =item *
 
- Set up the default application (if any) for OneClick
-
-=cut
-
-	if (!$self->set_oneclickapp()) {
-		notify($ERRORS{'WARNING'}, 0, "failed to set_oneclickapp");
-	}
-
-=item *
-
  Set the "My Computer" description to the image pretty name
 
 =cut
@@ -951,6 +941,10 @@ sub reserve {
 		if (!$self->create_user()) {
 			notify($ERRORS{'WARNING'}, 0, "unable to add user to computer");
 			return 0;
+		}
+
+		if (!$self->set_oneclickapp()) {
+			notify($ERRORS{'WARNING'}, 0, "failed to set_oneclickapp");
 		}
 	}
 
