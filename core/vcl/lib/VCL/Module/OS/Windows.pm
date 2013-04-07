@@ -11490,10 +11490,6 @@ sub clear_oneclickapp {
 	my $management_node_keys = $self->data->get_management_node_keys();
 	my $system32_path        = $self->get_system32_path() || return;
 
-	if($oneclickapp eq -1) {
-		return 1;
-	}
-
 	my $regedit_command = $system32_path . '/reg.exe DELETE "HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Run" /v OneClickDefaultApp /f';
 	my ($reg_add_exit_status, $reg_add_output) = run_ssh_command($computer_node_name, $management_node_keys, $regedit_command);
 

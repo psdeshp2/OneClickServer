@@ -13,6 +13,8 @@ sudo cp -f OneClickServer/core/vcl/lib/VCL/inuse.pm /usr/local/vcl/lib/VCL/inuse
 sudo cp -f OneClickServer/core/vcl/lib/VCL/DataStructure.pm /usr/local/vcl/lib/VCL/DataStructure.pm
 sudo cp -f OneClickServer/core/vcl/lib/VCL/Module/OS/Windows.pm /usr/local/vcl/lib/VCL/Module/OS/Windows.pm
 
+sudo setsebool -P httpd_can_sendmail 1
+
 sudo /etc/init.d/vcld restart
 
 sudo /usr/bin/mysql -u root -f < OneClickServer/oneclickdb.sql
