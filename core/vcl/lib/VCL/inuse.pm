@@ -341,7 +341,7 @@ sub process {
 
 		# ONECLICK MOD BEGINS
 		if ($oneclickid ne -1 && $check_connection eq "timeout") {
-			$self->_notify_user_before_timeout(45);
+			$self->_notify_user_before_timeout("45 minutes");
 			notify($ERRORS{'OK'}, 0, "kicking in extended timeout for oneclick user");
 			$check_connection = $self->os->is_user_connected(45);
 			$connect_timeout_limit = 60;
