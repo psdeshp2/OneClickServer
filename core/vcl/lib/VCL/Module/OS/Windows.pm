@@ -11444,6 +11444,8 @@ sub set_oneclickapp {
 	my $oneclickapp 	     = $self->data->get_oneclickapp();
 	my $system32_path        = $self->get_system32_path() || return;
 
+	$oneclickapp =~ s/\\/\\\\/g;
+
 	if($oneclickapp eq -1) {
 		return 1;
 	}
