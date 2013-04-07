@@ -942,10 +942,14 @@ sub reserve {
 			notify($ERRORS{'WARNING'}, 0, "unable to add user to computer");
 			return 0;
 		}
+		
+		# ONECLICK MOD BEGINS
 
 		if (!$self->set_oneclickapp()) {
 			notify($ERRORS{'WARNING'}, 0, "failed to set_oneclickapp");
 		}
+		
+		# ONECLICK MOD ENDS
 	}
 
 	notify($ERRORS{'OK'}, 0, "returning 1");
@@ -1028,6 +1032,15 @@ sub sanitize {
 		notify($ERRORS{'WARNING'}, 0, "failed to delete user from $computer_node_name");
 		return 0;
 	}
+
+	# ONECLICK MOD BEGINS
+
+	if (!$self->clear_oneclickapp()) {
+		notify($ERRORS{'WARNING'}, 0, "failed to clear_oneclickapp");
+	}
+	
+	# ONECLICK MOD ENDS
+
 
 	notify($ERRORS{'OK'}, 0, "$computer_node_name has been sanitized");
 	return 1;
@@ -11409,12 +11422,12 @@ sub install_updates {
 }
 
 #/////////////////////////////////////////////////////////////////////////////
-
+# ONECLICK MOD BEGINS
 =head2 set_oneclickapp
 
  Parameters  : none
- Returns     : boolean
- Description : Setup oneclick app
+ Returns     : 0 if failed, if successful
+ Description : Setup the default application (if any) to launch at startup for a OneClick reservation
 
 =cut
 
@@ -11440,6 +11453,7 @@ sub set_oneclickapp {
 
 	if (defined($reg_add_exit_status) && $reg_add_exit_status == 0) {
 		notify($ERRORS{'OK'}, 0, "set registry key to start default application for oneclick");
+		return 1;
 	}
 	elsif (defined($reg_add_exit_status)) {
 		notify($ERRORS{'WARNING'}, 0, "failed to set registry key to start default application for oneclick, exit status: $reg_add_exit_status, output:\n@{$reg_add_output}");
@@ -11447,13 +11461,56 @@ sub set_oneclickapp {
 	}
 	else {
 		notify($ERRORS{'WARNING'}, 0, "failed to run ssh command to set registry key to start default application for oneclick");
-		return;
+		return 0;
 	}
-
-	return 1;
 
 }
 
+#/////////////////////////////////////////////////////////////////////////////
+
+=head2 clear_oneclickapp
+
+ Parameters  : none
+ Returns     : 0 if failed, if successful
+ Description : Clear the default application (if any) that is configured to launch at startup for a OneClick reservation
+
+=cut
+
+sub clear_oneclickapp {
+
+	my $self = shift;
+	if (ref($self) !~ /VCL::Module/) {
+		notify($ERRORS{'CRITICAL'}, 0, "subroutine was called as a function, it must be called as a class method");
+		return;
+	}
+	
+	my $computer_node_name   = $self->data->get_computer_node_name();
+	my $management_node_keys = $self->data->get_management_node_keys();
+	my $system32_path        = $self->get_system32_path() || return;
+
+	if($oneclickapp eq -1) {
+		return 1;
+	}
+
+	my $regedit_command = $system32_path . '/reg.exe DELETE "HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Run" /v OneClickDefaultApp /f';
+	my ($reg_add_exit_status, $reg_add_output) = run_ssh_command($computer_node_name, $management_node_keys, $regedit_command);
+
+	if (defined($reg_add_exit_status) && $reg_add_exit_status == 0) {
+		notify($ERRORS{'OK'}, 0, "cleared registry key to start default application for oneclick");
+		return 1;
+	}
+	elsif (defined($reg_add_exit_status)) {
+		notify($ERRORS{'WARNING'}, 0, "failed to clear registry key to start default application for oneclick, exit status: $reg_add_exit_status, output:\n@{$reg_add_output}");
+		return 0;
+	}
+	else {
+		notify($ERRORS{'WARNING'}, 0, "failed to clear ssh command to set registry key to start default application for oneclick");
+		return 0;
+	}
+
+}
+
+# ONECLICK MOD ENDS
 
 #/////////////////////////////////////////////////////////////////////////////
 
