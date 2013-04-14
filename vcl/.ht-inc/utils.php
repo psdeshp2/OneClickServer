@@ -5620,6 +5620,7 @@ function getUserRequests($type, $id=0) {
 	       .        "rq.id, "
 	       .        "o.prettyname AS OS, "
 	       .        "o.installtype AS OSinstalltype, "
+	       .        "o.type AS ostype,"
 	       .        "rq.stateid AS currstateid, "
 	       .        "rq.laststateid, "
 	       .        "rs.computerid, "

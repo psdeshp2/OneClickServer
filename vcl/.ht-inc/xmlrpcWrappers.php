@@ -3246,7 +3246,7 @@ function XMLRPCgetOneClicks() {
 
     $query = "SELECT oneclick.id oneclickid, oneclick.userid userid, oneclick.imageid imageid, image.prettyname imagename,
             OS.`type` ostype, oneclick.name name, oneclick.duration duration,
-            oneclick.autologin autologin
+            oneclick.autologin autologin,oneclick.path path
         FROM oneclick JOIN image on oneclick.imageid=image.id
             JOIN OS on image.OSid=OS.id
         WHERE oneclick.status=1 AND userid={$user['id']} ORDER BY name ASC";
@@ -3269,7 +3269,8 @@ function XMLRPCgetOneClicks() {
             'imagename' => $row['imagename'],
             'ostype' => $row['ostype'],
             'duration' => $row['duration']+0,
-            'autologin' => $row['autologin']+0);
+            'autologin' => $row['autologin']+0,
+            'path' => $row['path']);
         $row = @mysql_fetch_assoc($qh);
     }
     return $result;
@@ -3337,7 +3338,7 @@ function XMLRPCgetOneClickParams($oneclickid) {
 }
 
 
-function XMLRPCaddOneClick($name, $imageid, $duration, $autologin) {
+function XMLRPCaddOneClick($name, $imageid, $duration, $autologin,$path) {
     global $user;
     if(! in_array('oneClick', $user['privileges'])) {
         return array('status' => 'error',
@@ -3350,6 +3351,8 @@ function XMLRPCaddOneClick($name, $imageid, $duration, $autologin) {
     $name = processInputData($name, ARG_STRING);
     $duration = processInputData($duration, ARG_NUMERIC);
     $autologin = processInputData($autologin, ARG_NUMERIC) == 1 ? 1 : 0;
+    $path = processInputData($path, ARG_STRING);
+    $path = str_replace('\\','\\\\' , $path);
     //connect to the database to insert one button entry
     //dbConnect();
     $query = "INSERT INTO oneclick"
@@ -3358,14 +3361,15 @@ function XMLRPCaddOneClick($name, $imageid, $duration, $autologin) {
             . "name, "
             . "duration, "
             . "autologin, "
-            . "status) "
+            . "status, "
+            . "path) "
             . "VALUES "
             . "($userid, "
             . "$imageid, "
             . "'$name', "
             . "$duration, "
             . "$autologin, "
-            . "1) ";
+            . "1,'$path') ";
     $qh = doQuery($query, 101);
     if(!$qh) {
         return array('status' => 'error',
@@ -3401,7 +3405,7 @@ function XMLRPCdeleteOneClick($oneclickid) {
     return $return;
 }
 
-function XMLRPCeditOneClick($oneclickid, $name, $imageid, $duration, $autologin) {
+function XMLRPCeditOneClick($oneclickid, $name, $imageid, $duration, $autologin,$path) {
     global $user;
     if(! in_array('oneClick', $user['privileges'])) {
         return array('status' => 'error',
@@ -3414,6 +3418,8 @@ function XMLRPCeditOneClick($oneclickid, $name, $imageid, $duration, $autologin)
     $name = processInputData($name, ARG_STRING);
     $duration = processInputData($duration, ARG_NUMERIC);
     $autologin = processInputData($autologin, ARG_NUMERIC) == 1 ? 1 : 0;
+    $path = processInputData($path, ARG_STRING);
+    $path = str_replace('\\','\\\\' , $path);
     //print_r($user['privileges']);
 
     $query = "SELECT oneclick.id id, oneclick.userid userid FROM oneclick WHERE oneclick.id={$oneclickid} AND oneclick.status=1";
@@ -3435,7 +3441,8 @@ function XMLRPCeditOneClick($oneclickid, $name, $imageid, $duration, $autologin)
     . "imageid={$imageid}, "
     . "name='$name', "
     . "duration=$duration, "
-    . "autologin=$autologin "
+    . "autologin=$autologin, "
+    . "path='$path' "
     . "WHERE id={$oneclickid} AND userid={$userid}";
     $qh = doQuery($query, 101);
     if(!$qh) {
