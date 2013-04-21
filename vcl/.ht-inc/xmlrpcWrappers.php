@@ -3338,7 +3338,7 @@ function XMLRPCgetOneClickParams($oneclickid) {
 }
 
 
-function XMLRPCaddOneClick($name, $imageid, $duration, $autologin,$path) {
+function XMLRPCaddOneClick($name, $imageid, $duration, $autologin,$path='') {
     global $user;
     if(! in_array('oneClick', $user['privileges'])) {
         return array('status' => 'error',

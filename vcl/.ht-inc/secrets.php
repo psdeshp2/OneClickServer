@@ -25,4 +25,5 @@ $mcryptkey = '0981y2h5puasd098hgp123n5p9q8wydufpoiu1h235piu3wr';  # random passw
 $mcryptiv = '8f375d0a'; // must be 8 hex chars
 
 $pemkey = '098b12p5kjbqosdi7fo1k2jh5pq8ysd0f9h123p5huqw98efr'; # random passphrase - same as given to genkeys.sh - should be long
+$jarpass = 'oneclickadmin';
 ?>
