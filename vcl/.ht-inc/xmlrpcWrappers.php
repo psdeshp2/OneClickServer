@@ -3377,7 +3377,15 @@ function XMLRPCaddOneClick($name, $imageid, $duration, $autologin,$path='') {
             'errormsg' => "Unable to create OneClick.");
     }
     $return = array();
-   // $return['oneclickid']= @mysql_insert_id($qh);
+    $qh = doQuery("SELECT LAST_INSERT_ID()", 101);
+    if(!$row = mysql_fetch_row($qh)){
+                return array('status' => 'error',
+                              'errorcode' => 1,
+				              'errormsg' => "Unable to create OneClick.");
+    }
+
+//    $return['oneclickid']= @mysql_insert_id($qh);
+	$return['oneclickid'] = $row[0];
     $return['status'] = 'success';
     return $return;
 }
