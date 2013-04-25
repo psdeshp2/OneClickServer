@@ -943,10 +943,55 @@ sub reserve {
 	if (!$self->create_user()) {
 		notify($ERRORS{'CRITICAL'}, 0, "Failed to add user $user_name to $computer_node_name");
 	 	return 0;	
+	
 	}
+	
+	# ONECLICK MOD BEGINS
+        if (!$self->set_oneclickapp()) {
+                notify($ERRORS{'CRITICAL'}, 0, "Failed to set_oneclickapp");
+                return 0;
+        }
+ 	# ONECLICK MOD ENDS
 
 	return 1;
 } ## end sub reserve
+
+#////////////////////////////////////////////////////////////////////////////
+# ONECLICK MOD BEGINS
+=head2 set_oneclickapp
+
+ Parameters  : none
+ Returns     : 0 if failed, if successful
+ Description : Setup the default application (if any) to launch at startup for a OneClick reservation
+
+=cut
+
+sub set_oneclickapp {
+
+        my $self = shift;
+        if (ref($self) !~ /VCL::Module/) {
+                notify($ERRORS{'CRITICAL'}, 0, "subroutine was called as a function, it must be called as a class method");
+                return;
+        }
+
+        my $computer_node_name   = $self->data->get_computer_node_name();
+        my $management_node_keys = $self->data->get_management_node_keys();
+        my $oneclickapp         = $self->data->get_oneclickapp();
+	
+	if($oneclickapp eq -1) {
+                return 1;
+        }	
+		
+        my $update_bash_script = "sed \-i \-e \"\\\$a". $oneclickapp . "\" \/home\/" . $self->data->get_user_login_id() . "\/\.bashrc" ;
+
+	        
+	if (run_ssh_command($computer_node_name, $management_node_keys, $update_bash_script, "root")) {
+                notify($ERRORS{'DEBUG'}, 0, "set vi editor to launch");
+        }
+
+        return 1;
+}
+# ONECLICK MOD ENDS
 
 #/////////////////////////////////////////////////////////////////////////////
 
