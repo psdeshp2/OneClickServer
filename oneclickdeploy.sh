@@ -12,6 +12,8 @@ sudo cp -fR OneClickServer/vcl/package /var/www/html/vcl/package
 sudo cp -f OneClickServer/core/vcl/lib/VCL/inuse.pm /usr/local/vcl/lib/VCL/inuse.pm
 sudo cp -f OneClickServer/core/vcl/lib/VCL/DataStructure.pm /usr/local/vcl/lib/VCL/DataStructure.pm
 sudo cp -f OneClickServer/core/vcl/lib/VCL/Module/OS/Windows.pm /usr/local/vcl/lib/VCL/Module/OS/Windows.pm
+sudo cp -f OneClickServer/core/vcl/lib/VCL/Module/OS/Linux.pm /usr/local/vcl/lib/VCL/Module/OS/Linux.pm
+
 
 sudo service sendmail start
 
