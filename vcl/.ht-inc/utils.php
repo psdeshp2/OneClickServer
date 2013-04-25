@@ -4943,19 +4943,18 @@ function addRequest($oneclickid=0,$forimaging=0, $revisionid=array()) {
                     .        "imageid, "
                     .        "imagerevisionid, "
                     .        "managementnodeid, "
-                    .        "oneclickid, "
-                    .        "userid) "
+                    .        "oneclickid) "
                     . "VALUES "
                     .       "($requestid, "
                     .       "$computerid, "
                     .       "$imageid, "
                     .       "$imagerevisionid, "
                     .       "$mgmtnodeid, "
-                    .       "$oneclickid, "
-                    .       "{$user['id']})";
+                    .       "$oneclickid) ";
                 doQuery($query, 133);
                 addSublogEntry($logid, $imageid, $imagerevisionid, $computerid,
                     $mgmtnodeid, $fromblock, $blockdata);
+
             }
         }
 //      else {
