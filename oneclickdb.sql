@@ -35,8 +35,4 @@ ALTER TABLE `reservation`
 
 ALTER TABLE `reservation` 
   ADD CONSTRAINT `oneclickfkey` FOREIGN KEY (`oneclickid`) REFERENCES `oneclick` (`id`) 
-  ON UPDATE CASCADE ON DELETE SET NULL; 
-
-ALTER TABLE `reservation` 
-  ADD CONSTRAINT `useridfkey` FOREIGN KEY (`userid`) REFERENCES `user` (`id`) ON UPDATE 
-  CASCADE ON DELETE SET NULL;
+  ON UPDATE CASCADE ON DELETE SET NULL;
