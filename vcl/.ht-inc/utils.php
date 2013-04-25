@@ -21,7 +21,7 @@ require_once(".ht-inc/secrets.php");
 require_once(".ht-inc/authentication.php");
 require_once(".ht-inc/phpseclib/Crypt/AES.php");
 if(file_exists(".ht-inc/vcldocs.php"))
-	require_once(".ht-inc/vcldocs.php");
+    require_once(".ht-inc/vcldocs.php");
 
 /**
  * \file
@@ -61,264 +61,264 @@ $printedHTMLheader = 0;
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function initGlobals() {
-	global $mode, $user, $remoteIP, $authed, $oldmode, $semid;
-	global $semislocked, $days, $phpVer, $keys, $pemkey, $AUTHERROR;
-	global $passwdArray, $skin, $contdata, $lastmode, $inContinuation;
-	global $totalQueries, $ERRORS, $queryTimes, $actions;
-	global $affilValFunc, $addUserFunc, $updateUserFunc, $addUserFuncArgs;
+    global $mode, $user, $remoteIP, $authed, $oldmode, $semid;
+    global $semislocked, $days, $phpVer, $keys, $pemkey, $AUTHERROR;
+    global $passwdArray, $skin, $contdata, $lastmode, $inContinuation;
+    global $totalQueries, $ERRORS, $queryTimes, $actions;
+    global $affilValFunc, $addUserFunc, $updateUserFunc, $addUserFuncArgs;
 
-	define("SECINDAY", 86400);
-	define("SECINWEEK", 604800);
-	define("SECINMONTH", 2678400);
-	define("SECINYEAR", 31536000);
-	$mode = processInputVar("mode", ARG_STRING, 'main');
-	$totalQueries = 0;
-	$inContinuation = 0;
-	$contdata = array();
-	$queryTimes = array();
-	$contuserid = '';
-	$continuation = processInputVar('continuation', ARG_STRING);
-	if(! empty($continuation)) {
-		# TODO handle AJ errors
-		$tmp = getContinuationsData($continuation);
-		if(empty($tmp))
-			abort(11);
-		elseif(array_key_exists('error', $tmp)) {
-			$mode = "continuationsError";
-			$contdata = $tmp;
-		}
-		else {
-			$inContinuation = 1;
-			$contuserid = $tmp['userid'];
-			$lastmode = $tmp['frommode'];
-			$mode = $tmp['nextmode'];
-			$contdata = $tmp['data'];
-		}
-	}
-	$submitErr = 0;
-	$submitErrMsg = array();
-	$remoteIP = $_SERVER["REMOTE_ADDR"];
-	$days = array(_('Sunday'), _('Monday'), _('Tuesday'), _('Wednesday'), _('Thursday'), _('Friday'), _('Saturday'));
-	$phpVerArr = explode('.', phpversion());
-	$phpVer = $phpVerArr[0];
+    define("SECINDAY", 86400);
+    define("SECINWEEK", 604800);
+    define("SECINMONTH", 2678400);
+    define("SECINYEAR", 31536000);
+    $mode = processInputVar("mode", ARG_STRING, 'main');
+    $totalQueries = 0;
+    $inContinuation = 0;
+    $contdata = array();
+    $queryTimes = array();
+    $contuserid = '';
+    $continuation = processInputVar('continuation', ARG_STRING);
+    if(! empty($continuation)) {
+        # TODO handle AJ errors
+        $tmp = getContinuationsData($continuation);
+        if(empty($tmp))
+            abort(11);
+        elseif(array_key_exists('error', $tmp)) {
+            $mode = "continuationsError";
+            $contdata = $tmp;
+        }
+        else {
+            $inContinuation = 1;
+            $contuserid = $tmp['userid'];
+            $lastmode = $tmp['frommode'];
+            $mode = $tmp['nextmode'];
+            $contdata = $tmp['data'];
+        }
+    }
+    $submitErr = 0;
+    $submitErrMsg = array();
+    $remoteIP = $_SERVER["REMOTE_ADDR"];
+    $days = array(_('Sunday'), _('Monday'), _('Tuesday'), _('Wednesday'), _('Thursday'), _('Friday'), _('Saturday'));
+    $phpVerArr = explode('.', phpversion());
+    $phpVer = $phpVerArr[0];
 
-	$passwdArray = array('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K',
-	                     'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V',
-	                     'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g',
-	                     'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r',
-	                     's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '1', '2', '3',
-	                     '4', '5', '6', '7', '8', '9', '0');
+    $passwdArray = array('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K',
+        'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V',
+        'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g',
+        'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r',
+        's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '1', '2', '3',
+        '4', '5', '6', '7', '8', '9', '0');
 
-	if(array_key_exists('VCLAUTH', $_COOKIE) || $mode == 'submitLogin') {
-		// open keys
-		$fp = fopen(".ht-inc/keys.pem", "r");
-		$key = fread($fp, 8192);
-		fclose($fp);
-		$keys["private"] = openssl_pkey_get_private($key, $pemkey);
-		if(! $keys['private'])
-			abort(6);
-		$fp = fopen(".ht-inc/pubkey.pem", "r");
-		$key = fread($fp, 8192);
-		fclose($fp);
-		$keys["public"] = openssl_pkey_get_public($key);
-		if(! $keys['public'])
-			abort(7);
-	}
+    if(array_key_exists('VCLAUTH', $_COOKIE) || $mode == 'submitLogin') {
+        // open keys
+        $fp = fopen(".ht-inc/keys.pem", "r");
+        $key = fread($fp, 8192);
+        fclose($fp);
+        $keys["private"] = openssl_pkey_get_private($key, $pemkey);
+        if(! $keys['private'])
+            abort(6);
+        $fp = fopen(".ht-inc/pubkey.pem", "r");
+        $key = fread($fp, 8192);
+        fclose($fp);
+        $keys["public"] = openssl_pkey_get_public($key);
+        if(! $keys['public'])
+            abort(7);
+    }
 
-	# USING A SINGLE USER WITHOUT LOGGING IN:
-	# to automatically log in to vcl with the same user
-	# every time, comment out from this comment block to
-	# the 'end auth check' comment, then, right after
-	# that, set $authed = 1 and $userid to the id from
-	# the user table corresponding to the user you want
-	# logged in
+    # USING A SINGLE USER WITHOUT LOGGING IN:
+    # to automatically log in to vcl with the same user
+    # every time, comment out from this comment block to
+    # the 'end auth check' comment, then, right after
+    # that, set $authed = 1 and $userid to the id from
+    # the user table corresponding to the user you want
+    # logged in
 
-	# start auth check
-	$authed = 0;
-	if(array_key_exists("VCLAUTH", $_COOKIE)) {
-		$userid = readAuthCookie();
-		if(! is_null($userid))
-			$authed = 1;
-	}
-	elseif(preg_match('/_shibsession/', join(',', array_keys($_COOKIE)))) {
-		# redirect to shibauth directory
-		header('Location: ' . BASEURL . "/shibauth/");
-		dbDisconnect();
-		exit;
-	}
-	# end auth check
+    # start auth check
+    $authed = 0;
+    if(array_key_exists("VCLAUTH", $_COOKIE)) {
+        $userid = readAuthCookie();
+        if(! is_null($userid))
+            $authed = 1;
+    }
+    elseif(preg_match('/_shibsession/', join(',', array_keys($_COOKIE)))) {
+        # redirect to shibauth directory
+        header('Location: ' . BASEURL . "/shibauth/");
+        dbDisconnect();
+        exit;
+    }
+    # end auth check
 
-	if($authed && $mode == 'selectauth')
-		$mode = 'home';
+    if($authed && $mode == 'selectauth')
+        $mode = 'home';
 
-	if(! $authed) {
-		# set $skin based on cookie (so it gets set before user logs in
-		#   later, we set it by affiliation (helps with 'view as user')
-		if(preg_match('/^152\.9\./', $_SERVER['REMOTE_ADDR']) ||
-			(array_key_exists('VCLSKIN', $_COOKIE) && $_COOKIE['VCLSKIN'] == 'EXAMPLE1')) {
-			$skin = 'example1';
-		}
-		elseif(array_key_exists('VCLSKIN', $_COOKIE)) {
-			switch($_COOKIE['VCLSKIN']) {
-				case 'EXAMPLE2':
-					$skin = 'example2';
-					break;
-				default:
-					$skin = DEFAULTTHEME;
-					break;
-			}
-		}
-		else
-			$skin = DEFAULTTHEME;
-		if($mode != 'selectauth' && $mode != 'submitLogin')
-			require_once("themes/$skin/page.php");
+    if(! $authed) {
+        # set $skin based on cookie (so it gets set before user logs in
+        #   later, we set it by affiliation (helps with 'view as user')
+        if(preg_match('/^152\.9\./', $_SERVER['REMOTE_ADDR']) ||
+            (array_key_exists('VCLSKIN', $_COOKIE) && $_COOKIE['VCLSKIN'] == 'EXAMPLE1')) {
+            $skin = 'example1';
+        }
+        elseif(array_key_exists('VCLSKIN', $_COOKIE)) {
+            switch($_COOKIE['VCLSKIN']) {
+                case 'EXAMPLE2':
+                    $skin = 'example2';
+                    break;
+                default:
+                    $skin = DEFAULTTHEME;
+                    break;
+            }
+        }
+        else
+            $skin = DEFAULTTHEME;
+        if($mode != 'selectauth' && $mode != 'submitLogin')
+            require_once("themes/$skin/page.php");
 
-		require_once(".ht-inc/requests.php");
-		if($mode != "logout" &&
-			$mode != "shiblogout" &&
-			$mode != "xmlrpccall" &&
-			$mode != "xmlrpcaffiliations" &&
-			$mode != "selectauth" &&
-			$mode != "submitLogin" &&
-			$mode != "changeLocale") {
-			$oldmode = $mode;
-			$mode = "auth";
-		}
-		if($mode == 'xmlrpccall' || $mode == 'xmlrpcaffiliations') {
-			// get the semaphore id
-			if(! ($semid = sem_get(SEMKEY, 1, 0666, 1)))
-				abort(2);
-			$semislocked = 0;
-			require_once(".ht-inc/xmlrpcWrappers.php");
-			require_once(".ht-inc/requests.php");
-			require_once(".ht-inc/serverprofiles.php");
-			require_once(".ht-inc/groups.php");
-			setupSession();
-		}
-		return;
-	}
-	setupSession();
-	if(array_key_exists('user', $_SESSION)) {
-		$user = $_SESSION['user'];
-		if(! empty($contuserid) &&
-		   $user['id'] != $contuserid)
-			abort(51);
-	}
-	else {
-		# get info about user
-		if(! $user = getUserInfo($userid)) {
-			// if first call to getUserInfo fails, try calling with $noupdate set
-			if(! $user = getUserInfo($userid, 1)) {
-				$ERRORS[1] = _("Failed to get user info from database.  userid was ") . "$userid";
-				abort(1);
-			}
-		}
-		if(! empty($contuserid) &&
-		   $user['id'] != $contuserid)
-			abort(51);
-		$_SESSION['user'] = $user;
-	}
+        require_once(".ht-inc/requests.php");
+        if($mode != "logout" &&
+            $mode != "shiblogout" &&
+            $mode != "xmlrpccall" &&
+            $mode != "xmlrpcaffiliations" &&
+            $mode != "selectauth" &&
+            $mode != "submitLogin" &&
+            $mode != "changeLocale") {
+            $oldmode = $mode;
+            $mode = "auth";
+        }
+        if($mode == 'xmlrpccall' || $mode == 'xmlrpcaffiliations') {
+            // get the semaphore id
+            if(! ($semid = sem_get(SEMKEY, 1, 0666, 1)))
+                abort(2);
+            $semislocked = 0;
+            require_once(".ht-inc/xmlrpcWrappers.php");
+            require_once(".ht-inc/requests.php");
+            require_once(".ht-inc/serverprofiles.php");
+            require_once(".ht-inc/groups.php");
+            setupSession();
+        }
+        return;
+    }
+    setupSession();
+    if(array_key_exists('user', $_SESSION)) {
+        $user = $_SESSION['user'];
+        if(! empty($contuserid) &&
+            $user['id'] != $contuserid)
+            abort(51);
+    }
+    else {
+        # get info about user
+        if(! $user = getUserInfo($userid)) {
+            // if first call to getUserInfo fails, try calling with $noupdate set
+            if(! $user = getUserInfo($userid, 1)) {
+                $ERRORS[1] = _("Failed to get user info from database.  userid was ") . "$userid";
+                abort(1);
+            }
+        }
+        if(! empty($contuserid) &&
+            $user['id'] != $contuserid)
+            abort(51);
+        $_SESSION['user'] = $user;
+    }
 
-	# setskin
-	$skin = getAffiliationTheme($user['affiliationid']);
-	require_once("themes/$skin/page.php");
+    # setskin
+    $skin = getAffiliationTheme($user['affiliationid']);
+    require_once("themes/$skin/page.php");
 
-	$_SESSION['mode'] = $mode;
+    $_SESSION['mode'] = $mode;
 
-	// check for and possibly clear dirty permission cache
-	$dontClearModes = array('AJchangeUserPrivs', 'AJchangeUserGroupPrivs', 'AJchangeResourcePrivs');
-	if(! in_array($mode, $dontClearModes) &&
-	   array_key_exists('dirtyprivs', $_SESSION) &&
-	   $_SESSION['dirtyprivs']) {
-		clearPrivCache();
-		$_SESSION['dirtyprivs'] = 0;
-	}
+    // check for and possibly clear dirty permission cache
+    $dontClearModes = array('AJchangeUserPrivs', 'AJchangeUserGroupPrivs', 'AJchangeResourcePrivs');
+    if(! in_array($mode, $dontClearModes) &&
+        array_key_exists('dirtyprivs', $_SESSION) &&
+        $_SESSION['dirtyprivs']) {
+        clearPrivCache();
+        $_SESSION['dirtyprivs'] = 0;
+    }
 
-	# set up $affilValFunc, $addUserFunc, $updateUserFunc for any shibonly affiliations
-	$query = "SELECT id FROM affiliation WHERE shibonly = 1";
-	$qh = doQuery($query);
-	while($row = mysql_fetch_assoc($qh)) {
-		$id = $row['id'];
-		if(! array_key_exists($id, $affilValFunc)) {
-			if(ALLOWADDSHIBUSERS)
-				$affilValFunc[$id] = create_function('', 'return 1;');
-			else
-				$affilValFunc[$id] = create_function('', 'return 0;');
-		}
-		if(! array_key_exists($id, $addUserFunc)) {
-			if(ALLOWADDSHIBUSERS) {
-				$addUserFunc[$id] = 'addShibUserStub';
-				$addUserFuncArgs[$id] = $id;
-			}
-			else
-				$addUserFunc[$id] = create_function('', 'return 0;');
-		}
-		if(! array_key_exists($id, $updateUserFunc))
-			$updateUserFunc[$id] = create_function('', 'return NULL;');
-	}
+    # set up $affilValFunc, $addUserFunc, $updateUserFunc for any shibonly affiliations
+    $query = "SELECT id FROM affiliation WHERE shibonly = 1";
+    $qh = doQuery($query);
+    while($row = mysql_fetch_assoc($qh)) {
+        $id = $row['id'];
+        if(! array_key_exists($id, $affilValFunc)) {
+            if(ALLOWADDSHIBUSERS)
+                $affilValFunc[$id] = create_function('', 'return 1;');
+            else
+                $affilValFunc[$id] = create_function('', 'return 0;');
+        }
+        if(! array_key_exists($id, $addUserFunc)) {
+            if(ALLOWADDSHIBUSERS) {
+                $addUserFunc[$id] = 'addShibUserStub';
+                $addUserFuncArgs[$id] = $id;
+            }
+            else
+                $addUserFunc[$id] = create_function('', 'return 0;');
+        }
+        if(! array_key_exists($id, $updateUserFunc))
+            $updateUserFunc[$id] = create_function('', 'return NULL;');
+    }
 
-	// get the semaphore id
-	if(! ($semid = sem_get(SEMKEY, 1, 0666, 1)))
-		abort(2);
-	$semislocked = 0;
+    // get the semaphore id
+    if(! ($semid = sem_get(SEMKEY, 1, 0666, 1)))
+        abort(2);
+    $semislocked = 0;
 
-	# include appropriate files
-	switch($actions['pages'][$mode]) {
-		case 'blockAllocations':
-			require_once(".ht-inc/blockallocations.php");
-			break;
-		case 'manageComputers':
-			require_once(".ht-inc/computers.php");
-			break;
-		case 'managementNodes':
-			require_once(".ht-inc/managementnodes.php");
-			break;
-		case 'manageImages':
-			require_once(".ht-inc/images.php");
-			require_once(".ht-inc/requests.php");
-			break;
-		case 'manageSchedules':
-			require_once(".ht-inc/schedules.php");
-			break;
-		case 'help':
-			require_once(".ht-inc/help.php");
-			break;
-		case 'userPreferences':
-			require_once(".ht-inc/userpreferences.php");
-			break;
-		case 'statistics':
-			require_once(".ht-inc/statistics.php");
-			break;
-		case 'manageGroups':
-			require_once(".ht-inc/groups.php");
-			break;
-		case 'privileges':
-		case 'userLookup':
-			require_once(".ht-inc/privileges.php");
-			break;
-		case 'sitemaintenance':
-			require_once(".ht-inc/sitemaintenance.php");
-			break;
-		case 'vm':
-			require_once(".ht-inc/vm.php");
-			break;
-		case 'dashboard':
-			require_once(".ht-inc/dashboard.php");
-			break;
-		case 'serverProfiles':
-			require_once(".ht-inc/serverprofiles.php");
-			require_once(".ht-inc/requests.php");
-			break;
-		//*************************************************************************
-		//One Button Group
-		//modes
-		case 'oneClicks':
-			require_once(".ht-inc/oneclick.php");
-			break;
-		//*************************************************************************
-		default:
-			require_once(".ht-inc/requests.php");
-	}
+    # include appropriate files
+    switch($actions['pages'][$mode]) {
+        case 'blockAllocations':
+            require_once(".ht-inc/blockallocations.php");
+            break;
+        case 'manageComputers':
+            require_once(".ht-inc/computers.php");
+            break;
+        case 'managementNodes':
+            require_once(".ht-inc/managementnodes.php");
+            break;
+        case 'manageImages':
+            require_once(".ht-inc/images.php");
+            require_once(".ht-inc/requests.php");
+            break;
+        case 'manageSchedules':
+            require_once(".ht-inc/schedules.php");
+            break;
+        case 'help':
+            require_once(".ht-inc/help.php");
+            break;
+        case 'userPreferences':
+            require_once(".ht-inc/userpreferences.php");
+            break;
+        case 'statistics':
+            require_once(".ht-inc/statistics.php");
+            break;
+        case 'manageGroups':
+            require_once(".ht-inc/groups.php");
+            break;
+        case 'privileges':
+        case 'userLookup':
+            require_once(".ht-inc/privileges.php");
+            break;
+        case 'sitemaintenance':
+            require_once(".ht-inc/sitemaintenance.php");
+            break;
+        case 'vm':
+            require_once(".ht-inc/vm.php");
+            break;
+        case 'dashboard':
+            require_once(".ht-inc/dashboard.php");
+            break;
+        case 'serverProfiles':
+            require_once(".ht-inc/serverprofiles.php");
+            require_once(".ht-inc/requests.php");
+            break;
+        //*************************************************************************
+        //One Button Group
+        //modes
+        case 'oneClicks':
+            require_once(".ht-inc/oneclick.php");
+            break;
+        //*************************************************************************
+        default:
+            require_once(".ht-inc/requests.php");
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -330,279 +330,279 @@ function initGlobals() {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function checkAccess() {
-	global $mode, $user, $actionFunction, $authMechs;
-	global $itecsauthkey, $ENABLE_ITECSAUTH, $actions, $noHTMLwrappers;
-	global $inContinuation, $docreaders, $apiValidateFunc;
-	if($mode == 'xmlrpccall') {
-		// double check for SSL
-		if(! isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != "on") {
-			printXMLRPCerror(4);   # must have SSL enabled
-			dbDisconnect();
-			exit;
-		}
-		$xmluser = processInputData($_SERVER['HTTP_X_USER'], ARG_STRING, 1);
-		if(! $user = getUserInfo($xmluser)) {
-			// if first call to getUserInfo fails, try calling with $noupdate set
-			if(! $user = getUserInfo($xmluser, 1)) {
-				$testid = $xmluser;
-				$affilid = DEFAULT_AFFILID;
-				getAffilidAndLogin($testid, $affilid);
-				addLoginLog($testid, 'unknown', $affilid, 0);
-				printXMLRPCerror(3);   # access denied
-				dbDisconnect();
-				exit;
-			}
-		}
-		$xmlpass = $_SERVER['HTTP_X_PASS'];
-		if(get_magic_quotes_gpc())
-			$xmlpass = stripslashes($xmlpass);
-		$apiver = processInputData($_SERVER['HTTP_X_APIVERSION'], ARG_NUMERIC, 1);
-		if($apiver == 1) {
-			printXMLRPCerror(8);   # unsupported API version
-			dbDisconnect();
-			exit;
-		}
-		elseif($apiver == 2) {
-			$authtype = "";
-			foreach($authMechs as $key => $authmech) {
-				if($authmech['affiliationid'] == $user['affiliationid']) {
-					$authtype = $key;
-					break;
-				}
-			}
-			if(empty($authtype)) {
-				print "No authentication mechanism found for passed in X-User";
-				dbDisconnect();
-				exit;
-			}
-			if($authMechs[$authtype]['type'] == 'ldap') {
-				$auth = $authMechs[$authtype];
-				$ds = ldap_connect("ldaps://{$auth['server']}/");
-				if(! $ds) {
-					printXMLRPCerror(5);    # failed to connect to auth server
-					dbDisconnect();
-					exit;
-				}
-				ldap_set_option($ds, LDAP_OPT_PROTOCOL_VERSION, 3);
-				ldap_set_option($ds, LDAP_OPT_REFERRALS, 0);
-				if($auth['lookupuserbeforeauth']) {
-					# in this case, we have to look up what part of the tree the user is in
-					#   before we can actually look up the user
-					if(array_key_exists('masterlogin', $auth) && strlen($auth['masterlogin']))
-						$res = ldap_bind($ds, $auth['masterlogin'], $auth['masterpwd']);
-					else
-						$res = ldap_bind($ds);
-					if(! $res) {
-						addLoginLog($user['unityid'], $authtype, $user['affiliationid'], 0);
-						printXMLRPCerror(5);    # failed to connect to auth server
-						dbDisconnect();
-						exit;
-					}
-					$search = ldap_search($ds,
-					                      $auth['binddn'], 
-					                      "{$auth['lookupuserfield']}={$user['unityid']}",
-					                      array('dn'), 0, 3, 15);
-					if($search) {
-						$tmpdata = ldap_get_entries($ds, $search);
-						if(! $tmpdata['count'] || ! array_key_exists('dn', $tmpdata[0])) {
-							addLoginLog($user['unityid'], $authtype, $user['affiliationid'], 0);
-							printXMLRPCerror(3);   # access denied
-							dbDisconnect();
-							exit;
-						}
-						$ldapuser = $tmpdata[0]['dn'];
-					}
-					else {
-						addLoginLog($user['unityid'], $authtype, $user['affiliationid'], 0);
-						printXMLRPCerror(3);   # access denied
-						dbDisconnect();
-						exit;
-					}
-				}
-				else
-					$ldapuser = sprintf($auth['userid'], $user['unityid']);
-				$res = ldap_bind($ds, $ldapuser, $xmlpass);
-				if(! $res) {
-					addLoginLog($user['unityid'], $authtype, $user['affiliationid'], 0);
-					printXMLRPCerror(3);   # access denied
-					dbDisconnect();
-					exit;
-				}
-				addLoginLog($user['unityid'], $authtype, $user['affiliationid'], 1);
-			}
-			elseif($ENABLE_ITECSAUTH &&
-			   $authMechs[$authtype]['affiliationid'] == getAffiliationID('ITECS')) {
-				$rc = ITECSAUTH_validateUser($itecsauthkey, $user['unityid'], $xmlpass);
-				if(empty($rc) || $rc['passfail'] == 'fail') {
-					printXMLRPCerror(3);   # access denied
-					dbDisconnect();
-					exit;
-				}
-			}
-			elseif($authMechs[$authtype]['type'] == 'local') {
-				if(! validateLocalAccount($user['unityid'], $xmlpass)) {
-					printXMLRPCerror(3);   # access denied
-					dbDisconnect();
-					exit;
-				}
-			}
+    global $mode, $user, $actionFunction, $authMechs;
+    global $itecsauthkey, $ENABLE_ITECSAUTH, $actions, $noHTMLwrappers;
+    global $inContinuation, $docreaders, $apiValidateFunc;
+    if($mode == 'xmlrpccall') {
+        // double check for SSL
+        if(! isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != "on") {
+            printXMLRPCerror(4);   # must have SSL enabled
+            dbDisconnect();
+            exit;
+        }
+        $xmluser = processInputData($_SERVER['HTTP_X_USER'], ARG_STRING, 1);
+        if(! $user = getUserInfo($xmluser)) {
+            // if first call to getUserInfo fails, try calling with $noupdate set
+            if(! $user = getUserInfo($xmluser, 1)) {
+                $testid = $xmluser;
+                $affilid = DEFAULT_AFFILID;
+                getAffilidAndLogin($testid, $affilid);
+                addLoginLog($testid, 'unknown', $affilid, 0);
+                printXMLRPCerror(3);   # access denied
+                dbDisconnect();
+                exit;
+            }
+        }
+        $xmlpass = $_SERVER['HTTP_X_PASS'];
+        if(get_magic_quotes_gpc())
+            $xmlpass = stripslashes($xmlpass);
+        $apiver = processInputData($_SERVER['HTTP_X_APIVERSION'], ARG_NUMERIC, 1);
+        if($apiver == 1) {
+            printXMLRPCerror(8);   # unsupported API version
+            dbDisconnect();
+            exit;
+        }
+        elseif($apiver == 2) {
+            $authtype = "";
+            foreach($authMechs as $key => $authmech) {
+                if($authmech['affiliationid'] == $user['affiliationid']) {
+                    $authtype = $key;
+                    break;
+                }
+            }
+            if(empty($authtype)) {
+                print "No authentication mechanism found for passed in X-User";
+                dbDisconnect();
+                exit;
+            }
+            if($authMechs[$authtype]['type'] == 'ldap') {
+                $auth = $authMechs[$authtype];
+                $ds = ldap_connect("ldaps://{$auth['server']}/");
+                if(! $ds) {
+                    printXMLRPCerror(5);    # failed to connect to auth server
+                    dbDisconnect();
+                    exit;
+                }
+                ldap_set_option($ds, LDAP_OPT_PROTOCOL_VERSION, 3);
+                ldap_set_option($ds, LDAP_OPT_REFERRALS, 0);
+                if($auth['lookupuserbeforeauth']) {
+                    # in this case, we have to look up what part of the tree the user is in
+                    #   before we can actually look up the user
+                    if(array_key_exists('masterlogin', $auth) && strlen($auth['masterlogin']))
+                        $res = ldap_bind($ds, $auth['masterlogin'], $auth['masterpwd']);
+                    else
+                        $res = ldap_bind($ds);
+                    if(! $res) {
+                        addLoginLog($user['unityid'], $authtype, $user['affiliationid'], 0);
+                        printXMLRPCerror(5);    # failed to connect to auth server
+                        dbDisconnect();
+                        exit;
+                    }
+                    $search = ldap_search($ds,
+                        $auth['binddn'],
+                        "{$auth['lookupuserfield']}={$user['unityid']}",
+                        array('dn'), 0, 3, 15);
+                    if($search) {
+                        $tmpdata = ldap_get_entries($ds, $search);
+                        if(! $tmpdata['count'] || ! array_key_exists('dn', $tmpdata[0])) {
+                            addLoginLog($user['unityid'], $authtype, $user['affiliationid'], 0);
+                            printXMLRPCerror(3);   # access denied
+                            dbDisconnect();
+                            exit;
+                        }
+                        $ldapuser = $tmpdata[0]['dn'];
+                    }
+                    else {
+                        addLoginLog($user['unityid'], $authtype, $user['affiliationid'], 0);
+                        printXMLRPCerror(3);   # access denied
+                        dbDisconnect();
+                        exit;
+                    }
+                }
+                else
+                    $ldapuser = sprintf($auth['userid'], $user['unityid']);
+                $res = ldap_bind($ds, $ldapuser, $xmlpass);
+                if(! $res) {
+                    addLoginLog($user['unityid'], $authtype, $user['affiliationid'], 0);
+                    printXMLRPCerror(3);   # access denied
+                    dbDisconnect();
+                    exit;
+                }
+                addLoginLog($user['unityid'], $authtype, $user['affiliationid'], 1);
+            }
+            elseif($ENABLE_ITECSAUTH &&
+                $authMechs[$authtype]['affiliationid'] == getAffiliationID('ITECS')) {
+                $rc = ITECSAUTH_validateUser($itecsauthkey, $user['unityid'], $xmlpass);
+                if(empty($rc) || $rc['passfail'] == 'fail') {
+                    printXMLRPCerror(3);   # access denied
+                    dbDisconnect();
+                    exit;
+                }
+            }
+            elseif($authMechs[$authtype]['type'] == 'local') {
+                if(! validateLocalAccount($user['unityid'], $xmlpass)) {
+                    printXMLRPCerror(3);   # access denied
+                    dbDisconnect();
+                    exit;
+                }
+            }
             elseif($authMechs[$authtype]['type'] == 'redirect'){
                 $affilid = $authMechs[$authtype]['affiliationid'];
                 if(!(isset($apiValidateFunc) && is_array($apiValidateFunc) &&
-                        array_key_exists($affilid, $apiValidateFunc) && 
-                        $apiValidateFunc[$affilid]($xmluser, $xmlpass))){
+                    array_key_exists($affilid, $apiValidateFunc) &&
+                    $apiValidateFunc[$affilid]($xmluser, $xmlpass))){
                     printXMLRPCerror(3);    # access denied
                     dbDisconnect();
                     exit;
                 }
             }
-			else {
-				printXMLRPCerror(6);    # unable to auth passed in X-User
-				dbDisconnect();
-				exit;
-			}
-		}
-		else {
-			printXMLRPCerror(7);    # unknown API version
-			dbDisconnect();
-			exit;
-		}
-	}
-	elseif($mode == 'xmlrpcaffiliations') {
-		// double check for SSL, not really required for this mode, but it keeps things consistant
-		if(! isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != "on") {
-			printXMLRPCerror(4);   # must have SSL enabled
-			dbDisconnect();
-			exit;
-		}
-		$apiver = processInputData($_SERVER['HTTP_X_APIVERSION'], ARG_NUMERIC, 1);
-		if($apiver == 1) {
-			printXMLRPCerror(8);   # unsupported API version
-			dbDisconnect();
-			exit;
-		}
-		elseif($apiver != 2) {
-			printXMLRPCerror(7);    # unknown API version
-			dbDisconnect();
-			exit;
-		}
-	}
-	elseif(! empty($mode)) {
-		if(! in_array($mode, $actions['entry']) &&
-		   ! $inContinuation) {
-			$mode = "main";
-			$actionFunction = "main";
-			return;
-	   }
-		else {
-			if(! $inContinuation) {
-				# check that user has access to this area
-				switch($mode) {
-					case 'viewRequests':
-						$requests = getUserRequests("all", $user["id"]);
-						if(! in_array("imageCheckOut", $user["privileges"]) &&
-							! in_array("imageAdmin", $user["privileges"]) &&
-						   ! count($requests)) {
-							$mode = "";
-							$actionFunction = "main";
-							return;
-						}
-						break;
-					case 'viewGroups':
-						if(! in_array("groupAdmin", $user["privileges"])) {
-							$mode = "";
-							$actionFunction = "main";
-							return;
-						}
-						break;
-					case 'selectImageOption':
-						if(! in_array("imageAdmin", $user["privileges"])) {
-							$mode = "";
-							$actionFunction = "main";
-							return;
-						}
-						break;
-					case 'viewSchedules':
-						if(! in_array("scheduleAdmin", $user["privileges"])) {
-							$mode = "";
-							$actionFunction = "main";
-							return;
-						}
-						break;
-					case 'selectComputers':
-						if(! in_array("computerAdmin", $user["privileges"])) {
-							$mode = "";
-							$actionFunction = "main";
-							return;
-						}
-						break;
-					case 'selectMgmtnodeOption':
-						if(! in_array("mgmtNodeAdmin", $user["privileges"])) {
-							$mode = "";
-							$actionFunction = "main";
-							return;
-						}
-						break;
-					case 'serverProfiles':
-						if(! in_array("serverProfileAdmin", $user["privileges"]) &&
-						   ! in_array("serverCheckOut", $user["privileges"])) {
-							$mode = "";
-							$actionFunction = "main";
-							return;
-						}
-						break;
-					case 'pickTimeTable':
-						$computermetadata = getUserComputerMetaData();
-						if(! count($computermetadata["platforms"]) ||
-						   ! count($computermetadata["schedules"])) {
-							$mode = "";
-							$actionFunction = "main";
-							return;
-						}
-						break;
-					case 'viewNodes':
-						if(! in_array("userGrant", $user["privileges"]) &&
-						   ! in_array("resourceGrant", $user["privileges"]) &&
-						   ! in_array("nodeAdmin", $user["privileges"])) {
-							$mode = "";
-							$actionFunction = "main";
-							return;
-						}
-						break;
-					case 'userLookup':
-						if(! checkUserHasPerm('User Lookup (global)') &&
-						   ! checkUserHasPerm('User Lookup (affiliation only)')) {
-							$mode = "";
-							$actionFunction = "main";
-							return;
-						}
-						break;
-					case 'editVMInfo':
-						if(! in_array("computerAdmin", $user["privileges"])) {
-							$mode = "";
-							$actionFunction = "main";
-							return;
-						}
-						break;
-					case 'siteMaintenance':
-						if(! checkUserHasPerm('Schedule Site Maintenance')) {
-							$mode = "";
-							$actionFunction = "main";
-							return;
-						}
-						break;
-					case 'dashboard':
-						if(! checkUserHasPerm('View Dashboard (global)') &&
-						   ! checkUserHasPerm('View Dashboard (affiliation only)')) {
-							$mode = "";
-							$actionFunction = "main";
-							return;
-						}
-						break;
-				}
-			}
-		}
-	}
+            else {
+                printXMLRPCerror(6);    # unable to auth passed in X-User
+                dbDisconnect();
+                exit;
+            }
+        }
+        else {
+            printXMLRPCerror(7);    # unknown API version
+            dbDisconnect();
+            exit;
+        }
+    }
+    elseif($mode == 'xmlrpcaffiliations') {
+        // double check for SSL, not really required for this mode, but it keeps things consistant
+        if(! isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] != "on") {
+            printXMLRPCerror(4);   # must have SSL enabled
+            dbDisconnect();
+            exit;
+        }
+        $apiver = processInputData($_SERVER['HTTP_X_APIVERSION'], ARG_NUMERIC, 1);
+        if($apiver == 1) {
+            printXMLRPCerror(8);   # unsupported API version
+            dbDisconnect();
+            exit;
+        }
+        elseif($apiver != 2) {
+            printXMLRPCerror(7);    # unknown API version
+            dbDisconnect();
+            exit;
+        }
+    }
+    elseif(! empty($mode)) {
+        if(! in_array($mode, $actions['entry']) &&
+            ! $inContinuation) {
+            $mode = "main";
+            $actionFunction = "main";
+            return;
+        }
+        else {
+            if(! $inContinuation) {
+                # check that user has access to this area
+                switch($mode) {
+                    case 'viewRequests':
+                        $requests = getUserRequests("all", $user["id"]);
+                        if(! in_array("imageCheckOut", $user["privileges"]) &&
+                            ! in_array("imageAdmin", $user["privileges"]) &&
+                            ! count($requests)) {
+                            $mode = "";
+                            $actionFunction = "main";
+                            return;
+                        }
+                        break;
+                    case 'viewGroups':
+                        if(! in_array("groupAdmin", $user["privileges"])) {
+                            $mode = "";
+                            $actionFunction = "main";
+                            return;
+                        }
+                        break;
+                    case 'selectImageOption':
+                        if(! in_array("imageAdmin", $user["privileges"])) {
+                            $mode = "";
+                            $actionFunction = "main";
+                            return;
+                        }
+                        break;
+                    case 'viewSchedules':
+                        if(! in_array("scheduleAdmin", $user["privileges"])) {
+                            $mode = "";
+                            $actionFunction = "main";
+                            return;
+                        }
+                        break;
+                    case 'selectComputers':
+                        if(! in_array("computerAdmin", $user["privileges"])) {
+                            $mode = "";
+                            $actionFunction = "main";
+                            return;
+                        }
+                        break;
+                    case 'selectMgmtnodeOption':
+                        if(! in_array("mgmtNodeAdmin", $user["privileges"])) {
+                            $mode = "";
+                            $actionFunction = "main";
+                            return;
+                        }
+                        break;
+                    case 'serverProfiles':
+                        if(! in_array("serverProfileAdmin", $user["privileges"]) &&
+                            ! in_array("serverCheckOut", $user["privileges"])) {
+                            $mode = "";
+                            $actionFunction = "main";
+                            return;
+                        }
+                        break;
+                    case 'pickTimeTable':
+                        $computermetadata = getUserComputerMetaData();
+                        if(! count($computermetadata["platforms"]) ||
+                            ! count($computermetadata["schedules"])) {
+                            $mode = "";
+                            $actionFunction = "main";
+                            return;
+                        }
+                        break;
+                    case 'viewNodes':
+                        if(! in_array("userGrant", $user["privileges"]) &&
+                            ! in_array("resourceGrant", $user["privileges"]) &&
+                            ! in_array("nodeAdmin", $user["privileges"])) {
+                            $mode = "";
+                            $actionFunction = "main";
+                            return;
+                        }
+                        break;
+                    case 'userLookup':
+                        if(! checkUserHasPerm('User Lookup (global)') &&
+                            ! checkUserHasPerm('User Lookup (affiliation only)')) {
+                            $mode = "";
+                            $actionFunction = "main";
+                            return;
+                        }
+                        break;
+                    case 'editVMInfo':
+                        if(! in_array("computerAdmin", $user["privileges"])) {
+                            $mode = "";
+                            $actionFunction = "main";
+                            return;
+                        }
+                        break;
+                    case 'siteMaintenance':
+                        if(! checkUserHasPerm('Schedule Site Maintenance')) {
+                            $mode = "";
+                            $actionFunction = "main";
+                            return;
+                        }
+                        break;
+                    case 'dashboard':
+                        if(! checkUserHasPerm('View Dashboard (global)') &&
+                            ! checkUserHasPerm('View Dashboard (affiliation only)')) {
+                            $mode = "";
+                            $actionFunction = "main";
+                            return;
+                        }
+                        break;
+                }
+            }
+        }
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -615,92 +615,92 @@ function checkAccess() {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function maintenanceCheck() {
-	global $authed, $mode, $user;
-	$now = time();
-	$reg = "|" . SCRIPT . "$|";
-	$search = preg_replace($reg, '', $_SERVER['SCRIPT_FILENAME']);
-	$search .= "/.ht-inc/maintenance/";
-	$files = glob("{$search}[0-9]*");
-	if(! is_array($files))
-		return;
-	if(empty($files)) {
-		dbConnect();
-		$query = "SELECT id "
-		       . "FROM sitemaintenance "
-		       . "WHERE start <= NOW() AND "
-		       .       "end > NOW()";
-		$qh = doQuery($query);
-		$ids = array();
-		while($row = mysql_fetch_assoc($qh))
-			$ids[] = $row['id'];
-		if(empty($ids)) {
-			dbDisconnect();
-			return;
-		}
-		$allids = implode(',', $ids);
-		$query = "UPDATE sitemaintenance "
-		       . "SET end = NOW() "
-		       . "WHERE id IN ($allids)";
-		doQuery($query, 101, 'vcl', 1);
-		dbDisconnect();
-		return;
-	}  
-	$inmaintenance = 0;
-	foreach($files as $file) {
-		if(! preg_match("|^$search([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})$|", $file, $matches))
-			continue;
-		#YYYYMMDDHHMM
-		$tmp = "{$matches[1]}-{$matches[2]}-{$matches[3]} {$matches[4]}:{$matches[5]}:00";
-		$start = datetimeToUnix($tmp);
-		if($start < $now) {
-			# check to see if end time has been reached
-			$fh = fopen($file, 'r');
-			$msg = '';
-			while($line = fgetss($fh)) {
-				if(preg_match("/^END=([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})$/", $line, $matches)) {
-					$tmp = "{$matches[1]}-{$matches[2]}-{$matches[3]} {$matches[4]}:{$matches[5]}:00";
-					$end = datetimeToUnix($tmp);
-					if($end < $now) {
-						fclose($fh);
-						unlink($file);
-						$_SESSION['usersessiondata'] = array();
-						return;
-					}
-					else
-						$inmaintenance = 1;
-				}
-				else
-					$msg .= $line;
-			}
-			fclose($fh);
-			if($inmaintenance)
-				break;
-		}
-	}
-	if($inmaintenance) {
-		$authed = 0;
-		$mode = 'inmaintenance';
-		$user = array();
-		if(array_key_exists('VCLSKIN', $_COOKIE))
-			$skin = strtolower($_COOKIE['VCLSKIN']);
-		else
-			$skin = DEFAULTTHEME;
-		setVCLLocale();
-		require_once("themes/$skin/page.php");
-		printHTMLHeader();
-		print _("<h2>Site Currently Under Maintenance</h2>\n");
-		if(! empty($msg)) {
-			$msg = htmlentities($msg);
-			$msg = preg_replace("/\n/", "<br>\n", $msg);
-			print "$msg<br>\n";
-		}
-		else
-			print _("This site is currently in maintenance.<br>\n");
-		$niceend = strftime('%A, %x, %l:%M %P', $end);
-		print _("The maintenance is scheduled to end <b>") . "$niceend" . _("</b>.<br><br><br>\n");
-		printHTMLFooter();
-		exit;
-	}
+    global $authed, $mode, $user;
+    $now = time();
+    $reg = "|" . SCRIPT . "$|";
+    $search = preg_replace($reg, '', $_SERVER['SCRIPT_FILENAME']);
+    $search .= "/.ht-inc/maintenance/";
+    $files = glob("{$search}[0-9]*");
+    if(! is_array($files))
+        return;
+    if(empty($files)) {
+        dbConnect();
+        $query = "SELECT id "
+            . "FROM sitemaintenance "
+            . "WHERE start <= NOW() AND "
+            .       "end > NOW()";
+        $qh = doQuery($query);
+        $ids = array();
+        while($row = mysql_fetch_assoc($qh))
+            $ids[] = $row['id'];
+        if(empty($ids)) {
+            dbDisconnect();
+            return;
+        }
+        $allids = implode(',', $ids);
+        $query = "UPDATE sitemaintenance "
+            . "SET end = NOW() "
+            . "WHERE id IN ($allids)";
+        doQuery($query, 101, 'vcl', 1);
+        dbDisconnect();
+        return;
+    }
+    $inmaintenance = 0;
+    foreach($files as $file) {
+        if(! preg_match("|^$search([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})$|", $file, $matches))
+            continue;
+        #YYYYMMDDHHMM
+        $tmp = "{$matches[1]}-{$matches[2]}-{$matches[3]} {$matches[4]}:{$matches[5]}:00";
+        $start = datetimeToUnix($tmp);
+        if($start < $now) {
+            # check to see if end time has been reached
+            $fh = fopen($file, 'r');
+            $msg = '';
+            while($line = fgetss($fh)) {
+                if(preg_match("/^END=([0-9]{4})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})$/", $line, $matches)) {
+                    $tmp = "{$matches[1]}-{$matches[2]}-{$matches[3]} {$matches[4]}:{$matches[5]}:00";
+                    $end = datetimeToUnix($tmp);
+                    if($end < $now) {
+                        fclose($fh);
+                        unlink($file);
+                        $_SESSION['usersessiondata'] = array();
+                        return;
+                    }
+                    else
+                        $inmaintenance = 1;
+                }
+                else
+                    $msg .= $line;
+            }
+            fclose($fh);
+            if($inmaintenance)
+                break;
+        }
+    }
+    if($inmaintenance) {
+        $authed = 0;
+        $mode = 'inmaintenance';
+        $user = array();
+        if(array_key_exists('VCLSKIN', $_COOKIE))
+            $skin = strtolower($_COOKIE['VCLSKIN']);
+        else
+            $skin = DEFAULTTHEME;
+        setVCLLocale();
+        require_once("themes/$skin/page.php");
+        printHTMLHeader();
+        print _("<h2>Site Currently Under Maintenance</h2>\n");
+        if(! empty($msg)) {
+            $msg = htmlentities($msg);
+            $msg = preg_replace("/\n/", "<br>\n", $msg);
+            print "$msg<br>\n";
+        }
+        else
+            print _("This site is currently in maintenance.<br>\n");
+        $niceend = strftime('%A, %x, %l:%M %P', $end);
+        print _("The maintenance is scheduled to end <b>") . "$niceend" . _("</b>.<br><br><br>\n");
+        printHTMLFooter();
+        exit;
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -712,40 +712,40 @@ function maintenanceCheck() {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function maintenanceNotice() {
-	$items = getMaintItems();
-	foreach($items as $item) {
-		$start = datetimeToUnix($item['start']);
-		$file = date('YmdHi', $start);
-		$secahead = $item['informhoursahead'] * 3600;
-		if($start - $secahead < time()) {
-			$reg = "|" . SCRIPT . "$|";
-			$search = preg_replace($reg, '', $_SERVER['SCRIPT_FILENAME']);
-			$search .= "/.ht-inc/maintenance/$file";
-			$files = glob("$search");
-			if(empty($files)) {
-				$_SESSION['usersessiondata'] = array();
-				return;
-			}
-			$nicestart = strftime('%A, %x, %l:%M %P', $start);
-			$niceend = strftime('%A, %x, %l:%M %P', datetimeToUnix($item['end']));
-			print "<div id=\"maintenancenotice\">\n";
-			print _("<b>NOTICE</b>: This site will be down for maintenance during ");
-			print _("the following times:<br><br>\n");
-			print	_("Start") . ": $nicestart<br>\n";
-			print _("End") . ": $niceend.<br><br>\n";
-			if($item['allowreservations']) {
-				print _("You will be able to access your reserved machines during ");
-				print _("this maintenance. However, you will not be able to access ");
-				print _("information on how to connect to them.<br>\n");
-			}
-			else {
-				print _("You will not be able to access any of your reservations ");
-				print _("during this maintenance.<br>\n");
-			}
-			print "</div>\n";
-			return;
-		}
-	}
+    $items = getMaintItems();
+    foreach($items as $item) {
+        $start = datetimeToUnix($item['start']);
+        $file = date('YmdHi', $start);
+        $secahead = $item['informhoursahead'] * 3600;
+        if($start - $secahead < time()) {
+            $reg = "|" . SCRIPT . "$|";
+            $search = preg_replace($reg, '', $_SERVER['SCRIPT_FILENAME']);
+            $search .= "/.ht-inc/maintenance/$file";
+            $files = glob("$search");
+            if(empty($files)) {
+                $_SESSION['usersessiondata'] = array();
+                return;
+            }
+            $nicestart = strftime('%A, %x, %l:%M %P', $start);
+            $niceend = strftime('%A, %x, %l:%M %P', datetimeToUnix($item['end']));
+            print "<div id=\"maintenancenotice\">\n";
+            print _("<b>NOTICE</b>: This site will be down for maintenance during ");
+            print _("the following times:<br><br>\n");
+            print   _("Start") . ": $nicestart<br>\n";
+            print _("End") . ": $niceend.<br><br>\n";
+            if($item['allowreservations']) {
+                print _("You will be able to access your reserved machines during ");
+                print _("this maintenance. However, you will not be able to access ");
+                print _("information on how to connect to them.<br>\n");
+            }
+            else {
+                print _("You will not be able to access any of your reservations ");
+                print _("during this maintenance.<br>\n");
+            }
+            print "</div>\n";
+            return;
+        }
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -757,14 +757,14 @@ function maintenanceNotice() {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function clearPrivCache() {
-	$_SESSION['userresources'] = array();
-	$_SESSION['nodeprivileges'] = array();
-	$_SESSION['cascadenodeprivileges'] = array();
-	$_SESSION['userhaspriv'] = array();
-	$_SESSION['compstateflow'] = array();
-	$_SESSION['usersessiondata'] = array();
-	unset($_SESSION['user']);
-	unset($_SESSION['locales']);
+    $_SESSION['userresources'] = array();
+    $_SESSION['nodeprivileges'] = array();
+    $_SESSION['cascadenodeprivileges'] = array();
+    $_SESSION['userhaspriv'] = array();
+    $_SESSION['compstateflow'] = array();
+    $_SESSION['usersessiondata'] = array();
+    unset($_SESSION['user']);
+    unset($_SESSION['locales']);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -775,10 +775,10 @@ function clearPrivCache() {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function AJclearPermCache() {
-	clearPrivCache();
-	print "alert('Permission cache cleared');";
-	dbDisconnect();
-	exit;
+    clearPrivCache();
+    print "alert('Permission cache cleared');";
+    dbDisconnect();
+    exit;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -789,32 +789,32 @@ function AJclearPermCache() {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function setupSession() {
-	global $mode;
-	if($mode == 'xmlrpccall')
-		$_SESSION = array();
-	else
-		session_start();
-	if(! array_key_exists('cachetimestamp', $_SESSION))
-		$_SESSION['cachetimestamp'] = time();
-	else {
-		if(($_SESSION['cachetimestamp'] + (PRIV_CACHE_TIMEOUT * 60)) < time()) {
-			clearPrivCache();
-			$_SESSION['cachetimestamp'] = time();
-			return;
-		}
-	}
-	if(! array_key_exists('userresources', $_SESSION))
-		$_SESSION['userresources'] = array();
-	if(! array_key_exists('nodeprivileges', $_SESSION))
-		$_SESSION['nodeprivileges'] = array();
-	if(! array_key_exists('cascadenodeprivileges', $_SESSION))
-		$_SESSION['cascadenodeprivileges'] = array();
-	if(! array_key_exists('userhaspriv', $_SESSION))
-		$_SESSION['userhaspriv'] = array();
-	if(! array_key_exists('compstateflow', $_SESSION))
-		$_SESSION['compstateflow'] = array();
-	if(! array_key_exists('usersessiondata', $_SESSION))
-		$_SESSION['usersessiondata'] = array();
+    global $mode;
+    if($mode == 'xmlrpccall')
+        $_SESSION = array();
+    else
+        session_start();
+    if(! array_key_exists('cachetimestamp', $_SESSION))
+        $_SESSION['cachetimestamp'] = time();
+    else {
+        if(($_SESSION['cachetimestamp'] + (PRIV_CACHE_TIMEOUT * 60)) < time()) {
+            clearPrivCache();
+            $_SESSION['cachetimestamp'] = time();
+            return;
+        }
+    }
+    if(! array_key_exists('userresources', $_SESSION))
+        $_SESSION['userresources'] = array();
+    if(! array_key_exists('nodeprivileges', $_SESSION))
+        $_SESSION['nodeprivileges'] = array();
+    if(! array_key_exists('cascadenodeprivileges', $_SESSION))
+        $_SESSION['cascadenodeprivileges'] = array();
+    if(! array_key_exists('userhaspriv', $_SESSION))
+        $_SESSION['userhaspriv'] = array();
+    if(! array_key_exists('compstateflow', $_SESSION))
+        $_SESSION['compstateflow'] = array();
+    if(! array_key_exists('usersessiondata', $_SESSION))
+        $_SESSION['usersessiondata'] = array();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -825,10 +825,10 @@ function setupSession() {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function stopSession() {
-	$_SESSION = array();
-	if(isset($_COOKIE[session_name()]))
-		setcookie(session_name(), "", time()-42000, '/');
-	session_destroy();
+    $_SESSION = array();
+    if(isset($_COOKIE[session_name()]))
+        setcookie(session_name(), "", time()-42000, '/');
+    session_destroy();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -839,39 +839,39 @@ function stopSession() {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function main() {
-	global $user, $authed, $mode;
-	print _("<H2>Welcome to the Virtual Computing Lab</H2>\n");
-	if($authed) {
-		if(! empty($user['lastname']) && ! empty($user['preferredname']))
-			print _("Hello ") . "{$user["preferredname"]} {$user['lastname']}<br><br>\n";
-		elseif(! empty($user['lastname']) && ! empty($user['firstname']))
-			print _("Hello ") . "{$user["firstname"]} {$user['lastname']}<br><br>\n";
-		$tmp = array_values($user['groups']);
-		if(count($tmp) == 1 && $tmp[0] == 'nodemo') {
-			print "Your account is a demo account that has expired. ";
-			print "You cannot make any more reservations. Please contact <a href=\"";
-			print "mailto:" . HELPEMAIL . "\">" . HELPEMAIL . "</a> if you need ";
-			print "further access to VCL.<br>\n";
-			return;
-		}
-		$requests = getUserRequests("all", $user["id"]);
-		if($num = count($requests)) {
-			if($num == 1) {
-				print _("You currently have ") . "$num" . _(" reservation</a>.<br>\n");
-			}
-			else {
-				print _("You currently have ") . "$num" . _(" reservations</a>.<br>\n");
-			}
-		}
-		else {
-			print _("You do not have any current reservations.<br>\n");
-		}
-		print _("Please make a selection from the menu to continue.<br>\n");
-	}
-	else {
-		print "Click the <b>Log in to VCL</b> button at the top right part of ";
-		print "the page to start using the VCL system<br>\n";
-	}
+    global $user, $authed, $mode;
+    print _("<H2>Welcome to the Virtual Computing Lab</H2>\n");
+    if($authed) {
+        if(! empty($user['lastname']) && ! empty($user['preferredname']))
+            print _("Hello ") . "{$user["preferredname"]} {$user['lastname']}<br><br>\n";
+        elseif(! empty($user['lastname']) && ! empty($user['firstname']))
+            print _("Hello ") . "{$user["firstname"]} {$user['lastname']}<br><br>\n";
+        $tmp = array_values($user['groups']);
+        if(count($tmp) == 1 && $tmp[0] == 'nodemo') {
+            print "Your account is a demo account that has expired. ";
+            print "You cannot make any more reservations. Please contact <a href=\"";
+            print "mailto:" . HELPEMAIL . "\">" . HELPEMAIL . "</a> if you need ";
+            print "further access to VCL.<br>\n";
+            return;
+        }
+        $requests = getUserRequests("all", $user["id"]);
+        if($num = count($requests)) {
+            if($num == 1) {
+                print _("You currently have ") . "$num" . _(" reservation</a>.<br>\n");
+            }
+            else {
+                print _("You currently have ") . "$num" . _(" reservations</a>.<br>\n");
+            }
+        }
+        else {
+            print _("You do not have any current reservations.<br>\n");
+        }
+        print _("Please make a selection from the menu to continue.<br>\n");
+    }
+    else {
+        print "Click the <b>Log in to VCL</b> button at the top right part of ";
+        print "the page to start using the VCL system<br>\n";
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -886,58 +886,58 @@ function main() {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function abort($errcode, $query="") {
-	global $mysql_link_vcl, $mysql_link_acct, $ERRORS, $user, $mode;
-	global $ENABLE_ITECSAUTH, $requestInfo;
-	if($mode == 'xmlrpccall')
-		xmlRPCabort($errcode, $query);
-	if(ONLINEDEBUG && checkUserHasPerm('View Debug Information')) {
-		if($errcode >= 100 && $errcode < 400) {
-			print "<font color=red>" . mysql_error($mysql_link_vcl) . "</font><br>\n";
-			if($ENABLE_ITECSAUTH)
-				print "<font color=red>" . mysql_error($mysql_link_acct) . "</font><br>\n";
-			print "$query<br>\n";
-		}
-		print "ERROR($errcode): " . $ERRORS["$errcode"] . "<BR>\n";
-		print "<pre>\n";
-		print getBacktraceString(FALSE);
-		print "</pre>\n";
-	}
-	else {
-		$message = "";
-		if($errcode >= 100 && $errcode < 400) {
-			$message .= mysql_error($mysql_link_vcl) . "\n";
-			$message .= mysql_error($mysql_link_acct) . "\n";
-			$message .= $query . "\n";
-		}
-		$message .= "ERROR($errcode): " . $ERRORS["$errcode"] . "\n";
-		if(is_array($user) && array_key_exists('unityid', $user))
-			$message .= "Logged in user was " . $user["unityid"] . "\n";
-		$message .= "Mode was $mode\n\n";
-		if($errcode == 20) {
-			$urlArray = explode('?', $_SERVER["HTTP_REFERER"]);
-			$message .= "HTTP_REFERER URL - " . $urlArray[0] . "\n";
-			$message .= "correct URL - " . BASEURL . SCRIPT . "\n";
-		}
-		if($errcode == 40) {
-			$message .= "One of the following computers didn't get a mgmt node:\n";
-			foreach($requestInfo["images"] as $key => $imageid) {
-				$message .= "imageid: $imageid\n";
-				$message .= "compid: {$requestInfo['computers'][$key]}\n";
-			}
-		}
-		$message .= getBacktraceString(FALSE);
-		$mailParams = "-f" . ENVELOPESENDER;
-		mail(ERROREMAIL, "Error with VCL pages ($errcode)", $message, '', $mailParams);
-		print _("An error has occurred.  If this problem persists, please email ");
-		print "<a href=\"mailto:" . HELPEMAIL . "?Subject=" . _("Problem%20With%20VCL") . "\">";
-		print HELPEMAIL . "</a> " . _("for further assistance.  Please include the ");
-		print _("steps you took that led up to this problem in your email message.");
-	}
-	dbDisconnect();
-	printHTMLFooter();
-	// release semaphore lock
-	semUnlock();
-	exit;
+    global $mysql_link_vcl, $mysql_link_acct, $ERRORS, $user, $mode;
+    global $ENABLE_ITECSAUTH, $requestInfo;
+    if($mode == 'xmlrpccall')
+        xmlRPCabort($errcode, $query);
+    if(ONLINEDEBUG && checkUserHasPerm('View Debug Information')) {
+        if($errcode >= 100 && $errcode < 400) {
+            print "<font color=red>" . mysql_error($mysql_link_vcl) . "</font><br>\n";
+            if($ENABLE_ITECSAUTH)
+                print "<font color=red>" . mysql_error($mysql_link_acct) . "</font><br>\n";
+            print "$query<br>\n";
+        }
+        print "ERROR($errcode): " . $ERRORS["$errcode"] . "<BR>\n";
+        print "<pre>\n";
+        print getBacktraceString(FALSE);
+        print "</pre>\n";
+    }
+    else {
+        $message = "";
+        if($errcode >= 100 && $errcode < 400) {
+            $message .= mysql_error($mysql_link_vcl) . "\n";
+            $message .= mysql_error($mysql_link_acct) . "\n";
+            $message .= $query . "\n";
+        }
+        $message .= "ERROR($errcode): " . $ERRORS["$errcode"] . "\n";
+        if(is_array($user) && array_key_exists('unityid', $user))
+            $message .= "Logged in user was " . $user["unityid"] . "\n";
+        $message .= "Mode was $mode\n\n";
+        if($errcode == 20) {
+            $urlArray = explode('?', $_SERVER["HTTP_REFERER"]);
+            $message .= "HTTP_REFERER URL - " . $urlArray[0] . "\n";
+            $message .= "correct URL - " . BASEURL . SCRIPT . "\n";
+        }
+        if($errcode == 40) {
+            $message .= "One of the following computers didn't get a mgmt node:\n";
+            foreach($requestInfo["images"] as $key => $imageid) {
+                $message .= "imageid: $imageid\n";
+                $message .= "compid: {$requestInfo['computers'][$key]}\n";
+            }
+        }
+        $message .= getBacktraceString(FALSE);
+        $mailParams = "-f" . ENVELOPESENDER;
+        mail(ERROREMAIL, "Error with VCL pages ($errcode)", $message, '', $mailParams);
+        print _("An error has occurred.  If this problem persists, please email ");
+        print "<a href=\"mailto:" . HELPEMAIL . "?Subject=" . _("Problem%20With%20VCL") . "\">";
+        print HELPEMAIL . "</a> " . _("for further assistance.  Please include the ");
+        print _("steps you took that led up to this problem in your email message.");
+    }
+    dbDisconnect();
+    printHTMLFooter();
+    // release semaphore lock
+    semUnlock();
+    exit;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -948,8 +948,8 @@ function abort($errcode, $query="") {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function errorrpt() {
-	$mailParams = "-f" . ENVELOPESENDER;
-	mail(ERROREMAIL, "Error with VCL pages (ajax sent html wrappers)", $_POST['data'], '', $mailParams);
+    $mailParams = "-f" . ENVELOPESENDER;
+    mail(ERROREMAIL, "Error with VCL pages (ajax sent html wrappers)", $_POST['data'], '', $mailParams);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -966,31 +966,31 @@ function errorrpt() {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function validateUserid($loginid) {
-	global $affilValFuncArgs, $affilValFunc;
-	if(empty($loginid))
-		return 0;
-	
-	$rc = getAffilidAndLogin($loginid, $affilid);
-	if($rc == -1)
-		return 0;
+    global $affilValFuncArgs, $affilValFunc;
+    if(empty($loginid))
+        return 0;
 
-	if(empty($affilid))
-		return 0;
+    $rc = getAffilidAndLogin($loginid, $affilid);
+    if($rc == -1)
+        return 0;
 
-	$escloginid = mysql_real_escape_string($loginid);
-	$query = "SELECT id "
-	       . "FROM user "
-	       . "WHERE unityid = '$escloginid' AND "
-	       .       "affiliationid = $affilid";
-	$qh = doQuery($query, 101);
-	if(mysql_num_rows($qh))
-		return 1;
+    if(empty($affilid))
+        return 0;
 
-	$valfunc = $affilValFunc[$affilid];
-	if(array_key_exists($affilid, $affilValFuncArgs))
-		return $valfunc($affilValFuncArgs[$affilid], $loginid);
-	else
-		return $valfunc($loginid);
+    $escloginid = mysql_real_escape_string($loginid);
+    $query = "SELECT id "
+        . "FROM user "
+        . "WHERE unityid = '$escloginid' AND "
+        .       "affiliationid = $affilid";
+    $qh = doQuery($query, 101);
+    if(mysql_num_rows($qh))
+        return 1;
+
+    $valfunc = $affilValFunc[$affilid];
+    if(array_key_exists($affilid, $affilValFuncArgs))
+        return $valfunc($affilValFuncArgs[$affilid], $loginid);
+    else
+        return $valfunc($loginid);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1001,11 +1001,11 @@ function validateUserid($loginid) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function AJvalidateUserid() {
-	$user = processInputVar('user', ARG_STRING);
-	if(validateUserid($user))
-		sendJSON(array('status' => 'valid'));
-	else
-		sendJSON(array('status' => 'invalid'));
+    $user = processInputVar('user', ARG_STRING);
+    if(validateUserid($user))
+        sendJSON(array('status' => 'valid'));
+    else
+        sendJSON(array('status' => 'invalid'));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1025,14 +1025,14 @@ function AJvalidateUserid() {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getAffilidAndLogin(&$login, &$affilid) {
-	global $findAffilFuncs;
-	foreach($findAffilFuncs as $func) {
-		$rc = $func($login, $affilid);
-		if($rc)
-			return $rc;
-	}
-	$affilid = DEFAULT_AFFILID;
-	return 0;
+    global $findAffilFuncs;
+    foreach($findAffilFuncs as $func) {
+        $rc = $func($login, $affilid);
+        if($rc)
+            return $rc;
+    }
+    $affilid = DEFAULT_AFFILID;
+    return 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1051,15 +1051,15 @@ function getAffilidAndLogin(&$login, &$affilid) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function mysql_connect_plus($host, $user, $pwd) {
-	$timeout = 5;             /* timeout in seconds */
+    $timeout = 5;             /* timeout in seconds */
 
-	if($fp = @fsockopen($host, 3306, $errno, $errstr, $timeout)) {
-		fclose($fp);
-		return $link = mysql_connect($host, $user, $pwd);
-	} else {
-		#print "ERROR: socket timeout<BR>\n";
-		return 0;
-	}
+    if($fp = @fsockopen($host, 3306, $errno, $errstr, $timeout)) {
+        fclose($fp);
+        return $link = mysql_connect($host, $user, $pwd);
+    } else {
+        #print "ERROR: socket timeout<BR>\n";
+        return 0;
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1072,24 +1072,24 @@ function mysql_connect_plus($host, $user, $pwd) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function dbConnect() {
-	global $vclhost, $vcldb, $vclusername, $vclpassword, $mysql_link_vcl;
-	global $accthost, $acctusername, $acctpassword, $mysql_link_acct;
-	global $ENABLE_ITECSAUTH;
+    global $vclhost, $vcldb, $vclusername, $vclpassword, $mysql_link_vcl;
+    global $accthost, $acctusername, $acctpassword, $mysql_link_acct;
+    global $ENABLE_ITECSAUTH;
 
-	if($ENABLE_ITECSAUTH) {
-		// open a connection to mysql server for accounts
-		if($mysql_link_acct = mysql_connect_plus($accthost, $acctusername, $acctpassword))
-			mysql_select_db("accounts", $mysql_link_acct);
-		else
-			$ENABLE_ITECSAUTH = 0;
-	}
+    if($ENABLE_ITECSAUTH) {
+        // open a connection to mysql server for accounts
+        if($mysql_link_acct = mysql_connect_plus($accthost, $acctusername, $acctpassword))
+            mysql_select_db("accounts", $mysql_link_acct);
+        else
+            $ENABLE_ITECSAUTH = 0;
+    }
 
-	// open a connection to mysql server for vcl
-	if(! $mysql_link_vcl = mysql_connect_plus($vclhost, $vclusername, $vclpassword)) {
-		die("Error connecting to $vclhost.<br>\n");
-	}
-	// select the vcl database
-	mysql_select_db($vcldb, $mysql_link_vcl) or abort(104);
+    // open a connection to mysql server for vcl
+    if(! $mysql_link_vcl = mysql_connect_plus($vclhost, $vclusername, $vclpassword)) {
+        die("Error connecting to $vclhost.<br>\n");
+    }
+    // select the vcl database
+    mysql_select_db($vcldb, $mysql_link_vcl) or abort(104);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1100,10 +1100,10 @@ function dbConnect() {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function dbDisconnect() {
-	global $mysql_link_vcl, $mysql_link_acct, $ENABLE_ITECSAUTH;
-	mysql_close($mysql_link_vcl);
-	if($ENABLE_ITECSAUTH)
-		mysql_close($mysql_link_acct);
+    global $mysql_link_vcl, $mysql_link_acct, $ENABLE_ITECSAUTH;
+    mysql_close($mysql_link_vcl);
+    if($ENABLE_ITECSAUTH)
+        mysql_close($mysql_link_acct);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1121,38 +1121,38 @@ function dbDisconnect() {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function doQuery($query, $errcode=101, $db="vcl", $nolog=0) {
-	global $mysql_link_vcl, $mysql_link_acct, $user, $mode, $ENABLE_ITECSAUTH;
-	global $totalQueries, $queryTimes;
-	$totalQueries++;
-	if($db == "vcl") {
-		if((! $nolog) && preg_match('/^(UPDATE|INSERT|DELETE)/', $query)) {
-			$logquery = str_replace("'", "\'", $query);
-			$logquery = str_replace('"', '\"', $logquery);
-			if(isset($user['id']))
-				$id = $user['id'];
-			else
-				$id = 0;
-			$q = "INSERT INTO querylog "
-			   .        "(userid, "
-			   .        "timestamp, "
-			   .        "mode, "
-			   .        "query) "
-			   . "VALUES "
-			   .        "($id, "
-			   .        "NOW(), "
-			   .        "'$mode', "
-			   .        "'$logquery')";
-			mysql_query($q, $mysql_link_vcl);
-		}
-		$qh = mysql_query($query, $mysql_link_vcl) or abort($errcode, $query);
-	}
-	elseif($db == "accounts") {
-		if($ENABLE_ITECSAUTH)
-			$qh = mysql_query($query, $mysql_link_acct) or abort($errcode, $query);
-		else
-			$qh = NULL;
-	}
-	return $qh;
+    global $mysql_link_vcl, $mysql_link_acct, $user, $mode, $ENABLE_ITECSAUTH;
+    global $totalQueries, $queryTimes;
+    $totalQueries++;
+    if($db == "vcl") {
+        if((! $nolog) && preg_match('/^(UPDATE|INSERT|DELETE)/', $query)) {
+            $logquery = str_replace("'", "\'", $query);
+            $logquery = str_replace('"', '\"', $logquery);
+            if(isset($user['id']))
+                $id = $user['id'];
+            else
+                $id = 0;
+            $q = "INSERT INTO querylog "
+                .        "(userid, "
+                .        "timestamp, "
+                .        "mode, "
+                .        "query) "
+                . "VALUES "
+                .        "($id, "
+                .        "NOW(), "
+                .        "'$mode', "
+                .        "'$logquery')";
+            mysql_query($q, $mysql_link_vcl);
+        }
+        $qh = mysql_query($query, $mysql_link_vcl) or abort($errcode, $query);
+    }
+    elseif($db == "accounts") {
+        if($ENABLE_ITECSAUTH)
+            $qh = mysql_query($query, $mysql_link_acct) or abort($errcode, $query);
+        else
+            $qh = NULL;
+    }
+    return $qh;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1165,8 +1165,8 @@ function doQuery($query, $errcode=101, $db="vcl", $nolog=0) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function dbLastInsertID() {
-	global $mysql_link_vcl;
-	return mysql_insert_id($mysql_link_vcl);
+    global $mysql_link_vcl;
+    return mysql_insert_id($mysql_link_vcl);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1179,11 +1179,11 @@ function dbLastInsertID() {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getOSList() {
-	$qh = doQuery("SELECT id, name, prettyname, type FROM OS", "115");
-	$oslist = array();
-	while($row = mysql_fetch_assoc($qh))
-		$oslist[$row['id']] = $row;
-	return $oslist;
+    $qh = doQuery("SELECT id, name, prettyname, type FROM OS", "115");
+    $oslist = array();
+    while($row = mysql_fetch_assoc($qh))
+        $oslist[$row['id']] = $row;
+    return $oslist;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1218,7 +1218,7 @@ function getOSList() {
 ///                  checked out\n
 /// \b maxinitialtime - maximum time (in minutes) to be shown when requesting
 ///                     a reservation that the image can reserved for\n
-/// \b imagemetaid - NULL or corresponding id from imagemeta table and the 
+/// \b imagemetaid - NULL or corresponding id from imagemeta table and the
 /// following additional information:\n
 /// \b checkuser - whether or not vcld should check for a logged in user\n
 /// \b sysprep - whether or not to use sysprep on creation of the image\n
@@ -1233,121 +1233,121 @@ function getOSList() {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getImages($includedeleted=0, $imageid=0) {
-	# key in $imagelist is for $includedeleted
-	static $imagelist = array(0 => array(), 1 => array());
-	if(! empty($imagelist[$includedeleted])) {
-		if($imageid == 0)
-			return $imagelist[$includedeleted];
-		else
-			return array($imageid => $imagelist[$includedeleted][$imageid]);
-	}
-	# get all image meta data
-	$allmetadata = array();
-	$query = "SELECT checkuser, "
-	       .        "rootaccess, "
-	       .        "subimages, "
-	       .        "sysprep, "
-	       .        "id "
-	       . "FROM imagemeta";
-	$qh = doQuery($query);
-	while($row = mysql_fetch_assoc($qh))
-		$allmetadata[$row['id']] = $row;
+    # key in $imagelist is for $includedeleted
+    static $imagelist = array(0 => array(), 1 => array());
+    if(! empty($imagelist[$includedeleted])) {
+        if($imageid == 0)
+            return $imagelist[$includedeleted];
+        else
+            return array($imageid => $imagelist[$includedeleted][$imageid]);
+    }
+    # get all image meta data
+    $allmetadata = array();
+    $query = "SELECT checkuser, "
+        .        "rootaccess, "
+        .        "subimages, "
+        .        "sysprep, "
+        .        "id "
+        . "FROM imagemeta";
+    $qh = doQuery($query);
+    while($row = mysql_fetch_assoc($qh))
+        $allmetadata[$row['id']] = $row;
 
-	# get all image revision data
-	$allrevisiondata = array();
-	$query = "SELECT i.id, "
-	       .        "i.imageid, "
-	       .        "i.revision, "
-	       .        "i.userid, "
-	       .        "CONCAT(u.unityid, '@', a.name) AS user, "
-	       .        "i.datecreated, "
-	       .        "DATE_FORMAT(i.datecreated, '%c/%d/%y %l:%i %p') AS prettydate, "
-	       .        "i.production, "
-	       .        "i.imagename "
-	       . "FROM imagerevision i, "
-	       .      "affiliation a, "
-	       .      "user u "
-	       . "WHERE i.deleted = 0 AND "
-	       .       "i.userid = u.id AND "
-	       .       "u.affiliationid = a.id";
-	$qh = doQuery($query, 101);
-	while($row = mysql_fetch_assoc($qh)) {
-		$id = $row['imageid'];
-		unset($row['imageid']);
-		if(! array_key_exists($id, $allrevisiondata))
-			$allrevisiondata[$id] = array();
-		$allrevisiondata[$id][$row['id']] = $row;
-	}
-	$query = "SELECT i.id AS id,"
-	       .        "i.name AS name, "
-	       .        "i.prettyname AS prettyname, "
-	       .        "i.ownerid AS ownerid, "
-	       .        "CONCAT(u.unityid, '@', a.name) AS owner, "
-	       .        "i.platformid AS platformid, "
-	       .        "p.name AS platform, "
-	       .        "i.OSid AS osid, "
-	       .        "o.name AS os, "
-	       .        "o.installtype, "
-	       .        "o.type AS ostype, "
-	       .        "i.minram AS minram, "
-	       .        "i.minprocnumber AS minprocnumber, "
-	       .        "i.minprocspeed AS minprocspeed, "
-	       .        "i.minnetwork AS minnetwork, "
-	       .        "i.maxconcurrent AS maxconcurrent, "
-	       .        "i.reloadtime AS reloadtime, "
-	       .        "i.deleted AS deleted, "
-	       .        "i.test AS test, "
-	       .        "r.id AS resourceid, "
-	       .        "i.lastupdate, "
-	       .        "i.forcheckout, "
-	       .        "i.maxinitialtime, "
-	       .        "i.imagemetaid "
-	       . "FROM image i, "
-	       .      "platform p, "
-	       .      "OS o, "
-	       .      "resource r, "
-	       .      "resourcetype t, "
-	       .      "user u, "
-	       .      "affiliation a "
-	       . "WHERE i.platformid = p.id AND "
-	       .       "r.resourcetypeid = t.id AND "
-	       .       "t.name = 'image' AND "
-	       .       "r.subid = i.id AND "
-	       .       "i.OSid = o.id AND "
-	       .       "i.ownerid = u.id AND "
-	       .       "u.affiliationid = a.id ";
-	if(! $includedeleted)
-		$query .= "AND i.deleted = 0 ";
-   $query .= "ORDER BY i.prettyname";
-	$qh = doQuery($query, 120);
-	while($row = mysql_fetch_assoc($qh)) {
-		$imagelist[$includedeleted][$row["id"]] = $row;
-		if($row["imagemetaid"] != NULL) {
-			if(array_key_exists($row['imagemetaid'], $allmetadata)) {
-				$metaid = $row['imagemetaid'];
-				$imagelist[$includedeleted][$row['id']]['checkuser'] = $allmetadata[$metaid]['checkuser'];
-				$imagelist[$includedeleted][$row['id']]['rootaccess'] = $allmetadata[$metaid]['rootaccess'];
-				$imagelist[$includedeleted][$row['id']]['sysprep'] = $allmetadata[$metaid]['sysprep'];
-				$imagelist[$includedeleted][$row["id"]]["subimages"] = array();
-				if($allmetadata[$metaid]["subimages"]) {
-					$query2 = "SELECT imageid "
-				        . "FROM subimages "
-				        . "WHERE imagemetaid = $metaid";
-					$qh2 = doQuery($query2, 101);
-					while($row2 = mysql_fetch_assoc($qh2))
-						$imagelist[$includedeleted][$row["id"]]["subimages"][] =  $row2["imageid"];
-				}
-			}
-			else
-				$row["imagemetaid"] = NULL;
-		}
-		if(array_key_exists($row['id'], $allrevisiondata))
-			$imagelist[$includedeleted][$row['id']]['imagerevision'] = $allrevisiondata[$row['id']];
-		$imagelist[$includedeleted][$row['id']]['connectmethods'] = getImageConnectMethods($row['id']);
-	}
-	if($imageid != 0)
-		return array($imageid => $imagelist[$includedeleted][$imageid]);
-	return $imagelist[$includedeleted];
+    # get all image revision data
+    $allrevisiondata = array();
+    $query = "SELECT i.id, "
+        .        "i.imageid, "
+        .        "i.revision, "
+        .        "i.userid, "
+        .        "CONCAT(u.unityid, '@', a.name) AS user, "
+        .        "i.datecreated, "
+        .        "DATE_FORMAT(i.datecreated, '%c/%d/%y %l:%i %p') AS prettydate, "
+        .        "i.production, "
+        .        "i.imagename "
+        . "FROM imagerevision i, "
+        .      "affiliation a, "
+        .      "user u "
+        . "WHERE i.deleted = 0 AND "
+        .       "i.userid = u.id AND "
+        .       "u.affiliationid = a.id";
+    $qh = doQuery($query, 101);
+    while($row = mysql_fetch_assoc($qh)) {
+        $id = $row['imageid'];
+        unset($row['imageid']);
+        if(! array_key_exists($id, $allrevisiondata))
+            $allrevisiondata[$id] = array();
+        $allrevisiondata[$id][$row['id']] = $row;
+    }
+    $query = "SELECT i.id AS id,"
+        .        "i.name AS name, "
+        .        "i.prettyname AS prettyname, "
+        .        "i.ownerid AS ownerid, "
+        .        "CONCAT(u.unityid, '@', a.name) AS owner, "
+        .        "i.platformid AS platformid, "
+        .        "p.name AS platform, "
+        .        "i.OSid AS osid, "
+        .        "o.name AS os, "
+        .        "o.installtype, "
+        .        "o.type AS ostype, "
+        .        "i.minram AS minram, "
+        .        "i.minprocnumber AS minprocnumber, "
+        .        "i.minprocspeed AS minprocspeed, "
+        .        "i.minnetwork AS minnetwork, "
+        .        "i.maxconcurrent AS maxconcurrent, "
+        .        "i.reloadtime AS reloadtime, "
+        .        "i.deleted AS deleted, "
+        .        "i.test AS test, "
+        .        "r.id AS resourceid, "
+        .        "i.lastupdate, "
+        .        "i.forcheckout, "
+        .        "i.maxinitialtime, "
+        .        "i.imagemetaid "
+        . "FROM image i, "
+        .      "platform p, "
+        .      "OS o, "
+        .      "resource r, "
+        .      "resourcetype t, "
+        .      "user u, "
+        .      "affiliation a "
+        . "WHERE i.platformid = p.id AND "
+        .       "r.resourcetypeid = t.id AND "
+        .       "t.name = 'image' AND "
+        .       "r.subid = i.id AND "
+        .       "i.OSid = o.id AND "
+        .       "i.ownerid = u.id AND "
+        .       "u.affiliationid = a.id ";
+    if(! $includedeleted)
+        $query .= "AND i.deleted = 0 ";
+    $query .= "ORDER BY i.prettyname";
+    $qh = doQuery($query, 120);
+    while($row = mysql_fetch_assoc($qh)) {
+        $imagelist[$includedeleted][$row["id"]] = $row;
+        if($row["imagemetaid"] != NULL) {
+            if(array_key_exists($row['imagemetaid'], $allmetadata)) {
+                $metaid = $row['imagemetaid'];
+                $imagelist[$includedeleted][$row['id']]['checkuser'] = $allmetadata[$metaid]['checkuser'];
+                $imagelist[$includedeleted][$row['id']]['rootaccess'] = $allmetadata[$metaid]['rootaccess'];
+                $imagelist[$includedeleted][$row['id']]['sysprep'] = $allmetadata[$metaid]['sysprep'];
+                $imagelist[$includedeleted][$row["id"]]["subimages"] = array();
+                if($allmetadata[$metaid]["subimages"]) {
+                    $query2 = "SELECT imageid "
+                        . "FROM subimages "
+                        . "WHERE imagemetaid = $metaid";
+                    $qh2 = doQuery($query2, 101);
+                    while($row2 = mysql_fetch_assoc($qh2))
+                        $imagelist[$includedeleted][$row["id"]]["subimages"][] =  $row2["imageid"];
+                }
+            }
+            else
+                $row["imagemetaid"] = NULL;
+        }
+        if(array_key_exists($row['id'], $allrevisiondata))
+            $imagelist[$includedeleted][$row['id']]['imagerevision'] = $allrevisiondata[$row['id']];
+        $imagelist[$includedeleted][$row['id']]['connectmethods'] = getImageConnectMethods($row['id']);
+    }
+    if($imageid != 0)
+        return array($imageid => $imagelist[$includedeleted][$imageid]);
+    return $imagelist[$includedeleted];
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1373,29 +1373,29 @@ function getImages($includedeleted=0, $imageid=0) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getImageRevisions($imageid, $incdeleted=0) {
-	$query = "SELECT i.id, "
-	       .        "i.revision, "
-	       .        "i.userid AS creatorid, "
-	       .        "CONCAT(u.unityid, '@', a.name) AS creator, "
-	       .        "i.datecreated, "
-	       .        "i.deleted, "
-	       .        "i.production, "
-	       .        "i.comments, "
-	       .        "i.imagename "
-	       . "FROM imagerevision i, "
-	       .      "user u, "
-	       .      "affiliation a "
-	       . "WHERE i.userid = u.id "
-	       .   "AND u.affiliationid = a.id "
-	       .   "AND i.imageid = $imageid";
-	if(! $incdeleted)
-		$query .= " AND i.deleted = 0";
-	$query .= " ORDER BY revision";
-	$qh = doQuery($query, 101);
-	$return = array();
-	while($row = mysql_fetch_assoc($qh))
-		$return[$row['id']] = $row;
-	return $return;
+    $query = "SELECT i.id, "
+        .        "i.revision, "
+        .        "i.userid AS creatorid, "
+        .        "CONCAT(u.unityid, '@', a.name) AS creator, "
+        .        "i.datecreated, "
+        .        "i.deleted, "
+        .        "i.production, "
+        .        "i.comments, "
+        .        "i.imagename "
+        . "FROM imagerevision i, "
+        .      "user u, "
+        .      "affiliation a "
+        . "WHERE i.userid = u.id "
+        .   "AND u.affiliationid = a.id "
+        .   "AND i.imageid = $imageid";
+    if(! $incdeleted)
+        $query .= " AND i.deleted = 0";
+    $query .= " ORDER BY revision";
+    $qh = doQuery($query, 101);
+    $return = array();
+    while($row = mysql_fetch_assoc($qh))
+        $return[$row['id']] = $row;
+    return $return;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1413,17 +1413,17 @@ function getImageRevisions($imageid, $incdeleted=0) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getImageNotes($imageid) {
-	if(empty($imageid))
-		$imageid = 0;
-	$query = "SELECT description, "
-	       .        "`usage` "
-	       . "FROM image "
-	       . "WHERE id = $imageid";
-	$qh = doQuery($query, 101);
-	if($row = mysql_fetch_assoc($qh))
-		return $row;
-	else
-		return array('description' => '', 'usage' => '');
+    if(empty($imageid))
+        $imageid = 0;
+    $query = "SELECT description, "
+        .        "`usage` "
+        . "FROM image "
+        . "WHERE id = $imageid";
+    $qh = doQuery($query, 101);
+    if($row = mysql_fetch_assoc($qh))
+        return $row;
+    else
+        return array('description' => '', 'usage' => '');
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1440,67 +1440,67 @@ function getImageNotes($imageid) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getImageConnectMethods($imageid, $revisionid=0) {
-	$key = getKey(array('getImageConnectMethods', $imageid, $revisionid));
-	if(array_key_exists($key, $_SESSION['usersessiondata']))
-		return $_SESSION['usersessiondata'][$key];
-	if($revisionid == 0)
-		$revisionid = getProductionRevisionid($imageid);
-	if($revisionid == '') {
-		$_SESSION['usersessiondata'][$key] = array();
-		return array();
-	}
+    $key = getKey(array('getImageConnectMethods', $imageid, $revisionid));
+    if(array_key_exists($key, $_SESSION['usersessiondata']))
+        return $_SESSION['usersessiondata'][$key];
+    if($revisionid == 0)
+        $revisionid = getProductionRevisionid($imageid);
+    if($revisionid == '') {
+        $_SESSION['usersessiondata'][$key] = array();
+        return array();
+    }
 
-	static $allmethods = array();
-	if(empty($allmethods)) {
-		$query = "SELECT DISTINCT c.id, "
-		      .                  "c.description, "
-		      .                  "cm.disabled, "
-		      .                  "i.id AS imageid, "
-		      .                  "cm.imagerevisionid AS cmimagerevisionid, "
-		      .                  "ir.id AS imagerevisionid, "
-		      .                  "ir.imagename "
-		      . "FROM image i "
-		      . "LEFT JOIN OS o ON (o.id = i.OSid) "
-		      . "LEFT JOIN OStype ot ON (ot.name = o.type) "
-		      . "LEFT JOIN imagerevision ir ON (ir.imageid = i.id) "
-		      . "LEFT JOIN connectmethodmap cm ON (cm.OStypeid = ot.id OR "
-		      .                                   "cm.OSid = o.id OR "
-		      .                                   "cm.imagerevisionid = ir.id) "
-		      . "LEFT JOIN connectmethod c ON (cm.connectmethodid = c.id) "
-		      . "WHERE cm.autoprovisioned IS NULL  "
-		      . "ORDER BY i.id, "
-		      .          "cm.disabled, "
-		      .          "c.description";
-		$qh = doQuery($query);
-		while($row = mysql_fetch_assoc($qh)) {
-			$_imageid = $row['imageid'];
-			$_revid = $row['imagerevisionid'];
-			unset($row['imageid']);
-			unset($row['imagerevisionid']);
-			if(! array_key_exists($_imageid, $allmethods))
-				$allmethods[$_imageid] = array();
-			if(! array_key_exists($_revid, $allmethods[$_imageid]))
-				$allmethods[$_imageid][$_revid] = array();
-			$allmethods[$_imageid][$_revid][] = $row;
-		}
-	}
-	if(! array_key_exists($imageid, $allmethods) ||
-	   ! array_key_exists($revisionid, $allmethods[$imageid])) {
-		$_SESSION['usersessiondata'][$key] = array();
-		return array();
-	}
-	$methods = array();
-	foreach($allmethods[$imageid][$revisionid] as $data) {
-		if($data['disabled']) {
-		  if(array_key_exists($data['id'], $methods))
-			unset($methods[$data['id']]);
-		}
-		else
-			$methods[$data['id']] = $data['description'];
-	}
+    static $allmethods = array();
+    if(empty($allmethods)) {
+        $query = "SELECT DISTINCT c.id, "
+            .                  "c.description, "
+            .                  "cm.disabled, "
+            .                  "i.id AS imageid, "
+            .                  "cm.imagerevisionid AS cmimagerevisionid, "
+            .                  "ir.id AS imagerevisionid, "
+            .                  "ir.imagename "
+            . "FROM image i "
+            . "LEFT JOIN OS o ON (o.id = i.OSid) "
+            . "LEFT JOIN OStype ot ON (ot.name = o.type) "
+            . "LEFT JOIN imagerevision ir ON (ir.imageid = i.id) "
+            . "LEFT JOIN connectmethodmap cm ON (cm.OStypeid = ot.id OR "
+            .                                   "cm.OSid = o.id OR "
+            .                                   "cm.imagerevisionid = ir.id) "
+            . "LEFT JOIN connectmethod c ON (cm.connectmethodid = c.id) "
+            . "WHERE cm.autoprovisioned IS NULL  "
+            . "ORDER BY i.id, "
+            .          "cm.disabled, "
+            .          "c.description";
+        $qh = doQuery($query);
+        while($row = mysql_fetch_assoc($qh)) {
+            $_imageid = $row['imageid'];
+            $_revid = $row['imagerevisionid'];
+            unset($row['imageid']);
+            unset($row['imagerevisionid']);
+            if(! array_key_exists($_imageid, $allmethods))
+                $allmethods[$_imageid] = array();
+            if(! array_key_exists($_revid, $allmethods[$_imageid]))
+                $allmethods[$_imageid][$_revid] = array();
+            $allmethods[$_imageid][$_revid][] = $row;
+        }
+    }
+    if(! array_key_exists($imageid, $allmethods) ||
+        ! array_key_exists($revisionid, $allmethods[$imageid])) {
+        $_SESSION['usersessiondata'][$key] = array();
+        return array();
+    }
+    $methods = array();
+    foreach($allmethods[$imageid][$revisionid] as $data) {
+        if($data['disabled']) {
+            if(array_key_exists($data['id'], $methods))
+                unset($methods[$data['id']]);
+        }
+        else
+            $methods[$data['id']] = $data['description'];
+    }
 
-	$_SESSION['usersessiondata'][$key] = $methods;
-	return $methods;
+    $_SESSION['usersessiondata'][$key] = $methods;
+    return $methods;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1517,50 +1517,50 @@ function getImageConnectMethods($imageid, $revisionid=0) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getImageConnectMethodTexts($imageid, $revisionid=0) {
-	global $locale;
-	$descfield = 'description';
-	$textfield = 'connecttext';
-	if(! preg_match('/^en/', $locale)) {
-		$query = "DESC connectmethod";
-		$qh = doQuery($query, 101);
-		while($row = mysql_fetch_assoc($qh)) {
-			if($row['Field'] == "description_$locale")
-				$descfield = "description_$locale";
-			if($row['Field'] == "connecttext_$locale")
-				$textfield = "connecttext_$locale";
-		}
-	}
-	if($revisionid == 0)
-		$revisionid = getProductionRevisionid($imageid);
-	$query = "SELECT c.id, "
-	       .        "c.`$descfield` AS description, "
-	       .        "c.`$textfield` AS connecttext, "
-	       .        "cm.disabled "
-	       . "FROM connectmethod c, "
-	       .      "connectmethodmap cm, "
-	       .      "image i "
-	       . "LEFT JOIN OS o ON (o.id = i.OSid) "
-	       . "LEFT JOIN OStype ot ON (ot.name = o.type) "
-	       . "WHERE i.id = $imageid AND "
-	       .       "cm.connectmethodid = c.id AND "
-	       .       "cm.autoprovisioned IS NULL AND "
-	       .       "(cm.OStypeid = ot.id OR "
-	       .        "cm.OSid = o.id OR "
-	       .        "cm.imagerevisionid = $revisionid) "
-	       . "ORDER BY cm.disabled, "
-	       .          "c.`$descfield`";
-	$methods = array();
-	$qh = doQuery($query, 101);
-	while($row = mysql_fetch_assoc($qh)) {
-		if($row['disabled']) {
-		  if(array_key_exists($row['id'], $methods))
-			unset($methods[$row['id']]);
-		}
-		else
-			$methods[$row['id']] = array('description' => $row['description'],
-			                             'connecttext' => $row['connecttext']);
-	}
-	return $methods;
+    global $locale;
+    $descfield = 'description';
+    $textfield = 'connecttext';
+    if(! preg_match('/^en/', $locale)) {
+        $query = "DESC connectmethod";
+        $qh = doQuery($query, 101);
+        while($row = mysql_fetch_assoc($qh)) {
+            if($row['Field'] == "description_$locale")
+                $descfield = "description_$locale";
+            if($row['Field'] == "connecttext_$locale")
+                $textfield = "connecttext_$locale";
+        }
+    }
+    if($revisionid == 0)
+        $revisionid = getProductionRevisionid($imageid);
+    $query = "SELECT c.id, "
+        .        "c.`$descfield` AS description, "
+        .        "c.`$textfield` AS connecttext, "
+        .        "cm.disabled "
+        . "FROM connectmethod c, "
+        .      "connectmethodmap cm, "
+        .      "image i "
+        . "LEFT JOIN OS o ON (o.id = i.OSid) "
+        . "LEFT JOIN OStype ot ON (ot.name = o.type) "
+        . "WHERE i.id = $imageid AND "
+        .       "cm.connectmethodid = c.id AND "
+        .       "cm.autoprovisioned IS NULL AND "
+        .       "(cm.OStypeid = ot.id OR "
+        .        "cm.OSid = o.id OR "
+        .        "cm.imagerevisionid = $revisionid) "
+        . "ORDER BY cm.disabled, "
+        .          "c.`$descfield`";
+    $methods = array();
+    $qh = doQuery($query, 101);
+    while($row = mysql_fetch_assoc($qh)) {
+        if($row['disabled']) {
+            if(array_key_exists($row['id'], $methods))
+                unset($methods[$row['id']]);
+        }
+        else
+            $methods[$row['id']] = array('description' => $row['description'],
+                'connecttext' => $row['connecttext']);
+    }
+    return $methods;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1574,12 +1574,12 @@ function getImageConnectMethodTexts($imageid, $revisionid=0) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getImageTypes() {
-	$query = "SELECT id, name FROM imagetype ORDER BY name";
-	$qh = doQuery($query);
-	$data = array();
-	while($row = mysql_fetch_assoc($qh))
-		$data[$row['id']] = $row['name'];
-	return $data;
+    $query = "SELECT id, name FROM imagetype ORDER BY name";
+    $qh = doQuery($query);
+    $data = array();
+    while($row = mysql_fetch_assoc($qh))
+        $data[$row['id']] = $row['name'];
+    return $data;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1598,34 +1598,34 @@ function getImageTypes() {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function checkClearImageMeta($imagemetaid, $imageid, $ignorefield='') {
-	# get defaults for imagemeta table
-	$query = "DESC imagemeta";
-	$qh = doQuery($query, 101);
-	$defaults = array();
-	while($row = mysql_fetch_assoc($qh))
-		$defaults[$row['Field']] = $row['Default'];
-	# get imagemeta data
-	$query = "SELECT * FROM imagemeta WHERE id = $imagemetaid";
-	$qh = doQuery($query, 101);
-	$row = mysql_fetch_assoc($qh);
-	$alldefaults = 1;
-	foreach($row as $field => $val) {
-		if($field == 'id' || $field == $ignorefield)
-			continue;
-		if($defaults[$field] != $val) {
-			$alldefaults = 0;
-			break;
-		}
-	}
-	// if all default values, delete imagemeta entry
-	if($alldefaults) {
-		$query = "DELETE FROM imagemeta WHERE id = $imagemetaid";
-		doQuery($query, 101);
-		$query = "UPDATE image SET imagemetaid = NULL WHERE id = $imageid";
-		doQuery($query, 101);
-		return 1;
-	}
-	return 0;
+    # get defaults for imagemeta table
+    $query = "DESC imagemeta";
+    $qh = doQuery($query, 101);
+    $defaults = array();
+    while($row = mysql_fetch_assoc($qh))
+        $defaults[$row['Field']] = $row['Default'];
+    # get imagemeta data
+    $query = "SELECT * FROM imagemeta WHERE id = $imagemetaid";
+    $qh = doQuery($query, 101);
+    $row = mysql_fetch_assoc($qh);
+    $alldefaults = 1;
+    foreach($row as $field => $val) {
+        if($field == 'id' || $field == $ignorefield)
+            continue;
+        if($defaults[$field] != $val) {
+            $alldefaults = 0;
+            break;
+        }
+    }
+    // if all default values, delete imagemeta entry
+    if($alldefaults) {
+        $query = "DELETE FROM imagemeta WHERE id = $imagemetaid";
+        doQuery($query, 101);
+        $query = "UPDATE image SET imagemetaid = NULL WHERE id = $imageid";
+        doQuery($query, 101);
+        return 1;
+    }
+    return 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1641,20 +1641,20 @@ function checkClearImageMeta($imagemetaid, $imageid, $ignorefield='') {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getProductionRevisionid($imageid) {
-	static $alldata = array();
-	if(! empty($alldata))
-		if(array_key_exists($imageid, $alldata))
-			return $alldata[$imageid];
-		else
-			return '';
-	$query = "SELECT id, "
-	       .        "imageid "
-	       . "FROM imagerevision  " 
-	       . "WHERE production = 1";
-	$qh = doQuery($query, 101);
-	while($row = mysql_fetch_assoc($qh))
-		$alldata[$row['imageid']] = $row['id'];
-	return $alldata[$imageid];
+    static $alldata = array();
+    if(! empty($alldata))
+        if(array_key_exists($imageid, $alldata))
+            return $alldata[$imageid];
+        else
+            return '';
+    $query = "SELECT id, "
+        .        "imageid "
+        . "FROM imagerevision  "
+        . "WHERE production = 1";
+    $qh = doQuery($query, 101);
+    while($row = mysql_fetch_assoc($qh))
+        $alldata[$row['imageid']] = $row['id'];
+    return $alldata[$imageid];
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1670,12 +1670,12 @@ function getProductionRevisionid($imageid) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function removeNoCheckout($images) {
-	$allimages = getImages();
-	foreach(array_keys($images) as $id) {
-		if(array_key_exists($id, $allimages) && ! $allimages[$id]["forcheckout"])
-			unset($images[$id]);
-	}
-	return $images;
+    $allimages = getImages();
+    foreach(array_keys($images) as $id) {
+        if(array_key_exists($id, $allimages) && ! $allimages[$id]["forcheckout"])
+            unset($images[$id]);
+    }
+    return $images;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1716,140 +1716,140 @@ function removeNoCheckout($images) {
 ////////////////////////////////////////////////////////////////////////////////
 function getUserResources($userprivs, $resourceprivs=array("available"),
                           $onlygroups=0, $includedeleted=0, $userid=0) {
-	global $user;
-	$key = getKey(array($userprivs, $resourceprivs, $onlygroups, $includedeleted, $userid));
-	if(array_key_exists($key, $_SESSION['userresources']))
-		return $_SESSION['userresources'][$key];
-	#FIXME this whole function could be much more efficient
-	if(! $userid)
-		$userid = $user["id"];
-	$return = array();
+    global $user;
+    $key = getKey(array($userprivs, $resourceprivs, $onlygroups, $includedeleted, $userid));
+    if(array_key_exists($key, $_SESSION['userresources']))
+        return $_SESSION['userresources'][$key];
+    #FIXME this whole function could be much more efficient
+    if(! $userid)
+        $userid = $user["id"];
+    $return = array();
 
-	$nodeprivs = array();
-	$startnodes = array();
-	# build a list of nodes where user is granted $userprivs
-	$inlist = "'" . implode("','", $userprivs) . "'";
-	$query = "SELECT u.privnodeid "
-	       . "FROM userpriv u, "
-	       .      "userprivtype t "
-	       . "WHERE u.userprivtypeid = t.id AND "
-	       .       "t.name IN ($inlist) AND "
-	       .       "(u.userid = $userid OR "
-	       .       "u.usergroupid IN (SELECT usergroupid "
-	       .                         "FROM usergroupmembers "
-	       .                         "WHERE userid = $userid))";
-	$qh = doQuery($query, 101);
-	while($row = mysql_fetch_assoc($qh)) {
-		array_push($startnodes, $row["privnodeid"]);
-	}
-	# build data array from userprivtype and userpriv tables to reduce queries
-	# in addNodeUserResourcePrivs
-	$privdataset = array('user' => array(), 'usergroup' => array());
-	$query = "SELECT t.name, "
-	       .        "u.privnodeid "
-	       . "FROM userprivtype t, "
-	       .      "userpriv u "
-	       . "WHERE u.userprivtypeid = t.id AND "
-	       .       "u.userid IS NOT NULL AND "
-	       .       "u.userid = $userid AND "
-	       .       "t.name IN ('block','cascade',$inlist)";
-	$qh = doQuery($query);
-	while($row = mysql_fetch_assoc($qh)) {
-		if(! array_key_exists($row['privnodeid'], $privdataset['user']))
-			$privdataset['user'][$row['privnodeid']] = array();
-		$privdataset['user'][$row['privnodeid']][] = $row['name'];
-	}
-	$query = "SELECT t.name, "
-	       .        "u.usergroupid, "
-	       .        "u.privnodeid "
-	       . "FROM userprivtype t, "
-	       .      "userpriv u "
-	       . "WHERE u.userprivtypeid = t.id AND "
-	       .       "u.usergroupid IS NOT NULL AND "
-	       .       "u.usergroupid IN (SELECT usergroupid "
-	       .                         "FROM usergroupmembers "
-	       .                         "WHERE userid = $userid) AND "
-	       .       "t.name IN ('block','cascade',$inlist) "
-	       . "ORDER BY u.privnodeid, "
-	       .          "u.usergroupid";
-	$qh = doQuery($query, 101);
-	while($row = mysql_fetch_assoc($qh)) {
-		if(! array_key_exists($row['privnodeid'], $privdataset['usergroup']))
-			$privdataset['usergroup'][$row['privnodeid']] = array();
-		$privdataset['usergroup'][$row['privnodeid']][] = array('name' => $row['name'], 'groupid' => $row['usergroupid']);
-	}
+    $nodeprivs = array();
+    $startnodes = array();
+    # build a list of nodes where user is granted $userprivs
+    $inlist = "'" . implode("','", $userprivs) . "'";
+    $query = "SELECT u.privnodeid "
+        . "FROM userpriv u, "
+        .      "userprivtype t "
+        . "WHERE u.userprivtypeid = t.id AND "
+        .       "t.name IN ($inlist) AND "
+        .       "(u.userid = $userid OR "
+        .       "u.usergroupid IN (SELECT usergroupid "
+        .                         "FROM usergroupmembers "
+        .                         "WHERE userid = $userid))";
+    $qh = doQuery($query, 101);
+    while($row = mysql_fetch_assoc($qh)) {
+        array_push($startnodes, $row["privnodeid"]);
+    }
+    # build data array from userprivtype and userpriv tables to reduce queries
+    # in addNodeUserResourcePrivs
+    $privdataset = array('user' => array(), 'usergroup' => array());
+    $query = "SELECT t.name, "
+        .        "u.privnodeid "
+        . "FROM userprivtype t, "
+        .      "userpriv u "
+        . "WHERE u.userprivtypeid = t.id AND "
+        .       "u.userid IS NOT NULL AND "
+        .       "u.userid = $userid AND "
+        .       "t.name IN ('block','cascade',$inlist)";
+    $qh = doQuery($query);
+    while($row = mysql_fetch_assoc($qh)) {
+        if(! array_key_exists($row['privnodeid'], $privdataset['user']))
+            $privdataset['user'][$row['privnodeid']] = array();
+        $privdataset['user'][$row['privnodeid']][] = $row['name'];
+    }
+    $query = "SELECT t.name, "
+        .        "u.usergroupid, "
+        .        "u.privnodeid "
+        . "FROM userprivtype t, "
+        .      "userpriv u "
+        . "WHERE u.userprivtypeid = t.id AND "
+        .       "u.usergroupid IS NOT NULL AND "
+        .       "u.usergroupid IN (SELECT usergroupid "
+        .                         "FROM usergroupmembers "
+        .                         "WHERE userid = $userid) AND "
+        .       "t.name IN ('block','cascade',$inlist) "
+        . "ORDER BY u.privnodeid, "
+        .          "u.usergroupid";
+    $qh = doQuery($query, 101);
+    while($row = mysql_fetch_assoc($qh)) {
+        if(! array_key_exists($row['privnodeid'], $privdataset['usergroup']))
+            $privdataset['usergroup'][$row['privnodeid']] = array();
+        $privdataset['usergroup'][$row['privnodeid']][] = array('name' => $row['name'], 'groupid' => $row['usergroupid']);
+    }
 
-	# travel up tree looking at privileges granted at parent nodes
-	foreach($startnodes as $nodeid) {
-		getUserResourcesUp($nodeprivs, $nodeid, $userid, $userprivs, $privdataset);
-	}
-	# travel down tree looking at privileges granted at child nodes if cascade privs at this node
-	foreach($startnodes as $nodeid) {
-		getUserResourcesDown($nodeprivs, $nodeid, $userid, $userprivs, $privdataset);
-	}
-	$nodeprivs = simplifyNodePrivs($nodeprivs, $userprivs); // call this before calling addUserResources
-	addUserResources($nodeprivs, $userid);
+    # travel up tree looking at privileges granted at parent nodes
+    foreach($startnodes as $nodeid) {
+        getUserResourcesUp($nodeprivs, $nodeid, $userid, $userprivs, $privdataset);
+    }
+    # travel down tree looking at privileges granted at child nodes if cascade privs at this node
+    foreach($startnodes as $nodeid) {
+        getUserResourcesDown($nodeprivs, $nodeid, $userid, $userprivs, $privdataset);
+    }
+    $nodeprivs = simplifyNodePrivs($nodeprivs, $userprivs); // call this before calling addUserResources
+    addUserResources($nodeprivs, $userid);
 
-	# build a list of resource groups user has access to
-	$resourcegroups = array();
-	$types = getTypes("resources");
-	foreach($types["resources"] as $type) {
-		$resourcegroups[$type] = array();
-	}
-	foreach(array_keys($nodeprivs) as $nodeid) {
-		// if user doesn't have privs at this node, no need to look
-		// at any resource groups here
-		$haspriv = 0;
-		foreach($userprivs as $priv) {
-			if($nodeprivs[$nodeid][$priv])
-				$haspriv = 1;
-		}
-		if(! $haspriv)
-			continue;
-		# check to see if resource groups has any of $resourceprivs at this node
-		foreach(array_keys($nodeprivs[$nodeid]["resources"]) as $resourceid) {
-			foreach($resourceprivs as $priv) {
-				if(in_array($priv, $nodeprivs[$nodeid]["resources"][$resourceid])) {
-					list($type, $name, $id) = explode('/', $resourceid);
-					if(! array_key_exists($type, $resourcegroups))
-						$resourcegroups[$type] = array();
-					if(! in_array($name, $resourcegroups[$type]))
-						$resourcegroups[$type][$id] = $name;
-				}
-			}
-		}
-		# check to see if resource groups has any of $resourceprivs cascaded to this node
-		foreach(array_keys($nodeprivs[$nodeid]["cascaderesources"]) as $resourceid) {
-			foreach($resourceprivs as $priv) {
-				if(in_array($priv, $nodeprivs[$nodeid]["cascaderesources"][$resourceid]) &&
-					! (array_key_exists($resourceid, $nodeprivs[$nodeid]["resources"]) &&
-					in_array("block", $nodeprivs[$nodeid]["resources"][$resourceid]))) {
-					list($type, $name, $id) = explode('/', $resourceid);
-					if(! array_key_exists($type, $resourcegroups))
-						$resourcegroups[$type] = array();
-					if(! in_array($name, $resourcegroups[$type]))
-						$resourcegroups[$type][$id] = $name;
-				}
-			}
-		}
-	}
+    # build a list of resource groups user has access to
+    $resourcegroups = array();
+    $types = getTypes("resources");
+    foreach($types["resources"] as $type) {
+        $resourcegroups[$type] = array();
+    }
+    foreach(array_keys($nodeprivs) as $nodeid) {
+        // if user doesn't have privs at this node, no need to look
+        // at any resource groups here
+        $haspriv = 0;
+        foreach($userprivs as $priv) {
+            if($nodeprivs[$nodeid][$priv])
+                $haspriv = 1;
+        }
+        if(! $haspriv)
+            continue;
+        # check to see if resource groups has any of $resourceprivs at this node
+        foreach(array_keys($nodeprivs[$nodeid]["resources"]) as $resourceid) {
+            foreach($resourceprivs as $priv) {
+                if(in_array($priv, $nodeprivs[$nodeid]["resources"][$resourceid])) {
+                    list($type, $name, $id) = explode('/', $resourceid);
+                    if(! array_key_exists($type, $resourcegroups))
+                        $resourcegroups[$type] = array();
+                    if(! in_array($name, $resourcegroups[$type]))
+                        $resourcegroups[$type][$id] = $name;
+                }
+            }
+        }
+        # check to see if resource groups has any of $resourceprivs cascaded to this node
+        foreach(array_keys($nodeprivs[$nodeid]["cascaderesources"]) as $resourceid) {
+            foreach($resourceprivs as $priv) {
+                if(in_array($priv, $nodeprivs[$nodeid]["cascaderesources"][$resourceid]) &&
+                    ! (array_key_exists($resourceid, $nodeprivs[$nodeid]["resources"]) &&
+                        in_array("block", $nodeprivs[$nodeid]["resources"][$resourceid]))) {
+                    list($type, $name, $id) = explode('/', $resourceid);
+                    if(! array_key_exists($type, $resourcegroups))
+                        $resourcegroups[$type] = array();
+                    if(! in_array($name, $resourcegroups[$type]))
+                        $resourcegroups[$type][$id] = $name;
+                }
+            }
+        }
+    }
 
-	addOwnedResourceGroups($resourcegroups, $userid);
-	if($onlygroups) {
-		foreach(array_keys($resourcegroups) as $type)
-			uasort($resourcegroups[$type], "sortKeepIndex");
-		$_SESSION['userresources'][$key] = $resourcegroups;
-		return $resourcegroups;
-	}
+    addOwnedResourceGroups($resourcegroups, $userid);
+    if($onlygroups) {
+        foreach(array_keys($resourcegroups) as $type)
+            uasort($resourcegroups[$type], "sortKeepIndex");
+        $_SESSION['userresources'][$key] = $resourcegroups;
+        return $resourcegroups;
+    }
 
-	$resources = array();
-	foreach(array_keys($resourcegroups) as $type) {
-		$resources[$type] = 
-		   getResourcesFromGroups($resourcegroups[$type], $type, $includedeleted);
-	}
-	addOwnedResources($resources, $includedeleted, $userid);
-	$_SESSION['userresources'][$key] = $resources;
-	return $resources;
+    $resources = array();
+    foreach(array_keys($resourcegroups) as $type) {
+        $resources[$type] =
+            getResourcesFromGroups($resourcegroups[$type], $type, $includedeleted);
+    }
+    addOwnedResources($resources, $includedeleted, $userid);
+    $_SESSION['userresources'][$key] = $resources;
+    return $resources;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1868,22 +1868,22 @@ function getUserResources($userprivs, $resourceprivs=array("available"),
 /// \brief adds resource privileges to $nodeprivs for the parents of $nodeid
 ///
 ////////////////////////////////////////////////////////////////////////////////
-function getUserResourcesUp(&$nodeprivs, $nodeid, $userid, 
+function getUserResourcesUp(&$nodeprivs, $nodeid, $userid,
                             $resourceprivs, $privdataset) {
-	# build list of parent nodes
-	# starting at top, get images available at that node and user privs there and
-	# walk down to $nodeid
-	$nodelist = getParentNodes($nodeid);
-	array_unshift($nodelist, $nodeid);
-	$lastid = 0;
-	while(count($nodelist)) {
-		$id = array_pop($nodelist);
-		if(array_key_exists($id, $nodeprivs))
-			continue;
+    # build list of parent nodes
+    # starting at top, get images available at that node and user privs there and
+    # walk down to $nodeid
+    $nodelist = getParentNodes($nodeid);
+    array_unshift($nodelist, $nodeid);
+    $lastid = 0;
+    while(count($nodelist)) {
+        $id = array_pop($nodelist);
+        if(array_key_exists($id, $nodeprivs))
+            continue;
 
-		addNodeUserResourcePrivs($nodeprivs, $id, $lastid, $userid, $resourceprivs, $privdataset);
-		$lastid = $id;
-	}
+        addNodeUserResourcePrivs($nodeprivs, $id, $lastid, $userid, $resourceprivs, $privdataset);
+        $lastid = $id;
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1903,14 +1903,14 @@ function getUserResourcesUp(&$nodeprivs, $nodeid, $userid,
 /// of $nodeid
 ///
 ////////////////////////////////////////////////////////////////////////////////
-function getUserResourcesDown(&$nodeprivs, $nodeid, $userid, 
+function getUserResourcesDown(&$nodeprivs, $nodeid, $userid,
                               $resourceprivs, $privdataset) {
-	# FIXME can we check for cascading and if not there, don't descend?
-	$children = getChildNodes($nodeid);
-	foreach(array_keys($children) as $id) {
-		addNodeUserResourcePrivs($nodeprivs, $id, $nodeid, $userid, $resourceprivs, $privdataset);
-		getUserResourcesDown($nodeprivs, $id, $userid, $resourceprivs, $privdataset);
-	}
+    # FIXME can we check for cascading and if not there, don't descend?
+    $children = getChildNodes($nodeid);
+    foreach(array_keys($children) as $id) {
+        addNodeUserResourcePrivs($nodeprivs, $id, $nodeid, $userid, $resourceprivs, $privdataset);
+        getUserResourcesDown($nodeprivs, $id, $userid, $resourceprivs, $privdataset);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1927,96 +1927,96 @@ function getUserResourcesDown(&$nodeprivs, $nodeid, $userid,
 ///
 /// \return modifies $nodeprivs, but doesn't return anything
 ///
-/// \brief for $id, gets privileges and cascaded privileges the user and any 
+/// \brief for $id, gets privileges and cascaded privileges the user and any
 /// groups the user is and adds them to $nodeprivs
 ///
 ////////////////////////////////////////////////////////////////////////////////
-function addNodeUserResourcePrivs(&$nodeprivs, $id, $lastid, $userid, 
+function addNodeUserResourcePrivs(&$nodeprivs, $id, $lastid, $userid,
                                   $resourceprivs, $privdataset) {
-	$nodeprivs[$id]["user"] = array("cascade" => 0);
-	foreach($resourceprivs as $priv) {
-		$nodeprivs[$id]["user"][$priv] = 0;
-	}
+    $nodeprivs[$id]["user"] = array("cascade" => 0);
+    foreach($resourceprivs as $priv) {
+        $nodeprivs[$id]["user"][$priv] = 0;
+    }
 
-	# add permissions for user
-	$block = 0;
-	if(array_key_exists($id, $privdataset['user'])) {
-		foreach($privdataset['user'][$id] as $name) {
-			if($name != 'block')
-				$nodeprivs[$id]['user'][$name] = 1;
-			else
-				$block = 1;
-		}
-	}
-	// if don't have anything in $resourceprivs, set cascade = 0
-	if($nodeprivs[$id]["user"]["cascade"]) {
-		$noprivs = 1;
-		foreach($resourceprivs as $priv) {
-			if($nodeprivs[$id]["user"][$priv])
-				$noprivs = 0;
-		}
-		if($noprivs)
-			$nodeprivs[$id]["user"]["cascade"] = 0;
-	}
-	// if not blocking at this node, and previous node had cascade
-	if($lastid && ! $block && $nodeprivs[$lastid]["user"]["cascade"]) {
-		# set cascade = 1
-		$nodeprivs[$id]["user"]["cascade"] = 1;
-		# set each priv in $resourceprivs = 1
-		foreach($resourceprivs as $priv) {
-			if($nodeprivs[$lastid]["user"][$priv])
-				$nodeprivs[$id]["user"][$priv] = 1;
-		}
-	}
+    # add permissions for user
+    $block = 0;
+    if(array_key_exists($id, $privdataset['user'])) {
+        foreach($privdataset['user'][$id] as $name) {
+            if($name != 'block')
+                $nodeprivs[$id]['user'][$name] = 1;
+            else
+                $block = 1;
+        }
+    }
+    // if don't have anything in $resourceprivs, set cascade = 0
+    if($nodeprivs[$id]["user"]["cascade"]) {
+        $noprivs = 1;
+        foreach($resourceprivs as $priv) {
+            if($nodeprivs[$id]["user"][$priv])
+                $noprivs = 0;
+        }
+        if($noprivs)
+            $nodeprivs[$id]["user"]["cascade"] = 0;
+    }
+    // if not blocking at this node, and previous node had cascade
+    if($lastid && ! $block && $nodeprivs[$lastid]["user"]["cascade"]) {
+        # set cascade = 1
+        $nodeprivs[$id]["user"]["cascade"] = 1;
+        # set each priv in $resourceprivs = 1
+        foreach($resourceprivs as $priv) {
+            if($nodeprivs[$lastid]["user"][$priv])
+                $nodeprivs[$id]["user"][$priv] = 1;
+        }
+    }
 
-	# add permissions for user's groups
-	$basearray = array("cascade" => 0,
-	                   "block" => 0);
-	foreach($resourceprivs as $priv)
-		$basearray[$priv] = 0;
-	if(array_key_exists($id, $privdataset['usergroup'])) {
-		foreach($privdataset['usergroup'][$id] as $data) {
-			if(! array_key_exists($data["groupid"], $nodeprivs[$id]))
-				$nodeprivs[$id][$data["groupid"]] = $basearray;
-			$nodeprivs[$id][$data["groupid"]][$data["name"]] = 1;
-		}
-	}
-	# add groups from $lastid if it is not 0
-	$groupkeys = array_keys($nodeprivs[$id]);
-	if($lastid) {
-		foreach(array_keys($nodeprivs[$lastid]) as $groupid) {
-			if(in_array($groupid, $groupkeys))
-				continue;
-			$nodeprivs[$id][$groupid] = $basearray;
-		}
-	}
-	foreach(array_keys($nodeprivs[$id]) as $groupid) {
-		if(! is_numeric($groupid))
-			continue;
-		// if don't have anything in $resourceprivs, set cascade = 0
-		if($nodeprivs[$id][$groupid]["cascade"]) {
-			$noprivs = 1;
-			foreach($resourceprivs as $priv) {
-				if($nodeprivs[$id][$groupid][$priv])
-					$noprivs = 0;
-			}
-			if($noprivs)
-				$nodeprivs[$id][$groupid]["cascade"] = 0;
-		}
-		// if group not blocking at this node, and group had cascade at previous 
-		# node
-		if($lastid && ! $nodeprivs[$id][$groupid]["block"] && 
-		   array_key_exists($groupid, $nodeprivs[$lastid]) &&
-		   $nodeprivs[$lastid][$groupid]["cascade"]) {
-			# set cascade = 1
-			$nodeprivs[$id][$groupid]["cascade"] = 1;
-			# set each priv in $resourceprivs = 1
-			foreach($resourceprivs as $priv) {
-				if($nodeprivs[$lastid][$groupid][$priv])
-					$nodeprivs[$id][$groupid][$priv] = 1;
-			}
-		}
-	}
+    # add permissions for user's groups
+    $basearray = array("cascade" => 0,
+        "block" => 0);
+    foreach($resourceprivs as $priv)
+        $basearray[$priv] = 0;
+    if(array_key_exists($id, $privdataset['usergroup'])) {
+        foreach($privdataset['usergroup'][$id] as $data) {
+            if(! array_key_exists($data["groupid"], $nodeprivs[$id]))
+                $nodeprivs[$id][$data["groupid"]] = $basearray;
+            $nodeprivs[$id][$data["groupid"]][$data["name"]] = 1;
+        }
+    }
+    # add groups from $lastid if it is not 0
+    $groupkeys = array_keys($nodeprivs[$id]);
+    if($lastid) {
+        foreach(array_keys($nodeprivs[$lastid]) as $groupid) {
+            if(in_array($groupid, $groupkeys))
+                continue;
+            $nodeprivs[$id][$groupid] = $basearray;
+        }
+    }
+    foreach(array_keys($nodeprivs[$id]) as $groupid) {
+        if(! is_numeric($groupid))
+            continue;
+        // if don't have anything in $resourceprivs, set cascade = 0
+        if($nodeprivs[$id][$groupid]["cascade"]) {
+            $noprivs = 1;
+            foreach($resourceprivs as $priv) {
+                if($nodeprivs[$id][$groupid][$priv])
+                    $noprivs = 0;
+            }
+            if($noprivs)
+                $nodeprivs[$id][$groupid]["cascade"] = 0;
+        }
+        // if group not blocking at this node, and group had cascade at previous
+        # node
+        if($lastid && ! $nodeprivs[$id][$groupid]["block"] &&
+            array_key_exists($groupid, $nodeprivs[$lastid]) &&
+            $nodeprivs[$lastid][$groupid]["cascade"]) {
+            # set cascade = 1
+            $nodeprivs[$id][$groupid]["cascade"] = 1;
+            # set each priv in $resourceprivs = 1
+            foreach($resourceprivs as $priv) {
+                if($nodeprivs[$lastid][$groupid][$priv])
+                    $nodeprivs[$id][$groupid][$priv] = 1;
+            }
+        }
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2035,21 +2035,21 @@ function addNodeUserResourcePrivs(&$nodeprivs, $id, $lastid, $userid,
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function simplifyNodePrivs($nodeprivs, $resourceprivs) {
-	$return = array();
-	$basearray = array();
-	foreach($resourceprivs as $priv) {
-		$basearray[$priv] = 0;
-	}
-	foreach(array_keys($nodeprivs) as $nodeid) {
-		$return[$nodeid] = $basearray;
-		foreach(array_keys($nodeprivs[$nodeid]) as $key) {
-			foreach($resourceprivs as $priv) {
-				if($nodeprivs[$nodeid][$key][$priv])
-					$return[$nodeid][$priv] = 1;
-			}
-		}
-	}
-	return $return;
+    $return = array();
+    $basearray = array();
+    foreach($resourceprivs as $priv) {
+        $basearray[$priv] = 0;
+    }
+    foreach(array_keys($nodeprivs) as $nodeid) {
+        $return[$nodeid] = $basearray;
+        foreach(array_keys($nodeprivs[$nodeid]) as $key) {
+            foreach($resourceprivs as $priv) {
+                if($nodeprivs[$nodeid][$key][$priv])
+                    $return[$nodeid][$priv] = 1;
+            }
+        }
+    }
+    return $return;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2066,13 +2066,13 @@ function simplifyNodePrivs($nodeprivs, $resourceprivs) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function addUserResources(&$nodeprivs, $userid) {
-	require_once(".ht-inc/privileges.php");
-	foreach(array_keys($nodeprivs) as $nodeid) {
-		$privs = getNodePrivileges($nodeid, "resources");
-		$nodeprivs[$nodeid]["resources"] = $privs["resources"];
-		$privs = getNodeCascadePrivileges($nodeid, "resources");
-		$nodeprivs[$nodeid]["cascaderesources"] = $privs["resources"];
-	}
+    require_once(".ht-inc/privileges.php");
+    foreach(array_keys($nodeprivs) as $nodeid) {
+        $privs = getNodePrivileges($nodeid, "resources");
+        $nodeprivs[$nodeid]["resources"] = $privs["resources"];
+        $privs = getNodeCascadePrivileges($nodeid, "resources");
+        $nodeprivs[$nodeid]["cascaderesources"] = $privs["resources"];
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2089,31 +2089,31 @@ function addUserResources(&$nodeprivs, $userid) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function addOwnedResources(&$resources, $includedeleted, $userid) {
-	foreach(array_keys($resources) as $type) {
-		if($type == "image")
-			$field = "prettyname";
-		elseif($type == "computer")
-			$field = "hostname";
-		elseif($type == "schedule")
-			$field = "name";
-		elseif($type == "managementnode")
-			$field = "hostname";
-		elseif($type == "serverprofile")
-			$field = "name";
-		else
-			continue;
-		$query = "SELECT id, "
-		       .        "$field "
-		       . "FROM $type "
-		       . "WHERE ownerid = $userid";
-		if(! $includedeleted && ($type == "image" || $type == "computer"))
-			$query .= " AND deleted = 0";
-		$qh = doQuery($query, 101);
-		while($row = mysql_fetch_assoc($qh)) {
-			if(! array_key_exists($row["id"], $resources[$type]))
-				$resources[$type][$row["id"]] = $row[$field];
-		}
-	}
+    foreach(array_keys($resources) as $type) {
+        if($type == "image")
+            $field = "prettyname";
+        elseif($type == "computer")
+            $field = "hostname";
+        elseif($type == "schedule")
+            $field = "name";
+        elseif($type == "managementnode")
+            $field = "hostname";
+        elseif($type == "serverprofile")
+            $field = "name";
+        else
+            continue;
+        $query = "SELECT id, "
+            .        "$field "
+            . "FROM $type "
+            . "WHERE ownerid = $userid";
+        if(! $includedeleted && ($type == "image" || $type == "computer"))
+            $query .= " AND deleted = 0";
+        $qh = doQuery($query, 101);
+        while($row = mysql_fetch_assoc($qh)) {
+            if(! array_key_exists($row["id"], $resources[$type]))
+                $resources[$type][$row["id"]] = $row[$field];
+        }
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2129,24 +2129,24 @@ function addOwnedResources(&$resources, $includedeleted, $userid) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function addOwnedResourceGroups(&$resourcegroups, $userid) {
-	if(! $user = getUserInfo($userid, 1, 1))
-		return;
-	$userid = $user["id"];
-	$groupids = implode(',', array_keys($user["groups"]));
-	if(empty($groupids))
-		$groupids = "''";
-	$query = "SELECT g.id AS id, "
-	       .        "g.name AS name, "
-	       .        "t.name AS type "
-	       . "FROM resourcegroup g, "
-	       .      "resourcetype t "
-	       . "WHERE g.resourcetypeid = t.id AND "
-	       .       "g.ownerusergroupid IN ($groupids)";
-	$qh = doQuery($query, 101);
-	while($row = mysql_fetch_assoc($qh)) {
-		if(! array_key_exists($row["id"], $resourcegroups[$row["type"]]))
-			$resourcegroups[$row["type"]][$row["id"]] = $row["name"];
-	}
+    if(! $user = getUserInfo($userid, 1, 1))
+        return;
+    $userid = $user["id"];
+    $groupids = implode(',', array_keys($user["groups"]));
+    if(empty($groupids))
+        $groupids = "''";
+    $query = "SELECT g.id AS id, "
+        .        "g.name AS name, "
+        .        "t.name AS type "
+        . "FROM resourcegroup g, "
+        .      "resourcetype t "
+        . "WHERE g.resourcetypeid = t.id AND "
+        .       "g.ownerusergroupid IN ($groupids)";
+    $qh = doQuery($query, 101);
+    while($row = mysql_fetch_assoc($qh)) {
+        if(! array_key_exists($row["id"], $resourcegroups[$row["type"]]))
+            $resourcegroups[$row["type"]][$row["id"]] = $row["name"];
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2164,47 +2164,47 @@ function addOwnedResourceGroups(&$resourcegroups, $userid) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getResourcesFromGroups($groups, $type, $includedeleted) {
-	$return = array();
-	if($type == "image")
-		$field = "prettyname";
-	elseif($type == "computer")
-		$field = "hostname";
-	elseif($type == "schedule")
-		$field = "name";
-	elseif($type == "managementnode")
-		$field = "hostname";
-	elseif($type == "serverprofile")
-		$field = "name";
-	else
-		return array();
+    $return = array();
+    if($type == "image")
+        $field = "prettyname";
+    elseif($type == "computer")
+        $field = "hostname";
+    elseif($type == "schedule")
+        $field = "name";
+    elseif($type == "managementnode")
+        $field = "hostname";
+    elseif($type == "serverprofile")
+        $field = "name";
+    else
+        return array();
 
-	$groups = implode("','", $groups);
-	$inlist = "'$groups'";
+    $groups = implode("','", $groups);
+    $inlist = "'$groups'";
 
-	$query = "SELECT DISTINCT(r.subid) AS id, "
-	       .       "t.$field AS name "
-	       . "FROM $type t, "
-	       .      "resource r, "
-	       .      "resourcegroupmembers m, "
-	       .      "resourcegroup g, "
-	       .      "resourcetype rt "
-	       . "WHERE r.subid = t.id AND "
-	       .       "r.id = m.resourceid AND "
-	       .       "m.resourcegroupid = g.id AND "
-	       .       "g.name IN ($inlist) AND "
-	       .       "g.resourcetypeid = rt.id AND "
-	       .       "rt.name = '$type'";
-	if(! $includedeleted && ($type == "image" || $type == "computer")) {
-		$query .= "AND deleted = 0 ";
-	}
-	/*if($type == "image")
-		$query .= "AND test = 0 ";*/
-	$query .= "ORDER BY t.$field";
-	$qh = doQuery($query, 101);
-	while($row = mysql_fetch_assoc($qh)) {
-		$return[$row["id"]] = $row["name"];
-	}
-	return $return;
+    $query = "SELECT DISTINCT(r.subid) AS id, "
+        .       "t.$field AS name "
+        . "FROM $type t, "
+        .      "resource r, "
+        .      "resourcegroupmembers m, "
+        .      "resourcegroup g, "
+        .      "resourcetype rt "
+        . "WHERE r.subid = t.id AND "
+        .       "r.id = m.resourceid AND "
+        .       "m.resourcegroupid = g.id AND "
+        .       "g.name IN ($inlist) AND "
+        .       "g.resourcetypeid = rt.id AND "
+        .       "rt.name = '$type'";
+    if(! $includedeleted && ($type == "image" || $type == "computer")) {
+        $query .= "AND deleted = 0 ";
+    }
+    /*if($type == "image")
+        $query .= "AND test = 0 ";*/
+    $query .= "ORDER BY t.$field";
+    $qh = doQuery($query, 101);
+    while($row = mysql_fetch_assoc($qh)) {
+        $return[$row["id"]] = $row["name"];
+    }
+    return $return;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2221,43 +2221,43 @@ function getResourcesFromGroups($groups, $type, $includedeleted) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function updateUserOrGroupPrivs($name, $node, $adds, $removes, $mode) {
-	if(! (count($adds) || count($removes))) {
-		return;
-	}
-	if($mode == "user") {
-		$field = "userid";
-		if(is_numeric($name))
-			$id = $name;
-		else {
-			$id = getUserlistID($name);
-			if(! $id)
-				$id = addUser($name);
-		}
-	}
-	else {
-		$field = "usergroupid";
-		$id = $name;
-	}
-	foreach($adds as $type) {
-		$typeid = getUserPrivTypeID($type);
-		$query = "INSERT IGNORE INTO userpriv ("
-		       .        "$field, "
-		       .        "privnodeid, "
-		       .        "userprivtypeid) "
-		       . "VALUES ("
-		       .        "$id, "
-		       .        "$node, "
-		       .        "$typeid)";
-		doQuery($query, 375);
-	}
-	foreach($removes as $type) {
-		$typeid = getUserPrivTypeID($type);
-		$query = "DELETE FROM userpriv "
-		       . "WHERE $field = $id AND "
-		       .       "privnodeid = $node AND "
-		       .       "userprivtypeid = $typeid";
-		doQuery($query, 376);
-	}
+    if(! (count($adds) || count($removes))) {
+        return;
+    }
+    if($mode == "user") {
+        $field = "userid";
+        if(is_numeric($name))
+            $id = $name;
+        else {
+            $id = getUserlistID($name);
+            if(! $id)
+                $id = addUser($name);
+        }
+    }
+    else {
+        $field = "usergroupid";
+        $id = $name;
+    }
+    foreach($adds as $type) {
+        $typeid = getUserPrivTypeID($type);
+        $query = "INSERT IGNORE INTO userpriv ("
+            .        "$field, "
+            .        "privnodeid, "
+            .        "userprivtypeid) "
+            . "VALUES ("
+            .        "$id, "
+            .        "$node, "
+            .        "$typeid)";
+        doQuery($query, 375);
+    }
+    foreach($removes as $type) {
+        $typeid = getUserPrivTypeID($type);
+        $query = "DELETE FROM userpriv "
+            . "WHERE $field = $id AND "
+            .       "privnodeid = $node AND "
+            .       "userprivtypeid = $typeid";
+        doQuery($query, 376);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2274,31 +2274,31 @@ function updateUserOrGroupPrivs($name, $node, $adds, $removes, $mode) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function updateResourcePrivs($group, $node, $adds, $removes) {
-	if(! (count($adds) || count($removes))) {
-		return;
-	}
-	if(is_numeric($group))
-		$groupid = $group;
-	else
-		$groupid = getResourceGroupID($group);
-	foreach($adds as $type) {
-		$query = "INSERT IGNORE INTO resourcepriv ("
-		       .        "resourcegroupid, "
-		       .        "privnodeid, "
-		       .        "type) "
-		       . "VALUES ("
-		       .        "$groupid, "
-		       .        "$node, "
-		       .        "'$type')";
-		doQuery($query, 377);
-	}
-	foreach($removes as $type) {
-		$query = "DELETE FROM resourcepriv "
-		       . "WHERE resourcegroupid = $groupid AND "
-		       .       "privnodeid = $node AND "
-		       .       "type = '$type'";
-		doQuery($query, 378);
-	}
+    if(! (count($adds) || count($removes))) {
+        return;
+    }
+    if(is_numeric($group))
+        $groupid = $group;
+    else
+        $groupid = getResourceGroupID($group);
+    foreach($adds as $type) {
+        $query = "INSERT IGNORE INTO resourcepriv ("
+            .        "resourcegroupid, "
+            .        "privnodeid, "
+            .        "type) "
+            . "VALUES ("
+            .        "$groupid, "
+            .        "$node, "
+            .        "'$type')";
+        doQuery($query, 377);
+    }
+    foreach($removes as $type) {
+        $query = "DELETE FROM resourcepriv "
+            . "WHERE resourcegroupid = $groupid AND "
+            .       "privnodeid = $node AND "
+            .       "type = '$type'";
+        doQuery($query, 378);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2313,7 +2313,7 @@ function updateResourcePrivs($group, $node, $adds, $removes) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getKey($data) {
-	return md5(serialize($data));
+    return md5(serialize($data));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2328,15 +2328,15 @@ function getKey($data) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function encryptData($data) {
-	global $cryptkey;
-	if(! $data)
-		return false;
-	$aes = new Crypt_AES();
-	$aes->setKey($cryptkey);
-	$cryptdata = $aes->encrypt($data);
-	return trim(base64_encode($cryptdata));
+    global $cryptkey;
+    if(! $data)
+        return false;
+    $aes = new Crypt_AES();
+    $aes->setKey($cryptkey);
+    $cryptdata = $aes->encrypt($data);
+    return trim(base64_encode($cryptdata));
 }
- 
+
 ////////////////////////////////////////////////////////////////////////////////
 ///
 /// \fn decryptData($data)
@@ -2349,14 +2349,14 @@ function encryptData($data) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function decryptData($data) {
-	global $cryptkey;
-	if(! $data)
-		return false;
-	$aes = new Crypt_AES();
-	$aes->setKey($cryptkey);
-	$cryptdata = base64_decode($data);
-	$decryptdata = $aes->decrypt($cryptdata);
-	return trim($decryptdata);
+    global $cryptkey;
+    if(! $data)
+        return false;
+    $aes = new Crypt_AES();
+    $aes->setKey($cryptkey);
+    $cryptdata = base64_decode($data);
+    $decryptdata = $aes->decrypt($cryptdata);
+    return trim($decryptdata);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2371,20 +2371,20 @@ function decryptData($data) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getParentNodes($node) {
-	global $nodeparents;
-	if(array_key_exists($node, $nodeparents))
-		return $nodeparents[$node];
+    global $nodeparents;
+    if(array_key_exists($node, $nodeparents))
+        return $nodeparents[$node];
 
-	$nodelist = array();
-	while($node != 1) {
-		$nodeinfo = getNodeInfo($node);
-		$node = $nodeinfo["parent"];
-		if($node == NULL)
-			break;
-		array_push($nodelist, $node);
-	}
-	$nodeparents[$node] = $nodelist;
-	return $nodelist;
+    $nodelist = array();
+    while($node != 1) {
+        $nodeinfo = getNodeInfo($node);
+        $node = $nodeinfo["parent"];
+        if($node == NULL)
+            break;
+        array_push($nodelist, $node);
+    }
+    $nodeparents[$node] = $nodelist;
+    return $nodelist;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2400,24 +2400,24 @@ function getParentNodes($node) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getChildNodes($parent=DEFAULT_PRIVNODE) {
-	global $cache;
-	if(! array_key_exists('nodes', $cache))
-		# call getNodeInfo to populate $cache['nodes']
-		getNodeInfo($parent);
+    global $cache;
+    if(! array_key_exists('nodes', $cache))
+        # call getNodeInfo to populate $cache['nodes']
+        getNodeInfo($parent);
 
-	static $allnodes = array();
-	if(empty($allnodes)) {
-		foreach($cache['nodes'] as $id => $node) {
-			unset($node['id']);
-			if(! array_key_exists($node['parent'], $allnodes))
-				$allnodes[$node['parent']] = array();
-			$allnodes[$node['parent']][$id] = $node;
-		}
-	}
-	if(array_key_exists($parent, $allnodes))
-		return $allnodes[$parent];
-	else
-		return array();
+    static $allnodes = array();
+    if(empty($allnodes)) {
+        foreach($cache['nodes'] as $id => $node) {
+            unset($node['id']);
+            if(! array_key_exists($node['parent'], $allnodes))
+                $allnodes[$node['parent']] = array();
+            $allnodes[$node['parent']][$id] = $node;
+        }
+    }
+    if(array_key_exists($parent, $allnodes))
+        return $allnodes[$parent];
+    else
+        return array();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2453,52 +2453,52 @@ function getChildNodes($parent=DEFAULT_PRIVNODE) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getUserGroups($groupType=0, $affiliationid=0) {
-	global $user;
-	$key = getKey(array($groupType, $affiliationid, $user['showallgroups']));
-	if(array_key_exists($key, $_SESSION['usersessiondata']))
-		return $_SESSION['usersessiondata'][$key];
-	$return = array();
-	$query = "SELECT ug.id, "
-	       .        "ug.name, "
-	       .        "ga.name AS groupaffiliation, "
-	       .        "ug.affiliationid AS groupaffiliationid, "
-	       .        "ug.ownerid, "
-	       .        "u.unityid AS owner, "
-	       .        "a.name AS affiliation, "
-	       .        "ug.editusergroupid AS editgroupid, "
-	       .        "eug.name AS editgroup, "
-	       .        "eug.affiliationid AS editgroupaffiliationid, "
-	       .        "euga.name AS editgroupaffiliation, "
-	       .        "ug.custom, "
-	       .        "ug.courseroll, "
-	       .        "ug.initialmaxtime, "
-	       .        "ug.totalmaxtime, "
-	       .        "ug.maxextendtime, "
-	       .        "ug.overlapResCount "
-	       . "FROM usergroup ug "
-	       . "LEFT JOIN user u ON (ug.ownerid = u.id) "
-	       . "LEFT JOIN usergroup eug ON (ug.editusergroupid = eug.id) "
-	       . "LEFT JOIN affiliation a ON (u.affiliationid = a.id) "
-	       . "LEFT JOIN affiliation ga ON (ug.affiliationid = ga.id) "
-	       . "LEFT JOIN affiliation euga ON (eug.affiliationid = euga.id) "
-	       . "WHERE 1 ";
-	if($groupType == 1)
-		$query .= "AND ug.custom = 1 ";
-	elseif($groupType == 2)
-		$query .= "AND ug.courseroll = 1 ";
-	if(! $user['showallgroups'] && $affiliationid)
-		$query .= "AND ug.affiliationid = $affiliationid ";
-	$query .= "ORDER BY name";
-	$qh = doQuery($query, 280);
-	while($row = mysql_fetch_assoc($qh)) {
-		if(! empty($row["owner"]) && ! empty($row['affiliation']))
-			$row['owner'] = "{$row['owner']}@{$row['affiliation']}";
-		if($user['showallgroups'] || $affiliationid == 0)
-			$row['name'] = "{$row['name']}@{$row['groupaffiliation']}";
-		$return[$row["id"]] = $row;
-	}
-	$_SESSION['usersessiondata'][$key] = $return;
-	return $return;
+    global $user;
+    $key = getKey(array($groupType, $affiliationid, $user['showallgroups']));
+    if(array_key_exists($key, $_SESSION['usersessiondata']))
+        return $_SESSION['usersessiondata'][$key];
+    $return = array();
+    $query = "SELECT ug.id, "
+        .        "ug.name, "
+        .        "ga.name AS groupaffiliation, "
+        .        "ug.affiliationid AS groupaffiliationid, "
+        .        "ug.ownerid, "
+        .        "u.unityid AS owner, "
+        .        "a.name AS affiliation, "
+        .        "ug.editusergroupid AS editgroupid, "
+        .        "eug.name AS editgroup, "
+        .        "eug.affiliationid AS editgroupaffiliationid, "
+        .        "euga.name AS editgroupaffiliation, "
+        .        "ug.custom, "
+        .        "ug.courseroll, "
+        .        "ug.initialmaxtime, "
+        .        "ug.totalmaxtime, "
+        .        "ug.maxextendtime, "
+        .        "ug.overlapResCount "
+        . "FROM usergroup ug "
+        . "LEFT JOIN user u ON (ug.ownerid = u.id) "
+        . "LEFT JOIN usergroup eug ON (ug.editusergroupid = eug.id) "
+        . "LEFT JOIN affiliation a ON (u.affiliationid = a.id) "
+        . "LEFT JOIN affiliation ga ON (ug.affiliationid = ga.id) "
+        . "LEFT JOIN affiliation euga ON (eug.affiliationid = euga.id) "
+        . "WHERE 1 ";
+    if($groupType == 1)
+        $query .= "AND ug.custom = 1 ";
+    elseif($groupType == 2)
+        $query .= "AND ug.courseroll = 1 ";
+    if(! $user['showallgroups'] && $affiliationid)
+        $query .= "AND ug.affiliationid = $affiliationid ";
+    $query .= "ORDER BY name";
+    $qh = doQuery($query, 280);
+    while($row = mysql_fetch_assoc($qh)) {
+        if(! empty($row["owner"]) && ! empty($row['affiliation']))
+            $row['owner'] = "{$row['owner']}@{$row['affiliation']}";
+        if($user['showallgroups'] || $affiliationid == 0)
+            $row['name'] = "{$row['name']}@{$row['groupaffiliation']}";
+        $return[$row["id"]] = $row;
+    }
+    $_SESSION['usersessiondata'][$key] = $return;
+    return $return;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2513,36 +2513,36 @@ function getUserGroups($groupType=0, $affiliationid=0) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getUserEditGroups($id) {
-	global $user;
-	if(! is_numeric($id))
-		$id = getUserlistID($id);
-	if($user['showallgroups']) {
-		$query = "SELECT DISTINCT(u.id), "
-		       .        "CONCAT(u.name, '@', a.name) AS name "
-		       . "FROM `usergroup` u, "
-		       .      "`usergroupmembers` m, "
-		       .      "affiliation a "
-		       . "WHERE u.editusergroupid = m.usergroupid AND "
-		       .       "u.affiliationid = a.id AND "
-		       .       "(u.ownerid = $id OR m.userid = $id) "
-		       . "ORDER BY name";
-	}
-	else {
-		$query = "SELECT DISTINCT(u.id), "
-		       .        "u.name "
-		       . "FROM `usergroup` u, "
-		       .      "`usergroupmembers` m "
-		       . "WHERE u.editusergroupid = m.usergroupid AND "
-		       .       "(u.ownerid = $id OR m.userid = $id) AND " 
-		       .       "u.affiliationid = {$user['affiliationid']} "
-		       . "ORDER BY name";
-	}
-	$qh = doQuery($query, 101);
-	$groups = array();
-	while($row = mysql_fetch_assoc($qh)) {
-		$groups[$row['id']] = $row['name'];
-	}
-	return $groups;
+    global $user;
+    if(! is_numeric($id))
+        $id = getUserlistID($id);
+    if($user['showallgroups']) {
+        $query = "SELECT DISTINCT(u.id), "
+            .        "CONCAT(u.name, '@', a.name) AS name "
+            . "FROM `usergroup` u, "
+            .      "`usergroupmembers` m, "
+            .      "affiliation a "
+            . "WHERE u.editusergroupid = m.usergroupid AND "
+            .       "u.affiliationid = a.id AND "
+            .       "(u.ownerid = $id OR m.userid = $id) "
+            . "ORDER BY name";
+    }
+    else {
+        $query = "SELECT DISTINCT(u.id), "
+            .        "u.name "
+            . "FROM `usergroup` u, "
+            .      "`usergroupmembers` m "
+            . "WHERE u.editusergroupid = m.usergroupid AND "
+            .       "(u.ownerid = $id OR m.userid = $id) AND "
+            .       "u.affiliationid = {$user['affiliationid']} "
+            . "ORDER BY name";
+    }
+    $qh = doQuery($query, 101);
+    $groups = array();
+    while($row = mysql_fetch_assoc($qh)) {
+        $groups[$row['id']] = $row['name'];
+    }
+    return $groups;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2564,24 +2564,24 @@ function getUserEditGroups($id) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getUserGroupPrivs($groupid='') {
-	$data = array();
-	$query = "SELECT ug.name AS usergroup, "
-	       .        "ugp.usergroupid, "
-	       .        "ugpt.name AS permission, "
-	       .        "ugp.userprivtypeid AS permid "
-	       . "FROM usergroup ug, "
-	       .      "usergrouppriv ugp, "
-	       .      "usergroupprivtype ugpt "
-	       . "WHERE ugp.usergroupid = ug.id AND "
-	       .       "ugp.userprivtypeid = ugpt.id ";
-	if(! empty($groupid))
-		$query .= "AND ugp.usergroupid = $groupid ";
-	$query .= "ORDER BY ug.name, "
-	       .           "ugpt.name";
-	$qh = doQuery($query, 101);
-	while($row = mysql_fetch_assoc($qh))
-		$data[] = $row;
-	return $data;
+    $data = array();
+    $query = "SELECT ug.name AS usergroup, "
+        .        "ugp.usergroupid, "
+        .        "ugpt.name AS permission, "
+        .        "ugp.userprivtypeid AS permid "
+        . "FROM usergroup ug, "
+        .      "usergrouppriv ugp, "
+        .      "usergroupprivtype ugpt "
+        . "WHERE ugp.usergroupid = ug.id AND "
+        .       "ugp.userprivtypeid = ugpt.id ";
+    if(! empty($groupid))
+        $query .= "AND ugp.usergroupid = $groupid ";
+    $query .= "ORDER BY ug.name, "
+        .           "ugpt.name";
+    $qh = doQuery($query, 101);
+    while($row = mysql_fetch_assoc($qh))
+        $data[] = $row;
+    return $data;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2598,12 +2598,12 @@ function getUserGroupPrivs($groupid='') {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getUserGroupPrivTypes() {
-	$data = array();
-	$query = "SELECT id, name, help FROM usergroupprivtype ORDER BY name";
-	$qh = doQuery($query, 101);
-	while($row = mysql_fetch_assoc($qh))
-		$data[$row['id']] = $row;
-	return $data;
+    $data = array();
+    $query = "SELECT id, name, help FROM usergroupprivtype ORDER BY name";
+    $qh = doQuery($query, 101);
+    while($row = mysql_fetch_assoc($qh))
+        $data[$row['id']] = $row;
+    return $data;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2620,34 +2620,34 @@ function getUserGroupPrivTypes() {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getResourceGroups($type="") {
-	$return = array();
-	$query = "SELECT g.id AS id, "
-	       .        "g.name AS name, "
-	       .        "t.name AS type, "
-	       .        "g.ownerusergroupid AS ownerid, "
-	       .        "CONCAT(u.name, '@', a.name) AS owner "
-	       . "FROM resourcegroup g, "
-	       .      "resourcetype t, "
-	       .      "usergroup u, "
-	       .      "affiliation a "
-	       . "WHERE g.resourcetypeid = t.id AND "
-	       .       "g.ownerusergroupid = u.id AND "
-	       .       "u.affiliationid = a.id ";
+    $return = array();
+    $query = "SELECT g.id AS id, "
+        .        "g.name AS name, "
+        .        "t.name AS type, "
+        .        "g.ownerusergroupid AS ownerid, "
+        .        "CONCAT(u.name, '@', a.name) AS owner "
+        . "FROM resourcegroup g, "
+        .      "resourcetype t, "
+        .      "usergroup u, "
+        .      "affiliation a "
+        . "WHERE g.resourcetypeid = t.id AND "
+        .       "g.ownerusergroupid = u.id AND "
+        .       "u.affiliationid = a.id ";
 
-	if(! empty($type))
-		$query .= "AND t.name = '$type' ";
+    if(! empty($type))
+        $query .= "AND t.name = '$type' ";
 
-	$query .= "ORDER BY t.name, g.name";
-	$qh = doQuery($query, 281);
-	while($row = mysql_fetch_assoc($qh)) {
-		if(empty($type))
-			$return[$row["id"]]["name"] = $row["type"] . "/" . $row["name"];
-		else
-			$return[$row["id"]]["name"] = $row["name"];
-		$return[$row["id"]]["ownerid"] = $row["ownerid"];
-		$return[$row["id"]]["owner"] = $row["owner"];
-	}
-	return $return;
+    $query .= "ORDER BY t.name, g.name";
+    $qh = doQuery($query, 281);
+    while($row = mysql_fetch_assoc($qh)) {
+        if(empty($type))
+            $return[$row["id"]]["name"] = $row["type"] . "/" . $row["name"];
+        else
+            $return[$row["id"]]["name"] = $row["name"];
+        $return[$row["id"]]["ownerid"] = $row["ownerid"];
+        $return[$row["id"]]["owner"] = $row["owner"];
+    }
+    return $return;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2665,34 +2665,34 @@ function getResourceGroups($type="") {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getResourceGroupMemberships($type="all") {
-	$return = array();
+    $return = array();
 
-	if($type == "all")
-		$types = getTypes("resources");
-	else
-		$types = array("resources" => array($type));
+    if($type == "all")
+        $types = getTypes("resources");
+    else
+        $types = array("resources" => array($type));
 
-	foreach($types["resources"] as $type) {
-		$return[$type] = array();
-		$query = "SELECT r.subid AS id, "
-		       .        "gm.resourcegroupid AS groupid "
-		       . "FROM resource r, "
-		       .      "resourcegroupmembers gm, "
-		       .      "resourcetype t "
-		       . "where t.name = '$type' AND "
-		       .       "gm.resourceid = r.id AND "
-		       .       "r.resourcetypeid = t.id";
-		$qh = doQuery($query, 282);
-		while($row = mysql_fetch_assoc($qh)) {
-			if(array_key_exists($row["id"], $return[$type])) {
-				array_push($return[$type][$row["id"]], $row["groupid"]);
-			}
-			else {
-				$return[$type][$row["id"]] = array($row["groupid"]);
-			}
-		}
-	}
-	return $return;
+    foreach($types["resources"] as $type) {
+        $return[$type] = array();
+        $query = "SELECT r.subid AS id, "
+            .        "gm.resourcegroupid AS groupid "
+            . "FROM resource r, "
+            .      "resourcegroupmembers gm, "
+            .      "resourcetype t "
+            . "where t.name = '$type' AND "
+            .       "gm.resourceid = r.id AND "
+            .       "r.resourcetypeid = t.id";
+        $qh = doQuery($query, 282);
+        while($row = mysql_fetch_assoc($qh)) {
+            if(array_key_exists($row["id"], $return[$type])) {
+                array_push($return[$type][$row["id"]], $row["groupid"]);
+            }
+            else {
+                $return[$type][$row["id"]] = array($row["groupid"]);
+            }
+        }
+    }
+    return $return;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2721,84 +2721,84 @@ function getResourceGroupMemberships($type="all") {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getResourceGroupMembers($type="all") {
-	$key = getKey(array('getResourceGroupMembers', $type));
-	if(array_key_exists($key, $_SESSION['userresources']))
-		return $_SESSION['userresources'][$key];
-	$return = array();
+    $key = getKey(array('getResourceGroupMembers', $type));
+    if(array_key_exists($key, $_SESSION['userresources']))
+        return $_SESSION['userresources'][$key];
+    $return = array();
 
-	if($type == "computer") {
-		$names = "c.hostname AS computer, c.deleted ";
-		$joins = "LEFT JOIN computer c ON (r.subid = c.id AND r.resourcetypeid = 12) ";
-		$orders = "c.hostname";
-		$types = "'computer'";
-	}
-	elseif($type == "image") {
-		$names = "i.prettyname AS image, i.deleted ";
-		$joins = "LEFT JOIN image i ON (r.subid = i.id AND r.resourcetypeid = 13) ";
-		$orders = "i.prettyname";
-		$types = "'image'";
-	}
-	elseif($type == "schedule") {
-		$names = "s.name AS schedule ";
-		$joins = "LEFT JOIN schedule s ON (r.subid = s.id AND r.resourcetypeid = 15) ";
-		$orders = "s.name";
-		$types = "'schedule'";
-	}
-	elseif($type == "managementnode") {
-		$names = "m.hostname AS managementnode ";
-		$joins = "LEFT JOIN managementnode m ON (r.subid = m.id AND r.resourcetypeid = 16) ";
-		$orders = "m.hostname";
-		$types = "'managementnode'";
-	}
-	else {
-		$names = "c.hostname AS computer, "
-		       . "c.deleted, "
-		       . "i.prettyname AS image, "
-		       . "i.deleted AS deleted2, "
-		       . "s.name AS schedule, "
-		       . "m.hostname AS managementnode ";
-		$joins = "LEFT JOIN computer c ON (r.subid = c.id AND r.resourcetypeid = 12) "
-		       . "LEFT JOIN image i ON (r.subid = i.id AND r.resourcetypeid = 13) "
-		       . "LEFT JOIN schedule s ON (r.subid = s.id AND r.resourcetypeid = 15) "
-		       . "LEFT JOIN managementnode m ON (r.subid = m.id AND r.resourcetypeid = 16) ";
-		$orders = "c.hostname, "
-		        . "i.prettyname, "
-		        . "s.name, "
-		        . "m.hostname";
-		$types = "'computer','image','schedule','managementnode'";
-	}
+    if($type == "computer") {
+        $names = "c.hostname AS computer, c.deleted ";
+        $joins = "LEFT JOIN computer c ON (r.subid = c.id AND r.resourcetypeid = 12) ";
+        $orders = "c.hostname";
+        $types = "'computer'";
+    }
+    elseif($type == "image") {
+        $names = "i.prettyname AS image, i.deleted ";
+        $joins = "LEFT JOIN image i ON (r.subid = i.id AND r.resourcetypeid = 13) ";
+        $orders = "i.prettyname";
+        $types = "'image'";
+    }
+    elseif($type == "schedule") {
+        $names = "s.name AS schedule ";
+        $joins = "LEFT JOIN schedule s ON (r.subid = s.id AND r.resourcetypeid = 15) ";
+        $orders = "s.name";
+        $types = "'schedule'";
+    }
+    elseif($type == "managementnode") {
+        $names = "m.hostname AS managementnode ";
+        $joins = "LEFT JOIN managementnode m ON (r.subid = m.id AND r.resourcetypeid = 16) ";
+        $orders = "m.hostname";
+        $types = "'managementnode'";
+    }
+    else {
+        $names = "c.hostname AS computer, "
+            . "c.deleted, "
+            . "i.prettyname AS image, "
+            . "i.deleted AS deleted2, "
+            . "s.name AS schedule, "
+            . "m.hostname AS managementnode ";
+        $joins = "LEFT JOIN computer c ON (r.subid = c.id AND r.resourcetypeid = 12) "
+            . "LEFT JOIN image i ON (r.subid = i.id AND r.resourcetypeid = 13) "
+            . "LEFT JOIN schedule s ON (r.subid = s.id AND r.resourcetypeid = 15) "
+            . "LEFT JOIN managementnode m ON (r.subid = m.id AND r.resourcetypeid = 16) ";
+        $orders = "c.hostname, "
+            . "i.prettyname, "
+            . "s.name, "
+            . "m.hostname";
+        $types = "'computer','image','schedule','managementnode'";
+    }
 
-	$query = "SELECT rgm.resourcegroupid, "
-	       .        "rgm.resourceid, "
-	       .        "rt.name AS resourcetype, "
-	       .        "r.subid, "
-	       .        $names
-	       . "FROM   resourcegroupmembers rgm, "
-	       .        "resourcetype rt, "
-	       .        "resource r "
-	       .        $joins
-	       . "WHERE  rgm.resourceid = r.id AND "
-	       .        "r.resourcetypeid = rt.id AND "
-	       .        "rt.name in ($types) "
-	       . "ORDER BY rt.name, "
-	       .          "rgm.resourcegroupid, "
-	       .          $orders;
-	$qh = doQuery($query, 282);
-	while($row = mysql_fetch_assoc($qh)) {
-		if(array_key_exists('deleted', $row) && $row['deleted'] == 1)
-			continue;
-		if(array_key_exists('deleted2', $row) && $row['deleted2'] == 1)
-			continue;
-		if(! array_key_exists($row['resourcetype'], $return))
-			$return[$row['resourcetype']] = array();
-		if(! array_key_exists($row['resourcegroupid'], $return[$row['resourcetype']]))
-			$return[$row['resourcetype']][$row['resourcegroupid']] = array();
-		$return[$row['resourcetype']][$row['resourcegroupid']][$row['resourceid']] =
-		      array('subid' => $row['subid'],
-		            'name' => $row[$row['resourcetype']]);
-	}
-	$_SESSION['userresources'][$key] = $return;
-	return $return;
+    $query = "SELECT rgm.resourcegroupid, "
+        .        "rgm.resourceid, "
+        .        "rt.name AS resourcetype, "
+        .        "r.subid, "
+        .        $names
+        . "FROM   resourcegroupmembers rgm, "
+        .        "resourcetype rt, "
+        .        "resource r "
+        .        $joins
+        . "WHERE  rgm.resourceid = r.id AND "
+        .        "r.resourcetypeid = rt.id AND "
+        .        "rt.name in ($types) "
+        . "ORDER BY rt.name, "
+        .          "rgm.resourcegroupid, "
+        .          $orders;
+    $qh = doQuery($query, 282);
+    while($row = mysql_fetch_assoc($qh)) {
+        if(array_key_exists('deleted', $row) && $row['deleted'] == 1)
+            continue;
+        if(array_key_exists('deleted2', $row) && $row['deleted2'] == 1)
+            continue;
+        if(! array_key_exists($row['resourcetype'], $return))
+            $return[$row['resourcetype']] = array();
+        if(! array_key_exists($row['resourcegroupid'], $return[$row['resourcetype']]))
+            $return[$row['resourcetype']][$row['resourcegroupid']] = array();
+        $return[$row['resourcetype']][$row['resourcegroupid']][$row['resourceid']] =
+            array('subid' => $row['subid'],
+                'name' => $row[$row['resourcetype']]);
+    }
+    $_SESSION['userresources'][$key] = $return;
+    return $return;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2813,22 +2813,22 @@ function getResourceGroupMembers($type="all") {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getUserGroupMembers($groupid) {
-	$return = array();
+    $return = array();
 
-	$query = "SELECT m.userid AS id, "
-	       .        "CONCAT(u.unityid, '@', a.name) AS user "
-	       . "FROM usergroupmembers m, "
-	       .      "affiliation a, "
-	       .      "user u "
-	       . "WHERE m.usergroupid = $groupid AND "
-	       .       "m.userid = u.id AND "
-	       .       "u.affiliationid = a.id "
-	       . "ORDER BY u.unityid";
-	$qh = doQuery($query, 101);
-	while($row = mysql_fetch_assoc($qh)) {
-		$return[$row["id"]] = $row['user'];
-	}
-	return $return;
+    $query = "SELECT m.userid AS id, "
+        .        "CONCAT(u.unityid, '@', a.name) AS user "
+        . "FROM usergroupmembers m, "
+        .      "affiliation a, "
+        .      "user u "
+        . "WHERE m.usergroupid = $groupid AND "
+        .       "m.userid = u.id AND "
+        .       "u.affiliationid = a.id "
+        . "ORDER BY u.unityid";
+    $qh = doQuery($query, 101);
+    while($row = mysql_fetch_assoc($qh)) {
+        $return[$row["id"]] = $row['user'];
+    }
+    return $return;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2842,20 +2842,20 @@ function getUserGroupMembers($groupid) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function addUserGroupMember($loginid, $groupid) {
-	$userid = getUserlistID($loginid);
-	$groups = getUsersGroups($userid);
+    $userid = getUserlistID($loginid);
+    $groups = getUsersGroups($userid);
 
-	if(in_array($groupid, array_keys($groups)))
-		return;
+    if(in_array($groupid, array_keys($groups)))
+        return;
 
-	$query = "INSERT INTO usergroupmembers "
-	       .        "(userid, " 
-	       .        "usergroupid) "
-	       . "VALUES "
-	       .        "($userid, "
-	       .        "$groupid)";
-	doQuery($query, 101);
-	checkUpdateServerRequestGroups($groupid);
+    $query = "INSERT INTO usergroupmembers "
+        .        "(userid, "
+        .        "usergroupid) "
+        . "VALUES "
+        .        "($userid, "
+        .        "$groupid)";
+    doQuery($query, 101);
+    checkUpdateServerRequestGroups($groupid);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2869,11 +2869,11 @@ function addUserGroupMember($loginid, $groupid) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function deleteUserGroupMember($userid, $groupid) {
-	$query = "DELETE FROM usergroupmembers "
-	       . "WHERE userid = $userid AND "
-	       .       "usergroupid = $groupid";
-	doQuery($query, 101);
-	checkUpdateServerRequestGroups($groupid);
+    $query = "DELETE FROM usergroupmembers "
+        . "WHERE userid = $userid AND "
+        .       "usergroupid = $groupid";
+    doQuery($query, 101);
+    checkUpdateServerRequestGroups($groupid);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2891,24 +2891,24 @@ function deleteUserGroupMember($userid, $groupid) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getUserlistID($loginid, $noadd=0) {
-	$_loginid = $loginid;
-	getAffilidAndLogin($loginid, $affilid);
+    $_loginid = $loginid;
+    getAffilidAndLogin($loginid, $affilid);
 
-	if(empty($affilid))
-		abort(12);
+    if(empty($affilid))
+        abort(12);
 
-	$query = "SELECT id "
-	       . "FROM user "
-	       . "WHERE unityid = '$loginid' AND "
-	       .       "affiliationid = $affilid";
-	$qh = doQuery($query, 140);
-	if(mysql_num_rows($qh)) {
-		$row = mysql_fetch_row($qh);
-		return $row[0];
-	}
-	if($noadd)
-		return NULL;
-	return addUser($_loginid);
+    $query = "SELECT id "
+        . "FROM user "
+        . "WHERE unityid = '$loginid' AND "
+        .       "affiliationid = $affilid";
+    $qh = doQuery($query, 140);
+    if(mysql_num_rows($qh)) {
+        $row = mysql_fetch_row($qh);
+        return $row[0];
+    }
+    if($noadd)
+        return NULL;
+    return addUser($_loginid);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2924,15 +2924,15 @@ function getUserlistID($loginid, $noadd=0) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getUsersLastImage($userid) {
-	$query = "SELECT imageid "
-	       . "FROM log "
-	       . "WHERE userid = $userid "
-	       . "ORDER BY id DESC "
-	       . "LIMIT 1";
-	$qh = doQuery($query, 101);
-	if($row = mysql_fetch_assoc($qh))
-		return $row['imageid'];
-	return NULL;
+    $query = "SELECT imageid "
+        . "FROM log "
+        . "WHERE userid = $userid "
+        . "ORDER BY id DESC "
+        . "LIMIT 1";
+    $qh = doQuery($query, 101);
+    if($row = mysql_fetch_assoc($qh))
+        return $row['imageid'];
+    return NULL;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2946,12 +2946,12 @@ function getUsersLastImage($userid) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getAffiliations() {
-	$query = "SELECT id, name FROM affiliation ORDER BY name";
-	$qh = doQuery($query, 101);
-	$return = array();
-	while($row = mysql_fetch_assoc($qh))
-		$return[$row['id']] = $row['name'];
-	return $return;
+    $query = "SELECT id, name FROM affiliation ORDER BY name";
+    $qh = doQuery($query, 101);
+    $return = array();
+    while($row = mysql_fetch_assoc($qh))
+        $return[$row['id']] = $row['name'];
+    return $return;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2966,19 +2966,19 @@ function getAffiliations() {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getUserUnityID($userid) {
-	global $cache;
-	if(! array_key_exists('unityids', $cache))
-		$cache['unityids'] = array();
-	if(array_key_exists($userid, $cache['unityids']))
-		return $cache['unityids'][$userid];
-	$query = "SELECT unityid FROM user WHERE id = $userid";
-	$qh = doQuery($query, 101);
-	if(mysql_num_rows($qh)) {
-		$row = mysql_fetch_row($qh);
-		$cache['unityids'][$userid] = $row[0];
-		return $row[0];
-	}
-	return NULL;
+    global $cache;
+    if(! array_key_exists('unityids', $cache))
+        $cache['unityids'] = array();
+    if(array_key_exists($userid, $cache['unityids']))
+        return $cache['unityids'][$userid];
+    $query = "SELECT unityid FROM user WHERE id = $userid";
+    $qh = doQuery($query, 101);
+    if(mysql_num_rows($qh)) {
+        $row = mysql_fetch_row($qh);
+        $cache['unityids'][$userid] = $row[0];
+        return $row[0];
+    }
+    return NULL;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2993,14 +2993,14 @@ function getUserUnityID($userid) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getAffiliationID($affil) {
-	$affil = mysql_real_escape_string($affil);
-	$query = "SELECT id FROM affiliation WHERE name = '$affil'";
-	$qh = doQuery($query, 101);
-	if(mysql_num_rows($qh)) {
-		$row = mysql_fetch_row($qh);
-		return $row[0];
-	}
-	return NULL;
+    $affil = mysql_real_escape_string($affil);
+    $query = "SELECT id FROM affiliation WHERE name = '$affil'";
+    $qh = doQuery($query, 101);
+    if(mysql_num_rows($qh)) {
+        $row = mysql_fetch_row($qh);
+        return $row[0];
+    }
+    return NULL;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -3015,13 +3015,13 @@ function getAffiliationID($affil) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getAffiliationName($affilid) {
-	$query = "SELECT name FROM affiliation WHERE id = $affilid";
-	$qh = doQuery($query, 101);
-	if(mysql_num_rows($qh)) {
-		$row = mysql_fetch_row($qh);
-		return $row[0];
-	}
-	return NULL;
+    $query = "SELECT name FROM affiliation WHERE id = $affilid";
+    $qh = doQuery($query, 101);
+    if(mysql_num_rows($qh)) {
+        $row = mysql_fetch_row($qh);
+        return $row[0];
+    }
+    return NULL;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -3038,13 +3038,13 @@ function getAffiliationName($affilid) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getAffiliationDataUpdateText($affilid=0) {
-	$query = "SELECT id, dataUpdateText FROM affiliation";
-	if($affilid)
-		$query .= " WHERE id = $affilid";
-	$qh = doQuery($query, 101);
-	while($row = mysql_fetch_assoc($qh))
-		$return[$row['id']] = $row['dataUpdateText'];
-	return $return;
+    $query = "SELECT id, dataUpdateText FROM affiliation";
+    if($affilid)
+        $query .= " WHERE id = $affilid";
+    $qh = doQuery($query, 101);
+    while($row = mysql_fetch_assoc($qh))
+        $return[$row['id']] = $row['dataUpdateText'];
+    return $return;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -3059,12 +3059,12 @@ function getAffiliationDataUpdateText($affilid=0) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getAffiliationTheme($affilid) {
-	$query = "SELECT theme FROM affiliation WHERE id = $affilid";
-	$qh = doQuery($query);
-	if(($row = mysql_fetch_assoc($qh)) && ! empty($row['theme']))
-		return $row['theme'];
-	else
-		return 'default';
+    $query = "SELECT theme FROM affiliation WHERE id = $affilid";
+    $qh = doQuery($query);
+    if(($row = mysql_fetch_assoc($qh)) && ! empty($row['theme']))
+        return $row['theme'];
+    else
+        return 'default';
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -3087,103 +3087,103 @@ function getAffiliationTheme($affilid) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function processInputVar($vartag, $type, $defaultvalue=NULL, $stripwhitespace=0) {
-	if((array_key_exists($vartag, $_POST) &&
-	   ! is_array($_POST[$vartag]) &&
-	   strncmp("{$_POST[$vartag]}", "0", 1) == 0 &&
-	   $type == ARG_NUMERIC &&
-		strncmp("{$_POST[$vartag]}", "0x0", 3) != 0) ||
-	   (array_key_exists($vartag, $_GET) && 
-	   ! is_array($_GET[$vartag]) &&
-	   strncmp("{$_GET[$vartag]}", "0", 1) == 0 &&
-	   $type == ARG_NUMERIC &&
-		strncmp("{$_GET[$vartag]}", "0x0", 3) != 0)) {
-		$_POST[$vartag] = "zero";
-	}
-	if(!empty($_POST[$vartag])) {
-		$return = $_POST[$vartag];
-	}
-	elseif(!empty($_GET[$vartag])) {
-		$return = $_GET[$vartag];
-	}
-	else {
-		if($type == ARG_MULTINUMERIC || $type == ARG_MULTISTRING) {
-			$return = array();
-		}
-		else {
-			$return = $defaultvalue;
-		}
-	}
-	if($return == "zero") {
-		$return = "0";
-	}
+    if((array_key_exists($vartag, $_POST) &&
+        ! is_array($_POST[$vartag]) &&
+        strncmp("{$_POST[$vartag]}", "0", 1) == 0 &&
+        $type == ARG_NUMERIC &&
+        strncmp("{$_POST[$vartag]}", "0x0", 3) != 0) ||
+        (array_key_exists($vartag, $_GET) &&
+            ! is_array($_GET[$vartag]) &&
+            strncmp("{$_GET[$vartag]}", "0", 1) == 0 &&
+            $type == ARG_NUMERIC &&
+            strncmp("{$_GET[$vartag]}", "0x0", 3) != 0)) {
+        $_POST[$vartag] = "zero";
+    }
+    if(!empty($_POST[$vartag])) {
+        $return = $_POST[$vartag];
+    }
+    elseif(!empty($_GET[$vartag])) {
+        $return = $_GET[$vartag];
+    }
+    else {
+        if($type == ARG_MULTINUMERIC || $type == ARG_MULTISTRING) {
+            $return = array();
+        }
+        else {
+            $return = $defaultvalue;
+        }
+    }
+    if($return == "zero") {
+        $return = "0";
+    }
 
-	if($type == ARG_MULTINUMERIC) {
-		foreach($return as $index => $value) {
-			$return[$index] = strip_tags($value);
-			if($stripwhitespace)
-				$return[$index] = trim($return[$index]);
-			if($return[$index] == 'zero')
-				$return[$index] = '0';
-		}
-	}
-	elseif($type == ARG_MULTISTRING) {
-		foreach($return as $index => $value) {
-			$return[$index] = strip_tags($value);
-			if($stripwhitespace)
-				$return[$index] = trim($return[$index]);
-		}
-	}
-	else {
-		$return = strip_tags($return);
-		if($stripwhitespace)
-			$return = trim($return);
-	}
+    if($type == ARG_MULTINUMERIC) {
+        foreach($return as $index => $value) {
+            $return[$index] = strip_tags($value);
+            if($stripwhitespace)
+                $return[$index] = trim($return[$index]);
+            if($return[$index] == 'zero')
+                $return[$index] = '0';
+        }
+    }
+    elseif($type == ARG_MULTISTRING) {
+        foreach($return as $index => $value) {
+            $return[$index] = strip_tags($value);
+            if($stripwhitespace)
+                $return[$index] = trim($return[$index]);
+        }
+    }
+    else {
+        $return = strip_tags($return);
+        if($stripwhitespace)
+            $return = trim($return);
+    }
 
-	if(! empty($return) && $type == ARG_NUMERIC) {
-		if(! is_numeric($return)) {
-			return preg_replace('([^\d])', '', $return);
-		}
-	}
-	elseif(! empty($return) && $type == ARG_STRING) {
-		if(! is_string($return)) {
-			print "ERROR (code:3)<br>\n";
-			printHTMLFooter();
-			semUnlock();
-			exit();
-		}
-		#print "before - $return<br>\n";
-		#$return = addslashes($return);
-		#$return = str_replace("\'", "", $return);
-		#$return = str_replace("\"", "", $return);
-		#print "after - $return<br>\n";
-	}
-	elseif(! empty($return) && $type == ARG_MULTINUMERIC) {
-		foreach($return as $index => $value) {
-			if(! is_numeric($value)) {
-				$return[$index] = preg_replace('([^\d])', '', $value);
-			}
-		}
-		return $return;
-	}
-	elseif(! empty($return) && $type == ARG_MULTISTRING) {
-		foreach($return as $index => $value) {
-			if(! is_string($value)) {
-				print "ERROR (code:3)<br>\n";
-				printHTMLFooter();
-				semUnlock();
-				exit();
-			}
-		}
-		return $return;
-	}
+    if(! empty($return) && $type == ARG_NUMERIC) {
+        if(! is_numeric($return)) {
+            return preg_replace('([^\d])', '', $return);
+        }
+    }
+    elseif(! empty($return) && $type == ARG_STRING) {
+        if(! is_string($return)) {
+            print "ERROR (code:3)<br>\n";
+            printHTMLFooter();
+            semUnlock();
+            exit();
+        }
+        #print "before - $return<br>\n";
+        #$return = addslashes($return);
+        #$return = str_replace("\'", "", $return);
+        #$return = str_replace("\"", "", $return);
+        #print "after - $return<br>\n";
+    }
+    elseif(! empty($return) && $type == ARG_MULTINUMERIC) {
+        foreach($return as $index => $value) {
+            if(! is_numeric($value)) {
+                $return[$index] = preg_replace('([^\d])', '', $value);
+            }
+        }
+        return $return;
+    }
+    elseif(! empty($return) && $type == ARG_MULTISTRING) {
+        foreach($return as $index => $value) {
+            if(! is_string($value)) {
+                print "ERROR (code:3)<br>\n";
+                printHTMLFooter();
+                semUnlock();
+                exit();
+            }
+        }
+        return $return;
+    }
 
-	if(is_string($return)) {
-		if(strlen($return) == 0) {
-			$return = $defaultvalue;
-		}
-	}
+    if(is_string($return)) {
+        if(strlen($return) == 0) {
+            $return = $defaultvalue;
+        }
+    }
 
-	return $return;
+    return $return;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -3204,18 +3204,18 @@ function processInputVar($vartag, $type, $defaultvalue=NULL, $stripwhitespace=0)
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getContinuationVar($name=NULL, $defaultval=NULL) {
-	global $contdata, $inContinuation;
-	if($name === NULL) {
-		return $contdata;
-	}
-	if(! $inContinuation)
-		return $defaultval;
-	if(array_key_exists($name, $contdata)) {
-		if($contdata[$name] == 'zero')
-			return 0;
-		return $contdata[$name];
-	}
-	return $defaultval;
+    global $contdata, $inContinuation;
+    if($name === NULL) {
+        return $contdata;
+    }
+    if(! $inContinuation)
+        return $defaultval;
+    if(array_key_exists($name, $contdata)) {
+        if($contdata[$name] == 'zero')
+            return 0;
+        return $contdata[$name];
+    }
+    return $defaultval;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -3238,72 +3238,72 @@ function getContinuationVar($name=NULL, $defaultval=NULL) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function processInputData($data, $type, $addslashes=0, $defaultvalue=NULL) {
-	if(strncmp("$data", "0", 1) == 0 &&
-	   $type == ARG_NUMERIC &&
-		strncmp("$data", "0x0", 3) != 0) {
-		$data = "zero";
-	}
-	if(!empty($data))
-		$return = $data;
-	else {
-		if($type == ARG_MULTINUMERIC || $type == ARG_MULTISTRING)
-			$return = array();
-		else
-			$return = $defaultvalue;
-	}
-	if($return == "zero")
-		$return = "0";
+    if(strncmp("$data", "0", 1) == 0 &&
+        $type == ARG_NUMERIC &&
+        strncmp("$data", "0x0", 3) != 0) {
+        $data = "zero";
+    }
+    if(!empty($data))
+        $return = $data;
+    else {
+        if($type == ARG_MULTINUMERIC || $type == ARG_MULTISTRING)
+            $return = array();
+        else
+            $return = $defaultvalue;
+    }
+    if($return == "zero")
+        $return = "0";
 
-	if($type == ARG_MULTINUMERIC) {
-		foreach($return as $index => $value) {
-			$return[$index] = strip_tags($value);
-			if($return[$index] == 'zero')
-				$return[$index] = '0';
-		}
-	}
-	elseif($type == ARG_MULTISTRING) {
-		foreach($return as $index => $value) {
-			$return[$index] = strip_tags($value);
-		}
-	}
-	else
-		$return = strip_tags($return);
+    if($type == ARG_MULTINUMERIC) {
+        foreach($return as $index => $value) {
+            $return[$index] = strip_tags($value);
+            if($return[$index] == 'zero')
+                $return[$index] = '0';
+        }
+    }
+    elseif($type == ARG_MULTISTRING) {
+        foreach($return as $index => $value) {
+            $return[$index] = strip_tags($value);
+        }
+    }
+    else
+        $return = strip_tags($return);
 
-	if(! empty($return) && $type == ARG_NUMERIC) {
-		if(! is_numeric($return)) {
-			return preg_replace('([^\d])', '', $return);
-		}
-	}
-	elseif(! empty($return) && $type == ARG_STRING) {
-		if(! is_string($return))
-			$return = $defaultvalue;
-	}
-	elseif(! empty($return) && $type == ARG_MULTINUMERIC) {
-		foreach($return as $index => $value) {
-			if(! is_numeric($value)) {
-				$return[$index] = preg_replace('([^\d])', '', $value);
-			}
-		}
-		return $return;
-	}
-	elseif(! empty($return) && $type == ARG_MULTISTRING) {
-		foreach($return as $index => $value) {
-			if(! is_string($value))
-				$return[$index] = $defaultvalue;
-			elseif($addslashes)
-				$return[$index] = addslashes($value);
-		}
-		return $return;
-	}
+    if(! empty($return) && $type == ARG_NUMERIC) {
+        if(! is_numeric($return)) {
+            return preg_replace('([^\d])', '', $return);
+        }
+    }
+    elseif(! empty($return) && $type == ARG_STRING) {
+        if(! is_string($return))
+            $return = $defaultvalue;
+    }
+    elseif(! empty($return) && $type == ARG_MULTINUMERIC) {
+        foreach($return as $index => $value) {
+            if(! is_numeric($value)) {
+                $return[$index] = preg_replace('([^\d])', '', $value);
+            }
+        }
+        return $return;
+    }
+    elseif(! empty($return) && $type == ARG_MULTISTRING) {
+        foreach($return as $index => $value) {
+            if(! is_string($value))
+                $return[$index] = $defaultvalue;
+            elseif($addslashes)
+                $return[$index] = addslashes($value);
+        }
+        return $return;
+    }
 
-	if(is_string($return)) {
-		if(strlen($return) == 0)
-			$return = $defaultvalue;
-		elseif($addslashes)
-			$return = addslashes($return);
-	}
+    if(is_string($return)) {
+        if(strlen($return) == 0)
+            $return = $defaultvalue;
+        elseif($addslashes)
+            $return = addslashes($return);
+    }
 
-	return $return;
+    return $return;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -3350,82 +3350,82 @@ function processInputData($data, $type, $addslashes=0, $defaultvalue=NULL) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getUserInfo($id, $noupdate=0, $numeric=0) {
-	$affilid = DEFAULT_AFFILID;
-	if(! $numeric) {
-		$rc = getAffilidAndLogin($id, $affilid);
-		if($rc == -1)
-			return NULL;
-	}
+    $affilid = DEFAULT_AFFILID;
+    if(! $numeric) {
+        $rc = getAffilidAndLogin($id, $affilid);
+        if($rc == -1)
+            return NULL;
+    }
 
-	$user = array();
-	$query = "SELECT u.unityid AS unityid, "
-	       .        "u.affiliationid, "
-	       .        "af.name AS affiliation, "
-	       .        "u.firstname AS firstname, "
-	       .        "u.lastname AS lastname, "
-	       .        "u.preferredname AS preferredname, "
-	       .        "u.email AS email, "
-	       .        "u.emailnotices, "
-	       .        "i.name AS IMtype, "
-	       .        "u.IMid AS IMid, "
-	       .        "u.id AS id, "
-	       .        "u.width AS width, "
-	       .        "u.height AS height, "
-	       .        "u.bpp AS bpp, "
-	       .        "u.audiomode AS audiomode, "
-	       .        "u.mapdrives AS mapdrives, "
-	       .        "u.mapprinters AS mapprinters, "
-	       .        "u.mapserial AS mapserial, "
-	       .        "u.showallgroups, "
-	       .        "u.lastupdated AS lastupdated, "
-	       .        "af.shibonly "
-	       . "FROM user u, "
-	       .      "IMtype i, "
-	       .      "affiliation af "
-	       . "WHERE u.IMtypeid = i.id AND "
-	       .       "u.affiliationid = af.id AND ";
-	if($numeric)
-		$query .= "u.id = $id";
-	else
-		$query .= "u.unityid = '$id' AND af.id = $affilid";
+    $user = array();
+    $query = "SELECT u.unityid AS unityid, "
+        .        "u.affiliationid, "
+        .        "af.name AS affiliation, "
+        .        "u.firstname AS firstname, "
+        .        "u.lastname AS lastname, "
+        .        "u.preferredname AS preferredname, "
+        .        "u.email AS email, "
+        .        "u.emailnotices, "
+        .        "i.name AS IMtype, "
+        .        "u.IMid AS IMid, "
+        .        "u.id AS id, "
+        .        "u.width AS width, "
+        .        "u.height AS height, "
+        .        "u.bpp AS bpp, "
+        .        "u.audiomode AS audiomode, "
+        .        "u.mapdrives AS mapdrives, "
+        .        "u.mapprinters AS mapprinters, "
+        .        "u.mapserial AS mapserial, "
+        .        "u.showallgroups, "
+        .        "u.lastupdated AS lastupdated, "
+        .        "af.shibonly "
+        . "FROM user u, "
+        .      "IMtype i, "
+        .      "affiliation af "
+        . "WHERE u.IMtypeid = i.id AND "
+        .       "u.affiliationid = af.id AND ";
+    if($numeric)
+        $query .= "u.id = $id";
+    else
+        $query .= "u.unityid = '$id' AND af.id = $affilid";
 
-	$qh = doQuery($query, "105");
-	if($user = mysql_fetch_assoc($qh)) {
-		if((datetimeToUnix($user["lastupdated"]) > time() - SECINDAY) ||
-		   $user['unityid'] == 'vclreload' ||
-		   $user['affiliation'] == 'Local' ||
-		   $user['shibonly'] ||
-		   $noupdate) {
-			# get user's groups
-			$user["groups"] = getUsersGroups($user["id"], 1);
-			$user["groupperms"] = getUsersGroupPerms(array_keys($user['groups']));
+    $qh = doQuery($query, "105");
+    if($user = mysql_fetch_assoc($qh)) {
+        if((datetimeToUnix($user["lastupdated"]) > time() - SECINDAY) ||
+            $user['unityid'] == 'vclreload' ||
+            $user['affiliation'] == 'Local' ||
+            $user['shibonly'] ||
+            $noupdate) {
+            # get user's groups
+            $user["groups"] = getUsersGroups($user["id"], 1);
+            $user["groupperms"] = getUsersGroupPerms(array_keys($user['groups']));
 
-			checkExpiredDemoUser($user['id'], $user['groups']);
+            checkExpiredDemoUser($user['id'], $user['groups']);
 
-			# get user's privileges
-			$user["privileges"] = getOverallUserPrivs($user["id"]);
+            # get user's privileges
+            $user["privileges"] = getOverallUserPrivs($user["id"]);
 
-			if(preg_match('/@/', $user['unityid'])) {
-				$tmparr = explode('@', $user['unityid']);
-				$user['login'] = $tmparr[0];
-			}
-			else
-				$user['login'] = $user['unityid'];
+            if(preg_match('/@/', $user['unityid'])) {
+                $tmparr = explode('@', $user['unityid']);
+                $user['login'] = $tmparr[0];
+            }
+            else
+                $user['login'] = $user['unityid'];
 
-			$blockids = getBlockAllocationIDs($user);
-			$user['memberCurrentBlock'] = count($blockids);
-			return $user;
-		}
-	}
-	if($numeric)
-		$user = updateUserData($id, "numeric");
-	else
-		$user = updateUserData($id, "loginid", $affilid);
-	if(! is_null($user)) {
-		$blockids = getBlockAllocationIDs($user);
-		$user['memberCurrentBlock'] = count($blockids);
-	}
-	return $user;
+            $blockids = getBlockAllocationIDs($user);
+            $user['memberCurrentBlock'] = count($blockids);
+            return $user;
+        }
+    }
+    if($numeric)
+        $user = updateUserData($id, "numeric");
+    else
+        $user = updateUserData($id, "loginid", $affilid);
+    if(! is_null($user)) {
+        $blockids = getBlockAllocationIDs($user);
+        $user['memberCurrentBlock'] = count($blockids);
+    }
+    return $user;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -3445,51 +3445,51 @@ function getUserInfo($id, $noupdate=0, $numeric=0) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getUsersGroups($userid, $includeowned=0, $includeaffil=0) {
-	if($includeaffil) {
-		$query = "SELECT m.usergroupid, "
-		       .        "CONCAT(g.name, '@', a.name) AS name "
-		       . "FROM usergroupmembers m, "
-		       .      "usergroup g, "
-		       .      "affiliation a "
-		       . "WHERE m.userid = $userid AND "
-		       .       "m.usergroupid = g.id AND "
-		       .       "g.affiliationid = a.id";
-	}
-	else {
-		$query = "SELECT m.usergroupid, "
-		       .        "g.name "
-		       . "FROM usergroupmembers m, "
-		       .      "usergroup g "
-		       . "WHERE m.userid = $userid AND "
-		       .       "m.usergroupid = g.id";
-	}
-	$qh = doQuery($query, "101");
-	$groups = array();
-	while($row = mysql_fetch_assoc($qh)) {
-		$groups[$row["usergroupid"]] = $row["name"];
-	}
-	if($includeowned) {
-		if($includeaffil) {
-			$query = "SELECT g.id AS usergroupid, "
-			       .        "CONCAT(g.name, '@', a.name) AS name "
-			       . "FROM usergroup g, "
-			       .      "affiliation a "
-			       . "WHERE g.ownerid = $userid AND "
-			       .       "g.affiliationid = a.id";
-		}
-		else {
-			$query = "SELECT id AS usergroupid, "
-			       .        "name "
-			       . "FROM usergroup "
-			       . "WHERE ownerid = $userid";
-		}
-		$qh = doQuery($query, "101");
-		while($row = mysql_fetch_assoc($qh)) {
-			$groups[$row["usergroupid"]] = $row["name"];
-		}
-	}
-	uasort($groups, "sortKeepIndex");
-	return $groups;
+    if($includeaffil) {
+        $query = "SELECT m.usergroupid, "
+            .        "CONCAT(g.name, '@', a.name) AS name "
+            . "FROM usergroupmembers m, "
+            .      "usergroup g, "
+            .      "affiliation a "
+            . "WHERE m.userid = $userid AND "
+            .       "m.usergroupid = g.id AND "
+            .       "g.affiliationid = a.id";
+    }
+    else {
+        $query = "SELECT m.usergroupid, "
+            .        "g.name "
+            . "FROM usergroupmembers m, "
+            .      "usergroup g "
+            . "WHERE m.userid = $userid AND "
+            .       "m.usergroupid = g.id";
+    }
+    $qh = doQuery($query, "101");
+    $groups = array();
+    while($row = mysql_fetch_assoc($qh)) {
+        $groups[$row["usergroupid"]] = $row["name"];
+    }
+    if($includeowned) {
+        if($includeaffil) {
+            $query = "SELECT g.id AS usergroupid, "
+                .        "CONCAT(g.name, '@', a.name) AS name "
+                . "FROM usergroup g, "
+                .      "affiliation a "
+                . "WHERE g.ownerid = $userid AND "
+                .       "g.affiliationid = a.id";
+        }
+        else {
+            $query = "SELECT id AS usergroupid, "
+                .        "name "
+                . "FROM usergroup "
+                . "WHERE ownerid = $userid";
+        }
+        $qh = doQuery($query, "101");
+        while($row = mysql_fetch_assoc($qh)) {
+            $groups[$row["usergroupid"]] = $row["name"];
+        }
+    }
+    uasort($groups, "sortKeepIndex");
+    return $groups;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -3506,23 +3506,23 @@ function getUsersGroups($userid, $includeowned=0, $includeaffil=0) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getUsersGroupPerms($usergroupids) {
-	if(empty($usergroupids))
-		return array();
-	$inlist = implode(',', $usergroupids);
-	if($inlist == '')
-		return array();
-	$query = "SELECT DISTINCT t.id, "
-	       .        "t.name "
-	       . "FROM usergroupprivtype t, "
-	       .      "usergrouppriv u "
-	       . "WHERE u.usergroupid IN ($inlist) AND "
-	       .       "u.userprivtypeid = t.id "
-	       . "ORDER BY t.name";
-	$perms = array();
-	$qh = doQuery($query, 101);
-	while($row = mysql_fetch_assoc($qh))
-		$perms[$row['id']] = $row['name'];
-	return $perms;
+    if(empty($usergroupids))
+        return array();
+    $inlist = implode(',', $usergroupids);
+    if($inlist == '')
+        return array();
+    $query = "SELECT DISTINCT t.id, "
+        .        "t.name "
+        . "FROM usergroupprivtype t, "
+        .      "usergrouppriv u "
+        . "WHERE u.usergroupid IN ($inlist) AND "
+        .       "u.userprivtypeid = t.id "
+        . "ORDER BY t.name";
+    $perms = array();
+    $qh = doQuery($query, 101);
+    while($row = mysql_fetch_assoc($qh))
+        $perms[$row['id']] = $row['name'];
+    return $perms;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -3540,20 +3540,20 @@ function getUsersGroupPerms($usergroupids) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function checkUserHasPerm($perm, $userid=0) {
-	global $user;
-	if($userid == 0) {
-		if(is_array($user) && array_key_exists('groupperms', $user))
-			$perms = $user['groupperms'];
-		else
-			return 0;
-	}
-	else {
-		$usersgroups = getUsersGroups($userid, 1);
-		$perms = getUsersGroupPerms(array_keys($usersgroups));
-	}
-	if(is_array($perms) && in_array($perm, $perms))
-		return 1;
-	return 0;
+    global $user;
+    if($userid == 0) {
+        if(is_array($user) && array_key_exists('groupperms', $user))
+            $perms = $user['groupperms'];
+        else
+            return 0;
+    }
+    else {
+        $usersgroups = getUsersGroups($userid, 1);
+        $perms = getUsersGroupPerms(array_keys($usersgroups));
+    }
+    if(is_array($perms) && in_array($perm, $perms))
+        return 1;
+    return 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -3583,26 +3583,26 @@ function checkUserHasPerm($perm, $userid=0) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function updateUserData($id, $type="loginid", $affilid=DEFAULT_AFFILID) {
-	global $updateUserFunc, $updateUserFuncArgs;
-	if($type == 'numeric') {
-		$query = "SELECT unityid, "
-		       .        "affiliationid "
-		       . "FROM user "
-		       . "WHERE id = $id";
-		$qh = doQuery($query, 101);
-		if($row = mysql_fetch_assoc($qh)) {
-			$id = $row['unityid'];
-			$type = 'loginid';
-			$affilid = $row['affiliationid'];
-		}
-		else
-			abort(1);
-	}
-	$updateFunc = $updateUserFunc[$affilid];
-	if(array_key_exists($affilid, $updateUserFuncArgs))
-		return $updateFunc($updateUserFuncArgs[$affilid], $id);
-	else
-		return $updateFunc($id);
+    global $updateUserFunc, $updateUserFuncArgs;
+    if($type == 'numeric') {
+        $query = "SELECT unityid, "
+            .        "affiliationid "
+            . "FROM user "
+            . "WHERE id = $id";
+        $qh = doQuery($query, 101);
+        if($row = mysql_fetch_assoc($qh)) {
+            $id = $row['unityid'];
+            $type = 'loginid';
+            $affilid = $row['affiliationid'];
+        }
+        else
+            abort(1);
+    }
+    $updateFunc = $updateUserFunc[$affilid];
+    if(array_key_exists($affilid, $updateUserFuncArgs))
+        return $updateFunc($updateUserFuncArgs[$affilid], $id);
+    else
+        return $updateFunc($id);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -3617,15 +3617,15 @@ function updateUserData($id, $type="loginid", $affilid=DEFAULT_AFFILID) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function addUser($loginid) {
-	global $addUserFuncArgs, $addUserFunc;
-	getAffilidAndLogin($loginid, $affilid);
-	if(empty($affilid))
-		abort(11);
-	$addfunc = $addUserFunc[$affilid];
-	if(array_key_exists($affilid, $addUserFuncArgs))
-		return $addfunc($addUserFuncArgs[$affilid], $loginid);
-	else
-		return $addfunc($loginid);
+    global $addUserFuncArgs, $addUserFunc;
+    getAffilidAndLogin($loginid, $affilid);
+    if(empty($affilid))
+        abort(11);
+    $addfunc = $addUserFunc[$affilid];
+    if(array_key_exists($affilid, $addUserFuncArgs))
+        return $addfunc($addUserFuncArgs[$affilid], $loginid);
+    else
+        return $addfunc($loginid);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -3651,21 +3651,21 @@ function addUser($loginid) {
 ////////////////////////////////////////////////////////////////////////////////
 function updateUserPrefs($userid, $preferredname, $width, $height, $bpp, $audio,
                          $mapdrives, $mapprinters, $mapserial) {
-	global $mysql_link_vcl;
-	$preferredname = mysql_real_escape_string($preferredname);
-	$audio = mysql_real_escape_string($audio);
-	$query = "UPDATE user SET "
-	       .        "preferredname = '$preferredname', "
-	       .        "width = '$width', "
-	       .        "height = '$height', "
-	       .        "bpp = $bpp, "
-	       .        "audiomode = '$audio', "
-	       .        "mapdrives = $mapdrives, "
-	       .        "mapprinters = $mapprinters, "
-	       .        "mapserial = $mapserial "
-	       . "WHERE id = $userid";
-	doQuery($query, 270);
-	return mysql_affected_rows($mysql_link_vcl);
+    global $mysql_link_vcl;
+    $preferredname = mysql_real_escape_string($preferredname);
+    $audio = mysql_real_escape_string($audio);
+    $query = "UPDATE user SET "
+        .        "preferredname = '$preferredname', "
+        .        "width = '$width', "
+        .        "height = '$height', "
+        .        "bpp = $bpp, "
+        .        "audiomode = '$audio', "
+        .        "mapdrives = $mapdrives, "
+        .        "mapprinters = $mapprinters, "
+        .        "mapserial = $mapserial "
+        . "WHERE id = $userid";
+    doQuery($query, 270);
+    return mysql_affected_rows($mysql_link_vcl);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -3674,7 +3674,7 @@ function updateUserPrefs($userid, $preferredname, $width, $height, $bpp, $audio,
 ///
 /// \param $userid - an id from the user table
 ///
-/// \return an array of privileges types that the user has somewhere in the 
+/// \return an array of privileges types that the user has somewhere in the
 /// privilege tree
 ///
 /// \brief get the privilege types that the user has somewhere in the
@@ -3682,23 +3682,23 @@ function updateUserPrefs($userid, $preferredname, $width, $height, $bpp, $audio,
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getOverallUserPrivs($userid) {
-	$query = "SELECT DISTINCT t.name "
-	       . "FROM userprivtype t, "
-	       .      "userpriv u "
-	       . "WHERE u.userprivtypeid = t.id AND "
-	       .       "(u.userid = $userid OR "
-	       .       "u.usergroupid IN (SELECT usergroupid "
-	       .                         "FROM usergroupmembers "
-	       .                         "WHERE userid = $userid) OR "
-	       .       "u.usergroupid IN (SELECT id "
-	       .                         "FROM usergroup "
-	       .                         "WHERE ownerid = $userid))";
-	$qh = doQuery($query, 107);
-	$privileges = array();
-	while($row = mysql_fetch_row($qh)) {
-		array_push($privileges, $row[0]);
-	}
-	return $privileges;
+    $query = "SELECT DISTINCT t.name "
+        . "FROM userprivtype t, "
+        .      "userpriv u "
+        . "WHERE u.userprivtypeid = t.id AND "
+        .       "(u.userid = $userid OR "
+        .       "u.usergroupid IN (SELECT usergroupid "
+        .                         "FROM usergroupmembers "
+        .                         "WHERE userid = $userid) OR "
+        .       "u.usergroupid IN (SELECT id "
+        .                         "FROM usergroup "
+        .                         "WHERE ownerid = $userid))";
+    $qh = doQuery($query, 107);
+    $privileges = array();
+    while($row = mysql_fetch_row($qh)) {
+        array_push($privileges, $row[0]);
+    }
+    return $privileges;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -3714,24 +3714,24 @@ function getOverallUserPrivs($userid) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getBlockAllocationIDs($user) {
-	$groupids = array_keys($user['groups']);
-	if(empty($groupids))
-		return array();
-	$inids = implode(',', $groupids);
-	$query = "SELECT r.id "
-	       . "FROM blockRequest r, "
-	       .      "blockTimes t "
-	       . "WHERE t.blockRequestid = r.id AND "
-	       .       "r.status = 'accepted' AND "
-	       .       "t.start <= DATE_ADD(NOW(), INTERVAL 15 MINUTE) AND "
-	       .       "t.end > NOW() AND "
-	       .       "t.skip = 0 AND "
-	       .       "r.groupid IN ($inids)";
-	$ids = array();
-	$qh = doQuery($query, 101);
-	while($row = mysql_fetch_assoc($qh))
-		$ids[] = $row['id'];
-	return $ids;
+    $groupids = array_keys($user['groups']);
+    if(empty($groupids))
+        return array();
+    $inids = implode(',', $groupids);
+    $query = "SELECT r.id "
+        . "FROM blockRequest r, "
+        .      "blockTimes t "
+        . "WHERE t.blockRequestid = r.id AND "
+        .       "r.status = 'accepted' AND "
+        .       "t.start <= DATE_ADD(NOW(), INTERVAL 15 MINUTE) AND "
+        .       "t.end > NOW() AND "
+        .       "t.skip = 0 AND "
+        .       "r.groupid IN ($inids)";
+    $ids = array();
+    $qh = doQuery($query, 101);
+    while($row = mysql_fetch_assoc($qh))
+        $ids[] = $row['id'];
+    return $ids;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -3775,375 +3775,375 @@ function getBlockAllocationIDs($user) {
 function isAvailable($images, $imageid, $imagerevisionid, $start, $end,
                      $requestid=0, $userid=0, $ignoreprivileges=0,
                      $forimaging=0, $ip='', $mac='', $skipconcurrentcheck=0) {
-	global $requestInfo;
-	$requestInfo["start"] = $start;
-	$requestInfo["end"] = $end;
-	$requestInfo["imageid"] = $imageid;
-	$allocatedcompids = array(0);
+    global $requestInfo;
+    $requestInfo["start"] = $start;
+    $requestInfo["end"] = $end;
+    $requestInfo["imageid"] = $imageid;
+    $allocatedcompids = array(0);
 
-	if(schCheckMaintenance($start, $end))
-		return -2;
+    if(schCheckMaintenance($start, $end))
+        return -2;
 
-	if($requestInfo["start"] <= time()) {
-		$now = 1;
-		$nowfuture = 'now';
-	}
-	else {
-		$now = 0;
-		$nowfuture = 'future';
-	}
+    if($requestInfo["start"] <= time()) {
+        $now = 1;
+        $nowfuture = 'now';
+    }
+    else {
+        $now = 0;
+        $nowfuture = 'future';
+    }
 
-	$scheduleids = getAvailableSchedules($start, $end);
+    $scheduleids = getAvailableSchedules($start, $end);
 
-	$requestInfo["computers"] = array();
-	$requestInfo["computers"][0] = 0;
-	$requestInfo["images"][0] = $imageid;
+    $requestInfo["computers"] = array();
+    $requestInfo["computers"][0] = 0;
+    $requestInfo["images"][0] = $imageid;
 
-	# loop to check for available computers for all needed images
-	if(! $forimaging && $images[$imageid]["imagemetaid"] != NULL) {
-		$count = 1;
-		foreach($images[$imageid]["subimages"] as $imgid) {
-			$requestInfo['computers'][$count] = 0;
-			$requestInfo['images'][$count] = $imgid;
-			$count++;
-		}
-	}
+    # loop to check for available computers for all needed images
+    if(! $forimaging && $images[$imageid]["imagemetaid"] != NULL) {
+        $count = 1;
+        foreach($images[$imageid]["subimages"] as $imgid) {
+            $requestInfo['computers'][$count] = 0;
+            $requestInfo['images'][$count] = $imgid;
+            $count++;
+        }
+    }
 
-	// get semaphore lock
-	if(! semLock())
-		abort(3);
+    // get semaphore lock
+    if(! semLock())
+        abort(3);
 
-	$startstamp = unixToDatetime($start);
-	$endstamp = unixToDatetime($end + 900);
+    $startstamp = unixToDatetime($start);
+    $endstamp = unixToDatetime($end + 900);
 
-	# check for overlapping use of mac or ip
-	if(! empty($mac) || ! empty($ip)) {
-		$query = "SELECT rq.id "
-		       . "FROM reservation rs, "
-		       .      "request rq, "
-		       .      "serverrequest sr "
-		       . "WHERE '$startstamp' < (rq.end + INTERVAL 900 SECOND) AND "
-		       .       "'$endstamp' > rq.start AND "
-		       .       "sr.requestid = rq.id AND "
-		       .       "rs.requestid = rq.id AND "
-		       .       "(sr.fixedIP = '$ip' OR "
-		       .       "sr.fixedMAC = '$mac') AND "
-		       .       "rq.stateid NOT IN (1,5,11,12) ";
-		if($requestid)
-			$query .=   "AND rq.id != $requestid ";
-		$query .= "LIMIT 1";
-		$qh = doQuery($query, 101);
-		if(mysql_num_rows($qh)) {
-			semUnlock();
-			return -3;
-		}
-	}
+    # check for overlapping use of mac or ip
+    if(! empty($mac) || ! empty($ip)) {
+        $query = "SELECT rq.id "
+            . "FROM reservation rs, "
+            .      "request rq, "
+            .      "serverrequest sr "
+            . "WHERE '$startstamp' < (rq.end + INTERVAL 900 SECOND) AND "
+            .       "'$endstamp' > rq.start AND "
+            .       "sr.requestid = rq.id AND "
+            .       "rs.requestid = rq.id AND "
+            .       "(sr.fixedIP = '$ip' OR "
+            .       "sr.fixedMAC = '$mac') AND "
+            .       "rq.stateid NOT IN (1,5,11,12) ";
+        if($requestid)
+            $query .=   "AND rq.id != $requestid ";
+        $query .= "LIMIT 1";
+        $qh = doQuery($query, 101);
+        if(mysql_num_rows($qh)) {
+            semUnlock();
+            return -3;
+        }
+    }
 
-	if($requestid)
-		$requestData = getRequestInfo($requestid);
+    if($requestid)
+        $requestData = getRequestInfo($requestid);
 
-	$vmhostcheckdone = 0;
-	$ignorestates = "'maintenance','vmhostinuse','hpc','failed'";
-	if($now)
-		$ignorestates .= ",'reloading','reload','timeout','inuse'";
-	foreach($requestInfo["images"] as $key => $imageid) {
-		# check for max concurrent usage of image
-		if(! $skipconcurrentcheck && 
-		   $images[$imageid]['maxconcurrent'] != NULL) {
-			$decforedit = 0;
-			$compids = array();
-			$reloadid = getUserlistID('vclreload@Local');
-			$query = "SELECT rs.computerid, "
-			       .        "rq.id AS reqid "
-			       . "FROM reservation rs, "
-			       .      "request rq "
-			       . "WHERE '$startstamp' < (rq.end + INTERVAL 900 SECOND) AND "
-			       .       "'$endstamp' > rq.start AND "
-			       .       "rs.requestid = rq.id AND "
-			       .       "rs.imageid = $imageid AND "
-			       .       "rq.stateid NOT IN (1,5,11,12,16,17) AND "
-			       .       "rq.userid != $reloadid";
-			$qh = doQuery($query, 101);
-			while($row = mysql_fetch_assoc($qh)) {
-				$compids[] = $row['computerid'];
-				if($row['reqid'] == $requestid)
-					$decforedit = 1;
-			}
-			$usagecnt = count($compids);
-			$allids = implode("','", $compids);
-			$query = "SELECT COUNT(bc.imageid) AS currentusage "
-			       . "FROM blockComputers bc, "
-			       .      "blockRequest br, "
-			       .      "blockTimes bt "
-			       . "WHERE bc.blockTimeid = bt.id AND "
-			       .       "bt.blockRequestid = br.id AND "
-			       .       "bc.imageid = $imageid AND "
-			       .       "bc.computerid NOT IN ('$allids') AND "
-			       .       "'$startstamp' < (bt.end + INTERVAL 900 SECOND) AND "
-			       .       "'$endstamp' > bt.start AND "
-			       .       "bt.skip != 1 AND "
-			       .       "br.status != 'deleted'";
-			$qh = doQuery($query);
-			if(! $row = mysql_fetch_assoc($qh)) {
-				semUnlock();
-				return 0;
-			}
-			if(($usagecnt + $row['currentusage'] - $decforedit) >= $images[$imageid]['maxconcurrent']) {
-				semUnlock();
-				return -1;
-			}
-		}
+    $vmhostcheckdone = 0;
+    $ignorestates = "'maintenance','vmhostinuse','hpc','failed'";
+    if($now)
+        $ignorestates .= ",'reloading','reload','timeout','inuse'";
+    foreach($requestInfo["images"] as $key => $imageid) {
+        # check for max concurrent usage of image
+        if(! $skipconcurrentcheck &&
+            $images[$imageid]['maxconcurrent'] != NULL) {
+            $decforedit = 0;
+            $compids = array();
+            $reloadid = getUserlistID('vclreload@Local');
+            $query = "SELECT rs.computerid, "
+                .        "rq.id AS reqid "
+                . "FROM reservation rs, "
+                .      "request rq "
+                . "WHERE '$startstamp' < (rq.end + INTERVAL 900 SECOND) AND "
+                .       "'$endstamp' > rq.start AND "
+                .       "rs.requestid = rq.id AND "
+                .       "rs.imageid = $imageid AND "
+                .       "rq.stateid NOT IN (1,5,11,12,16,17) AND "
+                .       "rq.userid != $reloadid";
+            $qh = doQuery($query, 101);
+            while($row = mysql_fetch_assoc($qh)) {
+                $compids[] = $row['computerid'];
+                if($row['reqid'] == $requestid)
+                    $decforedit = 1;
+            }
+            $usagecnt = count($compids);
+            $allids = implode("','", $compids);
+            $query = "SELECT COUNT(bc.imageid) AS currentusage "
+                . "FROM blockComputers bc, "
+                .      "blockRequest br, "
+                .      "blockTimes bt "
+                . "WHERE bc.blockTimeid = bt.id AND "
+                .       "bt.blockRequestid = br.id AND "
+                .       "bc.imageid = $imageid AND "
+                .       "bc.computerid NOT IN ('$allids') AND "
+                .       "'$startstamp' < (bt.end + INTERVAL 900 SECOND) AND "
+                .       "'$endstamp' > bt.start AND "
+                .       "bt.skip != 1 AND "
+                .       "br.status != 'deleted'";
+            $qh = doQuery($query);
+            if(! $row = mysql_fetch_assoc($qh)) {
+                semUnlock();
+                return 0;
+            }
+            if(($usagecnt + $row['currentusage'] - $decforedit) >= $images[$imageid]['maxconcurrent']) {
+                semUnlock();
+                return -1;
+            }
+        }
 
-		$platformid = getImagePlatform($imageid);
-		if(is_null($platformid)) {
-			semUnlock();
-			return 0;
-		}
+        $platformid = getImagePlatform($imageid);
+        if(is_null($platformid)) {
+            semUnlock();
+            return 0;
+        }
 
-		# get computers $imageid maps to
-		$tmp = getMappedResources($imageid, "image", "computer");
-		if(! count($tmp)) {
-			semUnlock();
-			return 0;
-		}
-		$mappedcomputers = implode(',', $tmp);
+        # get computers $imageid maps to
+        $tmp = getMappedResources($imageid, "image", "computer");
+        if(! count($tmp)) {
+            semUnlock();
+            return 0;
+        }
+        $mappedcomputers = implode(',', $tmp);
 
-		#get computers for available schedules and platforms
-		$computerids = array();
-		$currentids = array();
-		$blockids = array();
-		$altRemoveBlockCheck = 0;
-		// if we are modifying a request and it is after the start time, only allow
-		// the scheduled computer(s) to be modified
-		if($requestid && datetimeToUnix($requestData["start"]) <= time()) {
-			$altRemoveBlockCheck = 1;
-			foreach($requestData["reservations"] as $key2 => $res) {
-				if($res["imageid"] == $imageid) {
-					$compid = $res["computerid"];
-					unset($requestData['reservations'][$key2]);
-					break;
-				}
-			}
-			array_push($computerids, $compid);
-			array_push($currentids, $compid);
-			$query = "SELECT scheduleid "
-			       . "FROM computer "
-			       . "WHERE id = $compid";
-			$qh = doQuery($query, 128);
-			$row = mysql_fetch_row($qh);
-			if(! in_array($row[0], $scheduleids)) {
-				semUnlock();
-				return 0;
-			}
-			// set $virtual to 0 so that it is defined later but skips the additional code
-			$virtual = 0;
-		}
-		// otherwise, build a list of computers
-		else {
-			# determine if image is bare metal or virtual
-			$query = "SELECT OS.installtype "
-			       . "FROM image i "
-			       . "LEFT JOIN OS ON (i.OSid = OS.id) "
-			       . "WHERE i.id = $imageid";
-			$qh = doQuery($query, 101);
-			if(! ($row = mysql_fetch_assoc($qh))) {
-				semUnlock();
-				return 0;
-			}
-			if(preg_match('/(vmware)/', $row['installtype']))
-				$virtual = 1;
-			else
-				$virtual = 0;
+        #get computers for available schedules and platforms
+        $computerids = array();
+        $currentids = array();
+        $blockids = array();
+        $altRemoveBlockCheck = 0;
+        // if we are modifying a request and it is after the start time, only allow
+        // the scheduled computer(s) to be modified
+        if($requestid && datetimeToUnix($requestData["start"]) <= time()) {
+            $altRemoveBlockCheck = 1;
+            foreach($requestData["reservations"] as $key2 => $res) {
+                if($res["imageid"] == $imageid) {
+                    $compid = $res["computerid"];
+                    unset($requestData['reservations'][$key2]);
+                    break;
+                }
+            }
+            array_push($computerids, $compid);
+            array_push($currentids, $compid);
+            $query = "SELECT scheduleid "
+                . "FROM computer "
+                . "WHERE id = $compid";
+            $qh = doQuery($query, 128);
+            $row = mysql_fetch_row($qh);
+            if(! in_array($row[0], $scheduleids)) {
+                semUnlock();
+                return 0;
+            }
+            // set $virtual to 0 so that it is defined later but skips the additional code
+            $virtual = 0;
+        }
+        // otherwise, build a list of computers
+        else {
+            # determine if image is bare metal or virtual
+            $query = "SELECT OS.installtype "
+                . "FROM image i "
+                . "LEFT JOIN OS ON (i.OSid = OS.id) "
+                . "WHERE i.id = $imageid";
+            $qh = doQuery($query, 101);
+            if(! ($row = mysql_fetch_assoc($qh))) {
+                semUnlock();
+                return 0;
+            }
+            if(preg_match('/(vmware)/', $row['installtype']))
+                $virtual = 1;
+            else
+                $virtual = 0;
 
-			# get list of available computers
-			if(! $ignoreprivileges) {
-				$resources = getUserResources(array("imageAdmin", "imageCheckOut"),
-				                              array("available"), 0, 0, $userid);
-				$usercomputers = implode("','", array_keys($resources["computer"]));
-				$usercomputers = "'$usercomputers'";
-			}
-			$alloccompids = implode(",", $allocatedcompids);
+            # get list of available computers
+            if(! $ignoreprivileges) {
+                $resources = getUserResources(array("imageAdmin", "imageCheckOut"),
+                    array("available"), 0, 0, $userid);
+                $usercomputers = implode("','", array_keys($resources["computer"]));
+                $usercomputers = "'$usercomputers'";
+            }
+            $alloccompids = implode(",", $allocatedcompids);
 
-			# get list of computers we can provision image to
+            # get list of computers we can provision image to
 
-			$schedules = implode(',', $scheduleids);
+            $schedules = implode(',', $scheduleids);
 
-			#image.OSid->OS.installtype->OSinstalltype.id->provisioningOSinstalltype.provisioningid->computer.provisioningid
-			$query = "SELECT DISTINCT c.id, "
-			       .                 "c.currentimageid, "
-			       .                 "c.imagerevisionid "
-			       . "FROM state s, "
-			       .      "image i "
-			       . "LEFT JOIN OS o ON (o.id = i.OSid) "
-			       . "LEFT JOIN OSinstalltype oi ON (oi.name = o.installtype) "
-			       . "LEFT JOIN provisioningOSinstalltype poi ON (poi.OSinstalltypeid = oi.id) "
-			       . "LEFT JOIN computer c ON (poi.provisioningid = c.provisioningid) "
-			       . "WHERE i.id = $imageid AND "
-			       .       "c.scheduleid IN ($schedules) AND "
-			       .       "c.platformid = $platformid AND "
-			       .       "c.stateid = s.id AND "
-			       .       "s.name NOT IN ($ignorestates) AND "
-			       .       "c.RAM >= i.minram AND "
-			       .       "c.procnumber >= i.minprocnumber AND "
-			       .       "c.procspeed >= i.minprocspeed AND "
-			       .       "c.network >= i.minnetwork AND "
-			       .       "c.deleted = 0 AND "
-			       .       "(c.type != 'virtualmachine' OR c.vmhostid IS NOT NULL) AND ";
-			if(! $ignoreprivileges)
-				$query .=   "c.id IN ($usercomputers) AND ";
-			$query .=      "c.id IN ($mappedcomputers) AND "
-			       .       "c.id NOT IN ($alloccompids) "
-			       . "ORDER BY (c.procspeed * c.procnumber) DESC, "
-			       .          "RAM DESC, "
-			       .          "network DESC";
+            #image.OSid->OS.installtype->OSinstalltype.id->provisioningOSinstalltype.provisioningid->computer.provisioningid
+            $query = "SELECT DISTINCT c.id, "
+                .                 "c.currentimageid, "
+                .                 "c.imagerevisionid "
+                . "FROM state s, "
+                .      "image i "
+                . "LEFT JOIN OS o ON (o.id = i.OSid) "
+                . "LEFT JOIN OSinstalltype oi ON (oi.name = o.installtype) "
+                . "LEFT JOIN provisioningOSinstalltype poi ON (poi.OSinstalltypeid = oi.id) "
+                . "LEFT JOIN computer c ON (poi.provisioningid = c.provisioningid) "
+                . "WHERE i.id = $imageid AND "
+                .       "c.scheduleid IN ($schedules) AND "
+                .       "c.platformid = $platformid AND "
+                .       "c.stateid = s.id AND "
+                .       "s.name NOT IN ($ignorestates) AND "
+                .       "c.RAM >= i.minram AND "
+                .       "c.procnumber >= i.minprocnumber AND "
+                .       "c.procspeed >= i.minprocspeed AND "
+                .       "c.network >= i.minnetwork AND "
+                .       "c.deleted = 0 AND "
+                .       "(c.type != 'virtualmachine' OR c.vmhostid IS NOT NULL) AND ";
+            if(! $ignoreprivileges)
+                $query .=   "c.id IN ($usercomputers) AND ";
+            $query .=      "c.id IN ($mappedcomputers) AND "
+                .       "c.id NOT IN ($alloccompids) "
+                . "ORDER BY (c.procspeed * c.procnumber) DESC, "
+                .          "RAM DESC, "
+                .          "network DESC";
 
-			$qh = doQuery($query, 129);
-			while($row = mysql_fetch_assoc($qh)) {
-				array_push($computerids, $row['id']);
-				if($row['currentimageid'] == $imageid &&
-				   $row['imagerevisionid'] == $imagerevisionid) {
-					array_push($currentids, $row['id']);
-				}
-			}
-			# get computer ids available from block allocations
-			$blockdata = getAvailableBlockComputerids($imageid, $start, $end,
-			                                          $allocatedcompids);
-			$blockids = $blockdata['compids'];
-		}
+            $qh = doQuery($query, 129);
+            while($row = mysql_fetch_assoc($qh)) {
+                array_push($computerids, $row['id']);
+                if($row['currentimageid'] == $imageid &&
+                    $row['imagerevisionid'] == $imagerevisionid) {
+                    array_push($currentids, $row['id']);
+                }
+            }
+            # get computer ids available from block allocations
+            $blockdata = getAvailableBlockComputerids($imageid, $start, $end,
+                $allocatedcompids);
+            $blockids = $blockdata['compids'];
+        }
 
-		#remove computers from list that are already scheduled
-		$usedComputerids = array();
-		$query = "SELECT DISTINCT rs.computerid "
-		       . "FROM reservation rs, "
-		       .      "request rq "
-		       . "WHERE '$startstamp' < (rq.end + INTERVAL 900 SECOND) AND "
-		       .       "'$endstamp' > rq.start AND "
-		       .       "rq.id != $requestid AND "
-		       .       "rs.requestid = rq.id AND "
-		       .       "rq.stateid NOT IN (1, 5, 12)"; # deleted, failed, complete
-		$qh = doQuery($query, 130);
-		while($row = mysql_fetch_row($qh)) {
-			array_push($usedComputerids, $row[0]);
-		}
+        #remove computers from list that are already scheduled
+        $usedComputerids = array();
+        $query = "SELECT DISTINCT rs.computerid "
+            . "FROM reservation rs, "
+            .      "request rq "
+            . "WHERE '$startstamp' < (rq.end + INTERVAL 900 SECOND) AND "
+            .       "'$endstamp' > rq.start AND "
+            .       "rq.id != $requestid AND "
+            .       "rs.requestid = rq.id AND "
+            .       "rq.stateid NOT IN (1, 5, 12)"; # deleted, failed, complete
+        $qh = doQuery($query, 130);
+        while($row = mysql_fetch_row($qh)) {
+            array_push($usedComputerids, $row[0]);
+        }
 
-		$computerids = array_diff($computerids, $usedComputerids);
-		$currentids = array_diff($currentids, $usedComputerids);
-		$blockids = array_diff($blockids, $usedComputerids);
+        $computerids = array_diff($computerids, $usedComputerids);
+        $currentids = array_diff($currentids, $usedComputerids);
+        $blockids = array_diff($blockids, $usedComputerids);
 
-		// if modifying a reservation and $computerids is now empty, return 0
-		if($requestid && empty($computerids)) {
-			semUnlock();
-			return 0;
-		}
+        // if modifying a reservation and $computerids is now empty, return 0
+        if($requestid && empty($computerids)) {
+            semUnlock();
+            return 0;
+        }
 
-		# remove computers from list that are allocated to block allocations
-		if($altRemoveBlockCheck) {
-			if(editRequestBlockCheck($computerids[0], $imageid, $start, $end)) {
-				semUnlock();
-				return 0;
-			}
-		}
-		elseif(! count($blockids)) {  # && ! $altRemoveBlockCheck
-			$usedBlockCompids = getUsedBlockComputerids($start, $end);
-			$computerids = array_diff($computerids, $usedBlockCompids);
-			$currentids = array_diff($currentids, $usedBlockCompids);
-		}
+        # remove computers from list that are allocated to block allocations
+        if($altRemoveBlockCheck) {
+            if(editRequestBlockCheck($computerids[0], $imageid, $start, $end)) {
+                semUnlock();
+                return 0;
+            }
+        }
+        elseif(! count($blockids)) {  # && ! $altRemoveBlockCheck
+            $usedBlockCompids = getUsedBlockComputerids($start, $end);
+            $computerids = array_diff($computerids, $usedBlockCompids);
+            $currentids = array_diff($currentids, $usedBlockCompids);
+        }
 
-		if($virtual && empty($currentids) && ! empty($computerids)) {
-			# find computers whose hosts can handle the required RAM - we don't
-			#   need to do this if there are VMs with the requested image already
-			#   available because they would already fit within the host's available
-			#   RAM
+        if($virtual && empty($currentids) && ! empty($computerids)) {
+            # find computers whose hosts can handle the required RAM - we don't
+            #   need to do this if there are VMs with the requested image already
+            #   available because they would already fit within the host's available
+            #   RAM
 
-			if(! $vmhostcheckdone) {
-				$vmhostcheckdone = 1;
-				$query = "DROP TEMPORARY TABLE IF EXISTS VMhostCheck";
-				doQuery($query, 101);
+            if(! $vmhostcheckdone) {
+                $vmhostcheckdone = 1;
+                $query = "DROP TEMPORARY TABLE IF EXISTS VMhostCheck";
+                doQuery($query, 101);
 
-				$query = "CREATE TEMPORARY TABLE VMhostCheck ( "
-				       .    "RAM mediumint unsigned NOT NULL, "
-				       .    "allocRAM mediumint unsigned NOT NULL, "
-				       .    "vmhostid smallint unsigned NOT NULL "
-				       . ") ENGINE=MEMORY";
-				doQuery($query, 101);
+                $query = "CREATE TEMPORARY TABLE VMhostCheck ( "
+                    .    "RAM mediumint unsigned NOT NULL, "
+                    .    "allocRAM mediumint unsigned NOT NULL, "
+                    .    "vmhostid smallint unsigned NOT NULL "
+                    . ") ENGINE=MEMORY";
+                doQuery($query, 101);
 
-				$query = "INSERT INTO VMhostCheck "
-				       . "SELECT c.RAM, "
-				       .        "SUM(i.minram), "
-				       .        "v.id "
-				       . "FROM vmhost v "
-				       . "LEFT JOIN computer c ON (v.computerid = c.id) "
-				       . "LEFT JOIN computer c2 ON (v.id = c2.vmhostid) "
-				       . "LEFT JOIN image i ON (c2.currentimageid = i.id) "
-				       . "WHERE c.stateid = 20 "
-				       . "GROUP BY c.id";
-				doQuery($query, 101);
-			}
+                $query = "INSERT INTO VMhostCheck "
+                    . "SELECT c.RAM, "
+                    .        "SUM(i.minram), "
+                    .        "v.id "
+                    . "FROM vmhost v "
+                    . "LEFT JOIN computer c ON (v.computerid = c.id) "
+                    . "LEFT JOIN computer c2 ON (v.id = c2.vmhostid) "
+                    . "LEFT JOIN image i ON (c2.currentimageid = i.id) "
+                    . "WHERE c.stateid = 20 "
+                    . "GROUP BY c.id";
+                doQuery($query, 101);
+            }
 
-			$inids = implode(',', $computerids);
-			// if want overbooking, modify the last part of the WHERE clause
-			$query = "SELECT c.id "
-			       . "FROM VMhostCheck v "
-			       . "LEFT JOIN computer c ON (v.vmhostid = c.vmhostid) "
-			       . "LEFT JOIN image i ON (c.currentimageid = i.id) "
-			       . "WHERE c.id IN ($inids) AND "
-			       .       "(v.allocRAM - i.minram + {$images[$imageid]['minram']}) < v.RAM "
-			       . "ORDER BY (c.procspeed * c.procnumber) DESC, "
-			       .          "c.RAM DESC, "
-			       .          "c.network DESC";
-			$qh = doQuery($query, 101);
-			$newcompids = array();
-			while($row = mysql_fetch_assoc($qh))
-				$newcompids[] = $row['id'];
-			$computerids = $newcompids;
-		}
+            $inids = implode(',', $computerids);
+            // if want overbooking, modify the last part of the WHERE clause
+            $query = "SELECT c.id "
+                . "FROM VMhostCheck v "
+                . "LEFT JOIN computer c ON (v.vmhostid = c.vmhostid) "
+                . "LEFT JOIN image i ON (c.currentimageid = i.id) "
+                . "WHERE c.id IN ($inids) AND "
+                .       "(v.allocRAM - i.minram + {$images[$imageid]['minram']}) < v.RAM "
+                . "ORDER BY (c.procspeed * c.procnumber) DESC, "
+                .          "c.RAM DESC, "
+                .          "c.network DESC";
+            $qh = doQuery($query, 101);
+            $newcompids = array();
+            while($row = mysql_fetch_assoc($qh))
+                $newcompids[] = $row['id'];
+            $computerids = $newcompids;
+        }
 
-		# remove any recently reserved computers that could have been an
-		#   undetected failure
-		$failedids = getPossibleRecentFailures($userid, $imageid);
-		$shortened = 0;
-		if(! empty($failedids)) {
-			$origcomputerids = $computerids;
-			$origcurrentids = $currentids;
-			$origblockids = $blockids;
-			if(! empty($computerids)) {
-				$testids = array_diff($computerids, $failedids);
-				if(! empty($testids)) {
-					$shortened = 1;
-					$computerids = $testids;
-					$currentids = array_diff($currentids, $failedids);
-				}
-			}
-			if(! empty($blockids)) {
-				$testids = array_diff($blockids, $failedids);
-				if(! empty($testids)) {
-					$shortened = 1;
-					$blockids = $testids;
-				}
-			}
-		}
+        # remove any recently reserved computers that could have been an
+        #   undetected failure
+        $failedids = getPossibleRecentFailures($userid, $imageid);
+        $shortened = 0;
+        if(! empty($failedids)) {
+            $origcomputerids = $computerids;
+            $origcurrentids = $currentids;
+            $origblockids = $blockids;
+            if(! empty($computerids)) {
+                $testids = array_diff($computerids, $failedids);
+                if(! empty($testids)) {
+                    $shortened = 1;
+                    $computerids = $testids;
+                    $currentids = array_diff($currentids, $failedids);
+                }
+            }
+            if(! empty($blockids)) {
+                $testids = array_diff($blockids, $failedids);
+                if(! empty($testids)) {
+                    $shortened = 1;
+                    $blockids = $testids;
+                }
+            }
+        }
 
-		# allocate a computer
-		$comparr = allocComputer($blockids, $currentids, $computerids,
-		                         $startstamp, $nowfuture);
-		if(empty($comparr) && $shortened)
-			$comparr = allocComputer($origblockids, $origcurrentids,
-			                         $origcomputerids, $startstamp, $nowfuture);
-		if(empty($comparr)) {
-			semUnlock();
-			return 0;
-		}
+        # allocate a computer
+        $comparr = allocComputer($blockids, $currentids, $computerids,
+            $startstamp, $nowfuture);
+        if(empty($comparr) && $shortened)
+            $comparr = allocComputer($origblockids, $origcurrentids,
+                $origcomputerids, $startstamp, $nowfuture);
+        if(empty($comparr)) {
+            semUnlock();
+            return 0;
+        }
 
-		$requestInfo["computers"][$key] = $comparr['compid'];
-		$requestInfo["mgmtnodes"][$key] = $comparr['mgmtid'];
-		$requestInfo["loaded"][$key] = $comparr['loaded'];
-		$requestInfo['fromblock'][$key] = $comparr['fromblock'];
-		if($comparr['fromblock'])
-			$requestInfo['blockdata'][$key] = $blockdata[$comparr['compid']];
-		array_push($allocatedcompids, $comparr['compid']);
-	}
+        $requestInfo["computers"][$key] = $comparr['compid'];
+        $requestInfo["mgmtnodes"][$key] = $comparr['mgmtid'];
+        $requestInfo["loaded"][$key] = $comparr['loaded'];
+        $requestInfo['fromblock'][$key] = $comparr['fromblock'];
+        if($comparr['fromblock'])
+            $requestInfo['blockdata'][$key] = $blockdata[$comparr['compid']];
+        array_push($allocatedcompids, $comparr['compid']);
+    }
 
-	return 1;
+    return 1;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -4159,42 +4159,42 @@ function isAvailable($images, $imageid, $imagerevisionid, $start, $end,
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getAvailableSchedules($start, $end) {
-	# get list of schedules
-	$starttime = minuteOfWeek($start);
-	$endtime = minuteOfWeek($end);
+    # get list of schedules
+    $starttime = minuteOfWeek($start);
+    $endtime = minuteOfWeek($end);
 
-	# request is within a single week
-	if(weekOfYear($start) == weekOfYear($end)) {
-		$query = "SELECT scheduleid "
-		       . "FROM scheduletimes "
-		       . "WHERE start <= $starttime AND "
-		       .       "end >= $endtime";
-	}
-	# request covers at least a week's worth of time
-	elseif($end - $start >= SECINDAY * 7) {
-		$query = "SELECT scheduleid "
-		       . "FROM scheduletimes "
-		       . "WHERE start = 0 AND "
-		       .       "end = 10080";
-	}
-	# request starts in one week and ends in the following week
-	else {
-		$query = "SELECT s1.scheduleid "
-		       . "FROM scheduletimes s1, "
-		       .      "scheduletimes s2 "
-		       . "WHERE s1.scheduleid = s2.scheduleid AND "
-		       .       "s1.start <= $starttime AND "
-		       .       "s1.end = 10080 AND "
-		       .       "s2.start = 0 AND "
-		       .       "s2.end >= $endtime";
-	}
+    # request is within a single week
+    if(weekOfYear($start) == weekOfYear($end)) {
+        $query = "SELECT scheduleid "
+            . "FROM scheduletimes "
+            . "WHERE start <= $starttime AND "
+            .       "end >= $endtime";
+    }
+    # request covers at least a week's worth of time
+    elseif($end - $start >= SECINDAY * 7) {
+        $query = "SELECT scheduleid "
+            . "FROM scheduletimes "
+            . "WHERE start = 0 AND "
+            .       "end = 10080";
+    }
+    # request starts in one week and ends in the following week
+    else {
+        $query = "SELECT s1.scheduleid "
+            . "FROM scheduletimes s1, "
+            .      "scheduletimes s2 "
+            . "WHERE s1.scheduleid = s2.scheduleid AND "
+            .       "s1.start <= $starttime AND "
+            .       "s1.end = 10080 AND "
+            .       "s2.start = 0 AND "
+            .       "s2.end >= $endtime";
+    }
 
-	$scheduleids = array();
-	$qh = doQuery($query, 127);
-	while($row = mysql_fetch_row($qh)) {
-		array_push($scheduleids, $row[0]);
-	}
-	return $scheduleids;
+    $scheduleids = array();
+    $qh = doQuery($query, 127);
+    while($row = mysql_fetch_row($qh)) {
+        array_push($scheduleids, $row[0]);
+    }
+    return $scheduleids;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -4209,11 +4209,11 @@ function getAvailableSchedules($start, $end) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getImagePlatform($imageid) {
-	$query = "SELECT platformid FROM image WHERE id = $imageid";
-	$qh = doQuery($query, 125);
-	if(! $row = mysql_fetch_assoc($qh))
-		return NULL;
-	return $row['platformid'];
+    $query = "SELECT platformid FROM image WHERE id = $imageid";
+    $qh = doQuery($query, 125);
+    if(! $row = mysql_fetch_assoc($qh))
+        return NULL;
+    return $row['platformid'];
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -4230,18 +4230,18 @@ function getImagePlatform($imageid) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function schCheckMaintenance($start, $end) {
-	$startdt = unixToDatetime($start);
-	$enddt = unixToDatetime($end);
-	$query = "SELECT id "
-	       . "FROM sitemaintenance "
-	       . "WHERE ((allowreservations = 0 AND "
-	       .       "(('$enddt' > start) AND ('$startdt' < end))) OR "
-	       .       "(('$startdt' > (start - INTERVAL 30 MINUTE)) AND ('$startdt' < end))) AND "
-	       .       "end > NOW()";
-	$qh = doQuery($query, 101);
-	if($row = mysql_fetch_row($qh))
-		return true;
-	return false;
+    $startdt = unixToDatetime($start);
+    $enddt = unixToDatetime($end);
+    $query = "SELECT id "
+        . "FROM sitemaintenance "
+        . "WHERE ((allowreservations = 0 AND "
+        .       "(('$enddt' > start) AND ('$startdt' < end))) OR "
+        .       "(('$startdt' > (start - INTERVAL 30 MINUTE)) AND ('$startdt' < end))) AND "
+        .       "end > NOW()";
+    $qh = doQuery($query, 101);
+    if($row = mysql_fetch_row($qh))
+        return true;
+    return false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -4268,43 +4268,43 @@ function schCheckMaintenance($start, $end) {
 ////////////////////////////////////////////////////////////////////////////////
 function allocComputer($blockids, $currentids, $computerids, $start,
                        $nowfuture) {
-	$ret = array();
-	if(SCHEDULER_ALLOCATE_RANDOM_COMPUTER) {
-		shuffle($blockids);
-		shuffle($currentids);
-		shuffle($computerids);
-	}
-	foreach($blockids as $compid) {
-		$mgmtnodeid = findManagementNode($compid, $start, $nowfuture);
-		if($mgmtnodeid == 0)
-			continue;
-		$ret['compid'] = $compid;
-		$ret['mgmtid'] = $mgmtnodeid;
-		$ret['loaded'] = 1;
-		$ret['fromblock'] = 1;
-		return $ret;
-	}
-	foreach($currentids as $compid) {
-		$mgmtnodeid = findManagementNode($compid, $start, $nowfuture);
-		if($mgmtnodeid == 0)
-			continue;
-		$ret['compid'] = $compid;
-		$ret['mgmtid'] = $mgmtnodeid;
-		$ret['loaded'] = 1;
-		$ret['fromblock'] = 0;
-		return $ret;
-	}
-	foreach($computerids as $compid) {
-		$mgmtnodeid = findManagementNode($compid, $start, $nowfuture);
-		if($mgmtnodeid == 0)
-			continue;
-		$ret['compid'] = $compid;
-		$ret['mgmtid'] = $mgmtnodeid;
-		$ret['loaded'] = 0;
-		$ret['fromblock'] = 0;
-		return $ret;
-	}
-	return $ret;
+    $ret = array();
+    if(SCHEDULER_ALLOCATE_RANDOM_COMPUTER) {
+        shuffle($blockids);
+        shuffle($currentids);
+        shuffle($computerids);
+    }
+    foreach($blockids as $compid) {
+        $mgmtnodeid = findManagementNode($compid, $start, $nowfuture);
+        if($mgmtnodeid == 0)
+            continue;
+        $ret['compid'] = $compid;
+        $ret['mgmtid'] = $mgmtnodeid;
+        $ret['loaded'] = 1;
+        $ret['fromblock'] = 1;
+        return $ret;
+    }
+    foreach($currentids as $compid) {
+        $mgmtnodeid = findManagementNode($compid, $start, $nowfuture);
+        if($mgmtnodeid == 0)
+            continue;
+        $ret['compid'] = $compid;
+        $ret['mgmtid'] = $mgmtnodeid;
+        $ret['loaded'] = 1;
+        $ret['fromblock'] = 0;
+        return $ret;
+    }
+    foreach($computerids as $compid) {
+        $mgmtnodeid = findManagementNode($compid, $start, $nowfuture);
+        if($mgmtnodeid == 0)
+            continue;
+        $ret['compid'] = $compid;
+        $ret['mgmtid'] = $mgmtnodeid;
+        $ret['loaded'] = 0;
+        $ret['fromblock'] = 0;
+        return $ret;
+    }
+    return $ret;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -4323,24 +4323,24 @@ function allocComputer($blockids, $currentids, $computerids, $start,
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getPossibleRecentFailures($userid, $imageid) {
-	if($userid == 0) {
-		global $user;
-		$userid = $user['id'];
-	}
-	$comps = array();
-	$query = "SELECT s.computerid "
-	       . "FROM log l "
-	       . "LEFT JOIN sublog s ON (s.logid = l.id) "
-	       . "WHERE l.start > (NOW() - INTERVAL 90 MINUTE) AND "
-	       .       "l.finalend < NOW() AND "
-	       .       "l.userid = $userid AND "
-	       .       "l.imageid = $imageid AND "
-	       .       "l.wasavailable = 1 AND "
-	       .       "l.ending != 'failed'";
-	$qh = doQuery($query, 101);
-	while($row = mysql_fetch_assoc($qh))
-		$comps[] = $row['computerid'];
-	return $comps;
+    if($userid == 0) {
+        global $user;
+        $userid = $user['id'];
+    }
+    $comps = array();
+    $query = "SELECT s.computerid "
+        . "FROM log l "
+        . "LEFT JOIN sublog s ON (s.logid = l.id) "
+        . "WHERE l.start > (NOW() - INTERVAL 90 MINUTE) AND "
+        .       "l.finalend < NOW() AND "
+        .       "l.userid = $userid AND "
+        .       "l.imageid = $imageid AND "
+        .       "l.wasavailable = 1 AND "
+        .       "l.ending != 'failed'";
+    $qh = doQuery($query, 101);
+    while($row = mysql_fetch_assoc($qh))
+        $comps[] = $row['computerid'];
+    return $comps;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -4354,80 +4354,80 @@ function getPossibleRecentFailures($userid, $imageid) {
 ///
 /// \return an array of resource ids of type $resourcetype2
 ///
-/// \brief gets a list of resources of type $resourcetype2 that $resourcesubid 
+/// \brief gets a list of resources of type $resourcetype2 that $resourcesubid
 /// of type $resourcetype1 maps to based on the resourcemap table
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getMappedResources($resourcesubid, $resourcetype1, $resourcetype2) {
-	if(! is_numeric($resourcetype1))
-		$resourcetype1 = getResourceTypeID($resourcetype1);
-	if(! is_numeric($resourcetype2))
-		$resourcetype2 = getResourceTypeID($resourcetype2);
+    if(! is_numeric($resourcetype1))
+        $resourcetype1 = getResourceTypeID($resourcetype1);
+    if(! is_numeric($resourcetype2))
+        $resourcetype2 = getResourceTypeID($resourcetype2);
 
-	# get $resourcesubid's resource id
-	$query = "SELECT id "
-	       . "FROM resource "
-	       . "WHERE subid = $resourcesubid AND "
-	       .       "resourcetypeid = $resourcetype1";
-	$qh = doQuery($query, 101);
-	$row = mysql_fetch_row($qh);
-	$resourceid = $row[0];
+    # get $resourcesubid's resource id
+    $query = "SELECT id "
+        . "FROM resource "
+        . "WHERE subid = $resourcesubid AND "
+        .       "resourcetypeid = $resourcetype1";
+    $qh = doQuery($query, 101);
+    $row = mysql_fetch_row($qh);
+    $resourceid = $row[0];
 
-	# get groups $resourceid is in
-	$resourcegroupids = array();
-	$query = "SELECT resourcegroupid "
-	       . "FROM resourcegroupmembers "
-	       . "WHERE resourceid = $resourceid";
-	$qh = doQuery($query, 101);
-	while($row = mysql_fetch_row($qh)) {
-		array_push($resourcegroupids, $row[0]);
-	}
+    # get groups $resourceid is in
+    $resourcegroupids = array();
+    $query = "SELECT resourcegroupid "
+        . "FROM resourcegroupmembers "
+        . "WHERE resourceid = $resourceid";
+    $qh = doQuery($query, 101);
+    while($row = mysql_fetch_row($qh)) {
+        array_push($resourcegroupids, $row[0]);
+    }
 
-	# get $resourcetype2 groups that $resourcegroupids map to
-	if(! count($resourcegroupids))
-		return array();
-	$inlist = implode(',', $resourcegroupids);
-	$type2groupids = array();
+    # get $resourcetype2 groups that $resourcegroupids map to
+    if(! count($resourcegroupids))
+        return array();
+    $inlist = implode(',', $resourcegroupids);
+    $type2groupids = array();
 
-	# get all mappings from resourcemap table where $resourcetype1 ==
-	#   resourcemap.resourcetypeid1
-	$query = "SELECT resourcegroupid2 "
-	       . "FROM resourcemap "
-	       . "WHERE resourcegroupid1 IN ($inlist) AND "
-	       .       "resourcetypeid1 = $resourcetype1 AND "
-	       .       "resourcetypeid2 = $resourcetype2";
-	$qh = doQuery($query, 101);
-	while($row = mysql_fetch_row($qh)) {
-		array_push($type2groupids, $row[0]);
-	}
+    # get all mappings from resourcemap table where $resourcetype1 ==
+    #   resourcemap.resourcetypeid1
+    $query = "SELECT resourcegroupid2 "
+        . "FROM resourcemap "
+        . "WHERE resourcegroupid1 IN ($inlist) AND "
+        .       "resourcetypeid1 = $resourcetype1 AND "
+        .       "resourcetypeid2 = $resourcetype2";
+    $qh = doQuery($query, 101);
+    while($row = mysql_fetch_row($qh)) {
+        array_push($type2groupids, $row[0]);
+    }
 
-	# get all mappings from resourcemap table where $resourcetype1 ==
-	#   resourcemap.resourcetypeid2
-	$query = "SELECT resourcegroupid1 "
-	       . "FROM resourcemap "
-	       . "WHERE resourcegroupid2 IN ($inlist) AND "
-	       .       "resourcetypeid2 = $resourcetype1 AND "
-	       .       "resourcetypeid1 = $resourcetype2";
-	$qh = doQuery($query, 101);
-	while($row = mysql_fetch_row($qh)) {
-		array_push($type2groupids, $row[0]);
-	}
+    # get all mappings from resourcemap table where $resourcetype1 ==
+    #   resourcemap.resourcetypeid2
+    $query = "SELECT resourcegroupid1 "
+        . "FROM resourcemap "
+        . "WHERE resourcegroupid2 IN ($inlist) AND "
+        .       "resourcetypeid2 = $resourcetype1 AND "
+        .       "resourcetypeid1 = $resourcetype2";
+    $qh = doQuery($query, 101);
+    while($row = mysql_fetch_row($qh)) {
+        array_push($type2groupids, $row[0]);
+    }
 
-	# get $resourcetype2 items in $type2groupids groups
-	if(! count($type2groupids))
-		return array();
-	$inlist = implode(',', $type2groupids);
-	$mappedresources = array();
-	$query = "SELECT r.subid "
-	       . "FROM resource r, "
-	       .      "resourcegroupmembers m "
-	       . "WHERE m.resourcegroupid IN ($inlist) AND "
-	       .       "m.resourceid = r.id";
-	$qh = doQuery($query, 101);
-	while($row = mysql_fetch_row($qh)) {
-		array_push($mappedresources, $row[0]);
-	}
-	return $mappedresources;
+    # get $resourcetype2 items in $type2groupids groups
+    if(! count($type2groupids))
+        return array();
+    $inlist = implode(',', $type2groupids);
+    $mappedresources = array();
+    $query = "SELECT r.subid "
+        . "FROM resource r, "
+        .      "resourcegroupmembers m "
+        . "WHERE m.resourcegroupid IN ($inlist) AND "
+        .       "m.resourceid = r.id";
+    $qh = doQuery($query, 101);
+    while($row = mysql_fetch_row($qh)) {
+        array_push($mappedresources, $row[0]);
+    }
+    return $mappedresources;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -4448,26 +4448,26 @@ function getMappedResources($resourcesubid, $resourcetype1, $resourcetype2) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function checkOverlap($start, $end, $max, $requestid=0) {
-	global $user;
-	$requests = getUserRequests("all");
-	$count = 0;
-	if($max > 0)
-		$max--;
-	foreach(array_keys($requests) as $id) {
-		if(! (($requests[$id]["currstateid"] == 12 ||
-		   $requests[$id]["currstateid"] == 14) &&
-		   $requests[$id]["laststateid"] == 11) &&
-		   $requests[$id]["currstateid"] != 5 &&
-		   $requests[$id]["id"] != $requestid &&
-		   ($start < datetimeToUnix($requests[$id]["end"]) &&
-		   $end > datetimeToUnix($requests[$id]["start"])) &&
-		   $requests[$id]['serverowner'] == 1) {
-			$count++;
-			if($count > $max)
-				return 1;
-		}
-	}
-	return 0;
+    global $user;
+    $requests = getUserRequests("all");
+    $count = 0;
+    if($max > 0)
+        $max--;
+    foreach(array_keys($requests) as $id) {
+        if(! (($requests[$id]["currstateid"] == 12 ||
+            $requests[$id]["currstateid"] == 14) &&
+            $requests[$id]["laststateid"] == 11) &&
+            $requests[$id]["currstateid"] != 5 &&
+            $requests[$id]["id"] != $requestid &&
+            ($start < datetimeToUnix($requests[$id]["end"]) &&
+                $end > datetimeToUnix($requests[$id]["start"])) &&
+            $requests[$id]['serverowner'] == 1) {
+            $count++;
+            if($count > $max)
+                return 1;
+        }
+    }
+    return 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -4488,26 +4488,26 @@ function checkOverlap($start, $end, $max, $requestid=0) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function editRequestBlockCheck($compid, $imageid, $start, $end) {
-	global $user;
-	$groupids = implode(',', array_keys($user['groups']));
-	if(! count($user['groups']))
-		$groupids = "''";
-	$startdt = unixToDatetime($start);
-	$enddt = unixToDatetime($end);
-	$query = "SELECT bc.computerid "
-	       . "FROM blockComputers bc, "
-	       .      "blockTimes bt, "
-	       .      "blockRequest r "
-	       . "WHERE bc.blockTimeid = bt.id AND "
-	       .       "bt.blockRequestid = r.id AND "
-	       .       "bc.computerid = $compid AND "
-	       .       "(bt.start - INTERVAL 15 MINUTE) < '$enddt' AND "
-	       .       "bt.end > '$startdt' AND "
-	       .       "(r.groupid NOT IN ($groupids) OR "
-	       .       "r.imageid != $imageid) AND "
-	       .       "r.status = 'accepted'";
-	$qh = doQuery($query, 101);
-	return(mysql_num_rows($qh));
+    global $user;
+    $groupids = implode(',', array_keys($user['groups']));
+    if(! count($user['groups']))
+        $groupids = "''";
+    $startdt = unixToDatetime($start);
+    $enddt = unixToDatetime($end);
+    $query = "SELECT bc.computerid "
+        . "FROM blockComputers bc, "
+        .      "blockTimes bt, "
+        .      "blockRequest r "
+        . "WHERE bc.blockTimeid = bt.id AND "
+        .       "bt.blockRequestid = r.id AND "
+        .       "bc.computerid = $compid AND "
+        .       "(bt.start - INTERVAL 15 MINUTE) < '$enddt' AND "
+        .       "bt.end > '$startdt' AND "
+        .       "(r.groupid NOT IN ($groupids) OR "
+        .       "r.imageid != $imageid) AND "
+        .       "r.status = 'accepted'";
+    $qh = doQuery($query, 101);
+    return(mysql_num_rows($qh));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -4521,20 +4521,20 @@ function editRequestBlockCheck($compid, $imageid, $start, $end) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getReloadStartTime() {
-	$nowArr = getdate();
-	if($nowArr["minutes"] == 0)
-		$subtract = 0;
-	elseif($nowArr["minutes"] < 15)
-		$subtract = $nowArr["minutes"] * 60;
-	elseif($nowArr["minutes"] < 30)
-		$subtract = ($nowArr["minutes"] - 15) * 60;
-	elseif($nowArr["minutes"] < 45)
-		$subtract = ($nowArr["minutes"] - 30) * 60;
-	elseif($nowArr["minutes"] < 60)
-		$subtract = ($nowArr["minutes"] - 45) * 60;
-	$start = time() - $subtract;
-	$start -= $start % 60;
-	return $start;
+    $nowArr = getdate();
+    if($nowArr["minutes"] == 0)
+        $subtract = 0;
+    elseif($nowArr["minutes"] < 15)
+        $subtract = $nowArr["minutes"] * 60;
+    elseif($nowArr["minutes"] < 30)
+        $subtract = ($nowArr["minutes"] - 15) * 60;
+    elseif($nowArr["minutes"] < 45)
+        $subtract = ($nowArr["minutes"] - 30) * 60;
+    elseif($nowArr["minutes"] < 60)
+        $subtract = ($nowArr["minutes"] - 45) * 60;
+    $start = time() - $subtract;
+    $start -= $start % 60;
+    return $start;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -4550,18 +4550,18 @@ function getReloadStartTime() {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getMaxOverlap($userid) {
-	$query = "SELECT u.overlapResCount "
-	       . "FROM usergroup u, "
-	       .      "usergroupmembers m "
-	       . "WHERE m.usergroupid = u.id AND "
-	       .       "m.userid = $userid "
-	       . "ORDER BY u.overlapResCount DESC "
-	       . "LIMIT 1";
-	$qh = doQuery($query, 101);
-	if($row = mysql_fetch_assoc($qh))
-		return $row['overlapResCount'];
-	else
-		return 1;
+    $query = "SELECT u.overlapResCount "
+        . "FROM usergroup u, "
+        .      "usergroupmembers m "
+        . "WHERE m.usergroupid = u.id AND "
+        .       "m.userid = $userid "
+        . "ORDER BY u.overlapResCount DESC "
+        . "LIMIT 1";
+    $qh = doQuery($query, 101);
+    if($row = mysql_fetch_assoc($qh))
+        return $row['overlapResCount'];
+    else
+        return 1;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -4578,393 +4578,407 @@ function getMaxOverlap($userid) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 /*function addRequest($oneclickid=0,$forimaging=0, $revisionid=array()) {
-	global $requestInfo, $user;
-	$startstamp = unixToDatetime($requestInfo["start"]);
-	$endstamp = unixToDatetime($requestInfo["end"]);
-	$now = time();
+    global $requestInfo, $user;
+    $startstamp = unixToDatetime($requestInfo["start"]);
+    $endstamp = unixToDatetime($requestInfo["end"]);
+    $now = time();
 
-	if($requestInfo["start"] <= $now) {
-		$start = unixToDatetime($now);
-		$nowfuture = "now";
-	}
-	else {
-		$start = $startstamp;
-		$nowfuture = "future";
-	}
+    if($requestInfo["start"] <= $now) {
+        $start = unixToDatetime($now);
+        $nowfuture = "now";
+    }
+    else {
+        $start = $startstamp;
+        $nowfuture = "future";
+    }
 
-	addLogEntry($nowfuture, $start, $endstamp, 1, $requestInfo["imageid"]);
+    addLogEntry($nowfuture, $start, $endstamp, 1, $requestInfo["imageid"]);
 
-	$qh = doQuery("SELECT LAST_INSERT_ID() FROM log", 131);
-	if(! $row = mysql_fetch_row($qh)) {
-		abort(132);
-	}
-	$logid = $row[0];
+    $qh = doQuery("SELECT LAST_INSERT_ID() FROM log", 131);
+    if(! $row = mysql_fetch_row($qh)) {
+        abort(132);
+    }
+    $logid = $row[0];
 
-	$query = "INSERT INTO changelog "
-	       .        "(logid, "
-	       .        "start, "
-	       .        "end, "
-	       .        "timestamp) "
-	       . "VALUES "
-	       .        "($logid, "
-	       .        "'$start', "
-	       .        "'$endstamp', "
-	       .        "NOW())";
-	doQuery($query, 136);
+    $query = "INSERT INTO changelog "
+           .        "(logid, "
+           .        "start, "
+           .        "end, "
+           .        "timestamp) "
+           . "VALUES "
+           .        "($logid, "
+           .        "'$start', "
+           .        "'$endstamp', "
+           .        "NOW())";
+    doQuery($query, 136);
 
-	if($oneclickid==0) {
-	// Make normal entries to request table without the oneclick parameter
-	$query = "INSERT INTO request "
-	       .        "(stateid, "
-	       .        "userid, "
-	       .        "laststateid, "
-	       .        "logid, "
-	       .        "forimaging, "
-	       .        "start, "
-	       .        "end, "
-	       .        "daterequested) "
-	       . "VALUES "
-	       .       "(13, "
-	       .       "{$user['id']}, "
-	       .       "13, "
-	       .       "$logid, "
-	       .       "$forimaging, "
-	       .       "'$startstamp', "
-	       .       "'$endstamp', "
-	       .       "NOW())";
-	$qh = doQuery($query, 136);
+    if($oneclickid==0) {
+    // Make normal entries to request table without the oneclick parameter
+    $query = "INSERT INTO request "
+           .        "(stateid, "
+           .        "userid, "
+           .        "laststateid, "
+           .        "logid, "
+           .        "forimaging, "
+           .        "start, "
+           .        "end, "
+           .        "daterequested) "
+           . "VALUES "
+           .       "(13, "
+           .       "{$user['id']}, "
+           .       "13, "
+           .       "$logid, "
+           .       "$forimaging, "
+           .       "'$startstamp', "
+           .       "'$endstamp', "
+           .       "NOW())";
+    $qh = doQuery($query, 136);
 
-	$qh = doQuery("SELECT LAST_INSERT_ID() FROM request", 134);
-	if(! $row = mysql_fetch_row($qh)) {
-		abort(135);
-	}
-	$requestid = $row[0];
+    $qh = doQuery("SELECT LAST_INSERT_ID() FROM request", 134);
+    if(! $row = mysql_fetch_row($qh)) {
+        abort(135);
+    }
+    $requestid = $row[0];
 
-	# add requestid to log entry
-	$query = "UPDATE log "
-	       . "SET requestid = $requestid "
-	       . "WHERE id = $logid";
-	doQuery($query, 101);
+    # add requestid to log entry
+    $query = "UPDATE log "
+           . "SET requestid = $requestid "
+           . "WHERE id = $logid";
+    doQuery($query, 101);
 
-	# add an entry to the reservation table for each image
-	# NOTE: make sure parent image is the first entry we add
-	#   so that it has the lowest reservationid
-	foreach($requestInfo["images"] as $key => $imageid) {
-		if(array_key_exists($imageid, $revisionid) &&
-		   ! empty($revisionid[$imageid]))
-			$imagerevisionid = array_shift($revisionid[$imageid]);
-		else
-			$imagerevisionid = getProductionRevisionid($imageid);
-		$computerid = $requestInfo["computers"][$key];
-		$mgmtnodeid = $requestInfo['mgmtnodes'][$key];
-		$fromblock = $requestInfo['fromblock'][$key];
-		if($fromblock)
-			$blockdata = $requestInfo['blockdata'][$key];
-		else
-			$blockdata = array();
+    # add an entry to the reservation table for each image
+    # NOTE: make sure parent image is the first entry we add
+    #   so that it has the lowest reservationid
+    foreach($requestInfo["images"] as $key => $imageid) {
+        if(array_key_exists($imageid, $revisionid) &&
+           ! empty($revisionid[$imageid]))
+            $imagerevisionid = array_shift($revisionid[$imageid]);
+        else
+            $imagerevisionid = getProductionRevisionid($imageid);
+        $computerid = $requestInfo["computers"][$key];
+        $mgmtnodeid = $requestInfo['mgmtnodes'][$key];
+        $fromblock = $requestInfo['fromblock'][$key];
+        if($fromblock)
+            $blockdata = $requestInfo['blockdata'][$key];
+        else
+            $blockdata = array();
 
-		$query = "INSERT INTO reservation "
-		       .        "(requestid, "
-		       .        "computerid, "
-		       .        "imageid, "
-		       .        "imagerevisionid, "
-		       .        "managementnodeid) "
-		       . "VALUES "
-		       .       "($requestid, "
-		       .       "$computerid, "
-		       .       "$imageid, "
-		       .       "$imagerevisionid, "
-		       .       "$mgmtnodeid)";
-		doQuery($query, 133);
-		addSublogEntry($logid, $imageid, $imagerevisionid, $computerid,
-		               $mgmtnodeid, $fromblock, $blockdata);
-		} 
- 	}else {
-	// Query request table for selected oneclick and user id and return that if exist
-	// or make new entry
-		$selectQuery = "SELECT requestid from reservation where oneclickid = $oneclickid 
-		AND userid = {$user['id']}"
-		
-		$sq = doQuery($selectQuery);
-	
-		if(!$rowsq = mysql_fetch_row($sq)) {
-			// make a new entry with the given oneclickid and userid
-			# add single entry to request table
-	$query = "INSERT INTO request "
-	       .        "(stateid, "
-	       .        "userid, "
-	       .        "oneclickid, "
-	       .        "laststateid, "
-	       .        "logid, "
-	       .        "forimaging, "
-	       .        "start, "
-	       .        "end, "
-	       .        "daterequested) "
-	       . "VALUES "
-	       .       "(13, "
-	       .       "{$user['id']}, "
-	       .       "$oneclickid, "
-	       .       "13, "
-	       .       "$logid, "
-	       .       "$forimaging, "
-	       .       "'$startstamp', "
-	       .       "'$endstamp', "
-	       .       "NOW())";
-	$qh = doQuery($query, 136);
+        $query = "INSERT INTO reservation "
+               .        "(requestid, "
+               .        "computerid, "
+               .        "imageid, "
+               .        "imagerevisionid, "
+               .        "managementnodeid) "
+               . "VALUES "
+               .       "($requestid, "
+               .       "$computerid, "
+               .       "$imageid, "
+               .       "$imagerevisionid, "
+               .       "$mgmtnodeid)";
+        doQuery($query, 133);
+        addSublogEntry($logid, $imageid, $imagerevisionid, $computerid,
+                       $mgmtnodeid, $fromblock, $blockdata);
+        }
+    }else {
+    // Query request table for selected oneclick and user id and return that if exist
+    // or make new entry
+        $selectQuery = "SELECT requestid from reservation where oneclickid = $oneclickid
+        AND userid = {$user['id']}"
 
-	$qh = doQuery("SELECT LAST_INSERT_ID() FROM request", 134);
-	if(! $row = mysql_fetch_row($qh)) {
-		abort(135);
-	}
-	$requestid = $row[0];
+        $sq = doQuery($selectQuery);
 
-	# add requestid to log entry
-	$query = "UPDATE log "
-	       . "SET requestid = $requestid "
-	       . "WHERE id = $logid";
-	doQuery($query, 101);
+        if(!$rowsq = mysql_fetch_row($sq)) {
+            // make a new entry with the given oneclickid and userid
+            # add single entry to request table
+    $query = "INSERT INTO request "
+           .        "(stateid, "
+           .        "userid, "
+           .        "oneclickid, "
+           .        "laststateid, "
+           .        "logid, "
+           .        "forimaging, "
+           .        "start, "
+           .        "end, "
+           .        "daterequested) "
+           . "VALUES "
+           .       "(13, "
+           .       "{$user['id']}, "
+           .       "$oneclickid, "
+           .       "13, "
+           .       "$logid, "
+           .       "$forimaging, "
+           .       "'$startstamp', "
+           .       "'$endstamp', "
+           .       "NOW())";
+    $qh = doQuery($query, 136);
 
-	# add an entry to the reservation table for each image
-	# NOTE: make sure parent image is the first entry we add
-	#   so that it has the lowest reservationid
-	foreach($requestInfo["images"] as $key => $imageid) {
-		if(array_key_exists($imageid, $revisionid) &&
-		   ! empty($revisionid[$imageid]))
-			$imagerevisionid = array_shift($revisionid[$imageid]);
-		else
-			$imagerevisionid = getProductionRevisionid($imageid);
-		$computerid = $requestInfo["computers"][$key];
-		$mgmtnodeid = $requestInfo['mgmtnodes'][$key];
-		$fromblock = $requestInfo['fromblock'][$key];
-		if($fromblock)
-			$blockdata = $requestInfo['blockdata'][$key];
-		else
-			$blockdata = array();
+    $qh = doQuery("SELECT LAST_INSERT_ID() FROM request", 134);
+    if(! $row = mysql_fetch_row($qh)) {
+        abort(135);
+    }
+    $requestid = $row[0];
 
-		$query = "INSERT INTO reservation "
-		       .        "(requestid, "
-		       .        "computerid, "
-		       .        "imageid, "
-		       .        "imagerevisionid, "
-		       .        "managementnodeid, "
-		       .        "oneclickid, "
-		       .        "userid) "
-		       . "VALUES "
-		       .       "($requestid, "
-		       .       "$computerid, "
-		       .       "$imageid, "
-		       .       "$imagerevisionid, "
-		       .       "$mgmtnodeid, "
-		       .       "$oneclickid, "
-		       .       "{$user['id']})";
-		doQuery($query, 133);
-		addSublogEntry($logid, $imageid, $imagerevisionid, $computerid,
-		               $mgmtnodeid, $fromblock, $blockdata);
-		}
-	} else {
-	// return the already existing request id from reservation table
-		$requestid = $rowsq[0];
-	}
+    # add requestid to log entry
+    $query = "UPDATE log "
+           . "SET requestid = $requestid "
+           . "WHERE id = $logid";
+    doQuery($query, 101);
 
-	}
-	// release semaphore lock
-	semUnlock();
+    # add an entry to the reservation table for each image
+    # NOTE: make sure parent image is the first entry we add
+    #   so that it has the lowest reservationid
+    foreach($requestInfo["images"] as $key => $imageid) {
+        if(array_key_exists($imageid, $revisionid) &&
+           ! empty($revisionid[$imageid]))
+            $imagerevisionid = array_shift($revisionid[$imageid]);
+        else
+            $imagerevisionid = getProductionRevisionid($imageid);
+        $computerid = $requestInfo["computers"][$key];
+        $mgmtnodeid = $requestInfo['mgmtnodes'][$key];
+        $fromblock = $requestInfo['fromblock'][$key];
+        if($fromblock)
+            $blockdata = $requestInfo['blockdata'][$key];
+        else
+            $blockdata = array();
 
-	return $requestid;
-}   */ 
+        $query = "INSERT INTO reservation "
+               .        "(requestid, "
+               .        "computerid, "
+               .        "imageid, "
+               .        "imagerevisionid, "
+               .        "managementnodeid, "
+               .        "oneclickid, "
+               .        "userid) "
+               . "VALUES "
+               .       "($requestid, "
+               .       "$computerid, "
+               .       "$imageid, "
+               .       "$imagerevisionid, "
+               .       "$mgmtnodeid, "
+               .       "$oneclickid, "
+               .       "{$user['id']})";
+        doQuery($query, 133);
+        addSublogEntry($logid, $imageid, $imagerevisionid, $computerid,
+                       $mgmtnodeid, $fromblock, $blockdata);
+        }
+    } else {
+    // return the already existing request id from reservation table
+        $requestid = $rowsq[0];
+    }
+
+    }
+    // release semaphore lock
+    semUnlock();
+
+    return $requestid;
+}   */
+
 
 
 function addRequest($oneclickid=0,$forimaging=0, $revisionid=array()) {
-	global $requestInfo, $user;
-	$startstamp = unixToDatetime($requestInfo["start"]);
-	$endstamp = unixToDatetime($requestInfo["end"]);
-	$now = time();
+    global $requestInfo, $user;
+    $startstamp = unixToDatetime($requestInfo["start"]);
+    $endstamp = unixToDatetime($requestInfo["end"]);
+    $now = time();
 
-	if($requestInfo["start"] <= $now) {
-		$start = unixToDatetime($now);
-		$nowfuture = "now";
-	}
-	else {
-		$start = $startstamp;
-		$nowfuture = "future";
-	}
+    if($requestInfo["start"] <= $now) {
+        $start = unixToDatetime($now);
+        $nowfuture = "now";
+    }
+    else {
+        $start = $startstamp;
+        $nowfuture = "future";
+    }
 
-	addLogEntry($nowfuture, $start, $endstamp, 1, $requestInfo["imageid"]);
+    addLogEntry($nowfuture, $start, $endstamp, 1, $requestInfo["imageid"]);
 
-	$qh = doQuery("SELECT LAST_INSERT_ID() FROM log", 131);
-	if(! $row = mysql_fetch_row($qh)) {
-		abort(132);
-	}
-	$logid = $row[0];
+    $qh = doQuery("SELECT LAST_INSERT_ID() FROM log", 131);
+    if(! $row = mysql_fetch_row($qh)) {
+        abort(132);
+    }
+    $logid = $row[0];
 
-	$query = "INSERT INTO changelog "
-	       .        "(logid, "
-	       .        "start, "
-	       .        "end, "
-	       .        "timestamp) "
-	       . "VALUES "
-	       .        "($logid, "
-	       .        "'$start', "
-	       .        "'$endstamp', "
-	       .        "NOW())";
-	doQuery($query, 136);
-	
-	if($oneclickid==0) {
-	// Make normal entries to request table without the oneclick parameter
-	$query = "INSERT INTO request "
-	       .        "(stateid, "
-	       .        "userid, "
-	       .        "laststateid, "
-	       .        "logid, "
-	       .        "forimaging, "
-	       .        "start, "
-	       .        "end, "
-	       .        "daterequested) "
-	       . "VALUES "
-	       .       "(13, "
-	       .       "{$user['id']}, "
-	       .       "13, "
-	       .       "$logid, "
-	       .       "$forimaging, "
-	       .       "'$startstamp', "
-	       .       "'$endstamp', "
-	       .       "NOW())";
-	$qh = doQuery($query, 136);
+    $query = "INSERT INTO changelog "
+        .        "(logid, "
+        .        "start, "
+        .        "end, "
+        .        "timestamp) "
+        . "VALUES "
+        .        "($logid, "
+        .        "'$start', "
+        .        "'$endstamp', "
+        .        "NOW())";
+    doQuery($query, 136);
 
-	$qh = doQuery("SELECT LAST_INSERT_ID() FROM request", 134);
-	if(! $row = mysql_fetch_row($qh)) {
-		abort(135);
-	}
-	$requestid = $row[0];
+    if($oneclickid==0) {
+        // Make normal entries to request table without the oneclick parameter
+        $query = "INSERT INTO request "
+            .        "(stateid, "
+            .        "userid, "
+            .        "laststateid, "
+            .        "logid, "
+            .        "forimaging, "
+            .        "start, "
+            .        "end, "
+            .        "daterequested) "
+            . "VALUES "
+            .       "(13, "
+            .       "{$user['id']}, "
+            .       "13, "
+            .       "$logid, "
+            .       "$forimaging, "
+            .       "'$startstamp', "
+            .       "'$endstamp', "
+            .       "NOW())";
+        $qh = doQuery($query, 136);
 
-	# add requestid to log entry
-	$query = "UPDATE log "
-	       . "SET requestid = $requestid "
-	       . "WHERE id = $logid";
-	doQuery($query, 101);
+        $qh = doQuery("SELECT LAST_INSERT_ID() FROM request", 134);
+        if(! $row = mysql_fetch_row($qh)) {
+            abort(135);
+        }
+        $requestid = $row[0];
 
-	# add an entry to the reservation table for each image
-	# NOTE: make sure parent image is the first entry we add
-	#   so that it has the lowest reservationid
-	foreach($requestInfo["images"] as $key => $imageid) {
-		if(array_key_exists($imageid, $revisionid) &&
-		   ! empty($revisionid[$imageid]))
-			$imagerevisionid = array_shift($revisionid[$imageid]);
-		else
-			$imagerevisionid = getProductionRevisionid($imageid);
-		$computerid = $requestInfo["computers"][$key];
-		$mgmtnodeid = $requestInfo['mgmtnodes'][$key];
-		$fromblock = $requestInfo['fromblock'][$key];
-		if($fromblock)
-			$blockdata = $requestInfo['blockdata'][$key];
-		else
-			$blockdata = array();
+        # add requestid to log entry
+        $query = "UPDATE log "
+            . "SET requestid = $requestid "
+            . "WHERE id = $logid";
+        doQuery($query, 101);
 
-		$query = "INSERT INTO reservation "
-		       .        "(requestid, "
-		       .        "computerid, "
-		       .        "imageid, "
-		       .        "imagerevisionid, "
-		       .        "managementnodeid) "
-		       . "VALUES "
-		       .       "($requestid, "
-		       .       "$computerid, "
-		       .       "$imageid, "
-		       .       "$imagerevisionid, "
-		       .       "$mgmtnodeid)";
-		doQuery($query, 133);
-		addSublogEntry($logid, $imageid, $imagerevisionid, $computerid,
-		               $mgmtnodeid, $fromblock, $blockdata);
-		} 
- 	} else {
- 		// Query request table for selected oneclick and user id and return that if exist
-	// or make new entry
-		$query = "SELECT requestid from reservation where oneclickid = $oneclickid AND userid = {$user['id']}";
-		
-		$sq = doQuery($query);
-	
-	if(!$rowsq = mysql_fetch_row($sq)) {
-			// make a new entry with the given oneclickid and userid
-			# add single entry to request table
-	$query = "INSERT INTO request "
-	       .        "(stateid, "
-	       .        "userid, "
-	       .        "laststateid, "
-	       .        "logid, "
-	       .        "forimaging, "
-	       .        "start, "
-	       .        "end, "
-	       .        "daterequested) "
-	       . "VALUES "
-	       .       "(13, "
-	       .       "{$user['id']}, "
-	       .       "13, "
-	       .       "$logid, "
-	       .       "$forimaging, "
-	       .       "'$startstamp', "
-	       .       "'$endstamp', "
-	       .       "NOW())";
-	$qh = doQuery($query, 136);
+        # add an entry to the reservation table for each image
+        # NOTE: make sure parent image is the first entry we add
+        #   so that it has the lowest reservationid
+        foreach($requestInfo["images"] as $key => $imageid) {
+            if(array_key_exists($imageid, $revisionid) &&
+                ! empty($revisionid[$imageid]))
+                $imagerevisionid = array_shift($revisionid[$imageid]);
+            else
+                $imagerevisionid = getProductionRevisionid($imageid);
+            $computerid = $requestInfo["computers"][$key];
+            $mgmtnodeid = $requestInfo['mgmtnodes'][$key];
+            $fromblock = $requestInfo['fromblock'][$key];
+            if($fromblock)
+                $blockdata = $requestInfo['blockdata'][$key];
+            else
+                $blockdata = array();
 
-	$qh = doQuery("SELECT LAST_INSERT_ID() FROM request", 134);
-	if(! $row = mysql_fetch_row($qh)) {
-		abort(135);
-	}
-	$requestid = $row[0];
+            $query = "INSERT INTO reservation "
+                .        "(requestid, "
+                .        "computerid, "
+                .        "imageid, "
+                .        "imagerevisionid, "
+                .        "managementnodeid) "
+                . "VALUES "
+                .       "($requestid, "
+                .       "$computerid, "
+                .       "$imageid, "
+                .       "$imagerevisionid, "
+                .       "$mgmtnodeid)";
+            doQuery($query, 133);
+            addSublogEntry($logid, $imageid, $imagerevisionid, $computerid,
+                $mgmtnodeid, $fromblock, $blockdata);
+        }
+    } else {
+        // Query request table for selected oneclick and user id and return that if exist
+        // or make new entry
+//      $query = "SELECT requestid from reservation where oneclickid = $oneclickid AND userid = {$user['id']}";
+//      $sq = doQuery($query);
 
-	# add requestid to log entry
-	$query = "UPDATE log "
-	       . "SET requestid = $requestid "
-	       . "WHERE id = $logid";
-	doQuery($query, 101);
+        $requestid = checkReservationForOneClick($oneclickid);
+//  if(!$rowsq = mysql_fetch_row($sq)) {
+        if($requestid == NULL) {
+            // make a new entry with the given oneclickid and userid
+            # add single entry to request table
+            $query = "INSERT INTO request "
+                .        "(stateid, "
+                .        "userid, "
+                .        "laststateid, "
+                .        "logid, "
+                .        "forimaging, "
+                .        "start, "
+                .        "end, "
+                .        "daterequested) "
+                . "VALUES "
+                .       "(13, "
+                .       "{$user['id']}, "
+                .       "13, "
+                .       "$logid, "
+                .       "$forimaging, "
+                .       "'$startstamp', "
+                .       "'$endstamp', "
+                .       "NOW())";
+            $qh = doQuery($query, 136);
 
-	# add an entry to the reservation table for each image
-	# NOTE: make sure parent image is the first entry we add
-	#   so that it has the lowest reservationid
-	foreach($requestInfo["images"] as $key => $imageid) {
-		if(array_key_exists($imageid, $revisionid) &&
-		   ! empty($revisionid[$imageid]))
-			$imagerevisionid = array_shift($revisionid[$imageid]);
-		else
-			$imagerevisionid = getProductionRevisionid($imageid);
-		$computerid = $requestInfo["computers"][$key];
-		$mgmtnodeid = $requestInfo['mgmtnodes'][$key];
-		$fromblock = $requestInfo['fromblock'][$key];
-		if($fromblock)
-			$blockdata = $requestInfo['blockdata'][$key];
-		else
-			$blockdata = array();
+            $qh = doQuery("SELECT LAST_INSERT_ID() FROM request", 134);
+            if(! $row = mysql_fetch_row($qh)) {
+                abort(135);
+            }
+            $requestid = $row[0];
 
-		$query = "INSERT INTO reservation "
-		       .        "(requestid, "
-		       .        "computerid, "
-		       .        "imageid, "
-		       .        "imagerevisionid, "
-		       .        "managementnodeid, "
-		       .        "oneclickid, "
-		       .        "userid) "
-		       . "VALUES "
-		       .       "($requestid, "
-		       .       "$computerid, "
-		       .       "$imageid, "
-		       .       "$imagerevisionid, "
-		       .       "$mgmtnodeid, "
-		       .       "$oneclickid, "
-		       .       "{$user['id']})";
-		doQuery($query, 133);
-		addSublogEntry($logid, $imageid, $imagerevisionid, $computerid,
-		               $mgmtnodeid, $fromblock, $blockdata);
-		}
-	} else {
-	// return the already existing request id from reservation table
-		$requestid = $rowsq[0];
-	}	// release semaphore lock
- 	}
-	semUnlock();
+            # add requestid to log entry
+            $query = "UPDATE log "
+                . "SET requestid = $requestid "
+                . "WHERE id = $logid";
+            doQuery($query, 101);
 
-	return $requestid;
+            # add an entry to the reservation table for each image
+            # NOTE: make sure parent image is the first entry we add
+            #   so that it has the lowest reservationid
+            foreach($requestInfo["images"] as $key => $imageid) {
+                if(array_key_exists($imageid, $revisionid) &&
+                    ! empty($revisionid[$imageid]))
+                    $imagerevisionid = array_shift($revisionid[$imageid]);
+                else
+                    $imagerevisionid = getProductionRevisionid($imageid);
+                $computerid = $requestInfo["computers"][$key];
+                $mgmtnodeid = $requestInfo['mgmtnodes'][$key];
+                $fromblock = $requestInfo['fromblock'][$key];
+                if($fromblock)
+                    $blockdata = $requestInfo['blockdata'][$key];
+                else
+                    $blockdata = array();
+
+                $query = "INSERT INTO reservation "
+                    .        "(requestid, "
+                    .        "computerid, "
+                    .        "imageid, "
+                    .        "imagerevisionid, "
+                    .        "managementnodeid, "
+                    .        "oneclickid, "
+                    .        "userid) "
+                    . "VALUES "
+                    .       "($requestid, "
+                    .       "$computerid, "
+                    .       "$imageid, "
+                    .       "$imagerevisionid, "
+                    .       "$mgmtnodeid, "
+                    .       "$oneclickid, "
+                    .       "{$user['id']})";
+                doQuery($query, 133);
+                addSublogEntry($logid, $imageid, $imagerevisionid, $computerid,
+                    $mgmtnodeid, $fromblock, $blockdata);
+            }
+        }
+//      else {
+        // return the already existing request id from reservation table
+//      $requestid = $request_id;
+//  }   // release semaphore lock
+    }
+    semUnlock();
+
+    return $requestid;
 }
 
+
+function checkReservationForOneClick($oneclickid) {
+    global $user;
+    $query = "SELECT requestid from reservation where oneclickid = $oneclickid AND userid = {$user['id']}";
+    $sq = doQuery($query);
+    if($rowsq = mysql_fetch_row($sq)) {
+        return $rowsq[0];
+    } else {
+        return NULL;
+    }
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 ///
@@ -4986,49 +5000,49 @@ function addRequest($oneclickid=0,$forimaging=0, $revisionid=array()) {
 ////////////////////////////////////////////////////////////////////////////////
 function simpleAddRequest($compid, $imageid, $revisionid, $start, $end,
                           $stateid, $userid) {
-	$mgmtnodeid = findManagementNode($compid, $start, 'now');
-	if($mgmtnodeid == 0)
-		return 0;
+    $mgmtnodeid = findManagementNode($compid, $start, 'now');
+    if($mgmtnodeid == 0)
+        return 0;
 
-	$query = "INSERT INTO request "
-	       .        "(stateid, "
-	       .        "userid, "
-	       .        "laststateid, "
-	       .        "start, "
-	       .        "end, "
-	       .        "daterequested) "
-	       . "VALUES "
-	       .       "($stateid, "
-	       .       "$userid, "
-	       .       "$stateid, "
-	       .       "'$start', "
-	       .       "'$end', "
-	       .       "NOW())";
-	doQuery($query, 101);
+    $query = "INSERT INTO request "
+        .        "(stateid, "
+        .        "userid, "
+        .        "laststateid, "
+        .        "start, "
+        .        "end, "
+        .        "daterequested) "
+        . "VALUES "
+        .       "($stateid, "
+        .       "$userid, "
+        .       "$stateid, "
+        .       "'$start', "
+        .       "'$end', "
+        .       "NOW())";
+    doQuery($query, 101);
 
-	$requestid = dbLastInsertID();
-	if($requestid == 0)
-		abort(135);
+    $requestid = dbLastInsertID();
+    if($requestid == 0)
+        abort(135);
 
-	# add an entry to the reservation table for each image
-	$query = "INSERT INTO reservation "
-	       .        "(requestid, "
-	       .        "computerid, "
-	       .        "imageid, "
-	       .        "imagerevisionid, "
-	       .        "managementnodeid) "
-	       . "VALUES "
-	       .       "($requestid, "
-	       .       "$compid, "
-	       .       "$imageid, "
-	       .       "$revisionid, "
-	       .       "$mgmtnodeid)";
-	doQuery($query, 101);
-	$testid = dbLastInsertID();
-	if($testid == 0)
-		abort(135);
+    # add an entry to the reservation table for each image
+    $query = "INSERT INTO reservation "
+        .        "(requestid, "
+        .        "computerid, "
+        .        "imageid, "
+        .        "imagerevisionid, "
+        .        "managementnodeid) "
+        . "VALUES "
+        .       "($requestid, "
+        .       "$compid, "
+        .       "$imageid, "
+        .       "$revisionid, "
+        .       "$mgmtnodeid)";
+    doQuery($query, 101);
+    $testid = dbLastInsertID();
+    if($testid == 0)
+        abort(135);
 
-	return $requestid;
+    return $requestid;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -5046,37 +5060,37 @@ function simpleAddRequest($compid, $imageid, $revisionid, $start, $end,
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function findManagementNode($compid, $start, $nowfuture) {
-	global $HTMLheader;
-	$allmgmtnodes = array_keys(getManagementNodes($nowfuture));
-	$mapped = getMappedResources($compid, "computer", "managementnode");
-	$usablemgmtnodes = array_intersect($allmgmtnodes, $mapped);
-	$mgmtnodecnt = array();
-	foreach($usablemgmtnodes as $id) {
-		$mgmtnodecnt[$id] = 0;
-	}
-	if(! count($usablemgmtnodes))
-		return 0;
-	$inlist = implode(',', $usablemgmtnodes);
-	$mystart = datetimeToUnix($start);
-	$start = unixToDatetime($mystart - 1800);
-	$end = unixToDatetime($mystart + 1800);
-	$query = "SELECT DISTINCT COUNT(rs.managementnodeid) AS count, "
-	       .        "rs.managementnodeid AS mnid "
-	       . "FROM reservation rs, "
-	       .      "request rq "
-	       . "WHERE rs.managementnodeid IN ($inlist) AND "
-	       .       "rs.requestid = rq.id AND "
-	       .       "rq.start > '$start' AND "
-	       .       "rq.start < '$end' "
-	       . "GROUP BY rs.managementnodeid "
-	       . "ORDER BY count";
-	$qh = doQuery($query, 101);
-	while($row = mysql_fetch_assoc($qh)) {
-		$mgmtnodecnt[$row["mnid"]] = $row["count"];
-	}
-	uasort($mgmtnodecnt, "sortKeepIndex");
-	$keys = array_keys($mgmtnodecnt);
-	return array_shift($keys);
+    global $HTMLheader;
+    $allmgmtnodes = array_keys(getManagementNodes($nowfuture));
+    $mapped = getMappedResources($compid, "computer", "managementnode");
+    $usablemgmtnodes = array_intersect($allmgmtnodes, $mapped);
+    $mgmtnodecnt = array();
+    foreach($usablemgmtnodes as $id) {
+        $mgmtnodecnt[$id] = 0;
+    }
+    if(! count($usablemgmtnodes))
+        return 0;
+    $inlist = implode(',', $usablemgmtnodes);
+    $mystart = datetimeToUnix($start);
+    $start = unixToDatetime($mystart - 1800);
+    $end = unixToDatetime($mystart + 1800);
+    $query = "SELECT DISTINCT COUNT(rs.managementnodeid) AS count, "
+        .        "rs.managementnodeid AS mnid "
+        . "FROM reservation rs, "
+        .      "request rq "
+        . "WHERE rs.managementnodeid IN ($inlist) AND "
+        .       "rs.requestid = rq.id AND "
+        .       "rq.start > '$start' AND "
+        .       "rq.start < '$end' "
+        . "GROUP BY rs.managementnodeid "
+        . "ORDER BY count";
+    $qh = doQuery($query, 101);
+    while($row = mysql_fetch_assoc($qh)) {
+        $mgmtnodecnt[$row["mnid"]] = $row["count"];
+    }
+    uasort($mgmtnodecnt, "sortKeepIndex");
+    $keys = array_keys($mgmtnodecnt);
+    return array_shift($keys);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -5131,105 +5145,105 @@ function findManagementNode($compid, $start, $nowfuture) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getRequestInfo($id, $returnNULL=0) {
-	global $printedHTMLheader, $HTMLheader;
-	if(empty($id))
-		abort(9);
-	$query = "SELECT stateid, "
-	       .        "laststateid, "
-	       .        "userid, "
-	       .        "start, "
-	       .        "end, "
-	       .        "daterequested, "
-	       .        "datemodified, "
-	       .        "logid, "
-	       .        "test, "
-	       .        "forimaging "
-	       . "FROM request "
-	       . "WHERE id = $id";
-	$qh = doQuery($query, 165);
-	if(! ($data = mysql_fetch_assoc($qh))) {
-		if($returnNULL)
-			return NULL;
-		# FIXME handle XMLRPC cases
-		if(! $printedHTMLheader) 
-			print $HTMLheader;
-		print _("<h1>OOPS! - Reservation Has Expired</h1>\n");
-		print _("The selected reservation is no longer available.  Go to ");
-		print "<a href=" . BASEURL . SCRIPT . "?mode=newRequest>";
-		print _("New Reservations</a><br>to request a new reservation or to ");
-		print "<a href=" . BASEURL . SCRIPT . "?mode=viewRequests>";
-		print _("Current Reservations</a> to select<br>another one that is available.");
-		printHTMLFooter();
-		dbDisconnect();
-		exit;
-	}
-	$data["id"] = $id;
-	$query = "SELECT rs.imageid, "
-	       .        "rs.imagerevisionid, "
-	       .        "rs.managementnodeid, "
-	       .        "ir.production, "
-	       .        "i.name AS image, "
-	       .        "i.prettyname AS prettyimage, "
-	       .        "o.prettyname AS OS, "
-	       .        "o.type AS OStype, "
-	       .        "rs.computerid, "
-	       .        "rs.id AS reservationid, "
-	       .        "c.IPaddress AS reservedIP, "
-	       .        "c.hostname, "
-	       .        "i.forcheckout, "
-	       .        "rs.pw AS password, "
-	       .        "rs.connectIP, "
-	       .        "rs.connectport, "
-	       .        "rs.remoteIP "
-	       . "FROM reservation rs, "
-	       .      "image i, "
-	       .      "imagerevision ir, "
-	       .      "OS o, "
-	       .      "computer c "
-	       . "WHERE rs.requestid = $id AND "
-	       .       "rs.imageid = i.id AND "
-	       .       "rs.imagerevisionid = ir.id AND "
-	       .       "i.OSid = o.id AND "
-	       .       "rs.computerid = c.id "
-	       . "ORDER BY rs.id";
-	$qh = doQuery($query, 101);
-	$data["reservations"] = array();
-	$data['passwds'] = array();
-	$resids = array();
-	while($row = mysql_fetch_assoc($qh)) {
-		array_push($data["reservations"], $row);
-		$resids[] = $row['reservationid'];
-		$data['passwds'][$row['reservationid']][$data['userid']] = $row['password'];
-	}
-	$query = "SELECT id, "
-	       .        "name, "
-	       .        "admingroupid, "
-	       .        "logingroupid, "
-	       .        "fixedIP, "
-	       .        "fixedMAC "
-	       . "FROM serverrequest "
-	       . "WHERE requestid = $id";
-	$qh = doQuery($query, 101);
-	if($row = mysql_fetch_assoc($qh)) {
-		$data['serverrequest'] = 1;
-		$data['servername'] = $row['name'];
-		$data['admingroupid'] = $row['admingroupid'];
-		$data['logingroupid'] = $row['logingroupid'];
-		$data['fixedIP'] = $row['fixedIP'];
-		$data['fixedMAC'] = $row['fixedMAC'];
-		$inids = implode(',', $resids);
-		$query = "SELECT reservationid, "
-		       .        "userid, "
-		       .        "password "
-		       . "FROM reservationaccounts "
-		       . "WHERE reservationid IN ($inids)";
-		$qh = doQuery($query);
-		while($row = mysql_fetch_assoc($qh))
-			$data['passwds'][$row['reservationid']][$row['userid']] = $row['password'];
-	}
-	else
-		$data['serverrequest'] = 0;
-	return $data;
+    global $printedHTMLheader, $HTMLheader;
+    if(empty($id))
+        abort(9);
+    $query = "SELECT stateid, "
+        .        "laststateid, "
+        .        "userid, "
+        .        "start, "
+        .        "end, "
+        .        "daterequested, "
+        .        "datemodified, "
+        .        "logid, "
+        .        "test, "
+        .        "forimaging "
+        . "FROM request "
+        . "WHERE id = $id";
+    $qh = doQuery($query, 165);
+    if(! ($data = mysql_fetch_assoc($qh))) {
+        if($returnNULL)
+            return NULL;
+        # FIXME handle XMLRPC cases
+        if(! $printedHTMLheader)
+            print $HTMLheader;
+        print _("<h1>OOPS! - Reservation Has Expired</h1>\n");
+        print _("The selected reservation is no longer available.  Go to ");
+        print "<a href=" . BASEURL . SCRIPT . "?mode=newRequest>";
+        print _("New Reservations</a><br>to request a new reservation or to ");
+        print "<a href=" . BASEURL . SCRIPT . "?mode=viewRequests>";
+        print _("Current Reservations</a> to select<br>another one that is available.");
+        printHTMLFooter();
+        dbDisconnect();
+        exit;
+    }
+    $data["id"] = $id;
+    $query = "SELECT rs.imageid, "
+        .        "rs.imagerevisionid, "
+        .        "rs.managementnodeid, "
+        .        "ir.production, "
+        .        "i.name AS image, "
+        .        "i.prettyname AS prettyimage, "
+        .        "o.prettyname AS OS, "
+        .        "o.type AS OStype, "
+        .        "rs.computerid, "
+        .        "rs.id AS reservationid, "
+        .        "c.IPaddress AS reservedIP, "
+        .        "c.hostname, "
+        .        "i.forcheckout, "
+        .        "rs.pw AS password, "
+        .        "rs.connectIP, "
+        .        "rs.connectport, "
+        .        "rs.remoteIP "
+        . "FROM reservation rs, "
+        .      "image i, "
+        .      "imagerevision ir, "
+        .      "OS o, "
+        .      "computer c "
+        . "WHERE rs.requestid = $id AND "
+        .       "rs.imageid = i.id AND "
+        .       "rs.imagerevisionid = ir.id AND "
+        .       "i.OSid = o.id AND "
+        .       "rs.computerid = c.id "
+        . "ORDER BY rs.id";
+    $qh = doQuery($query, 101);
+    $data["reservations"] = array();
+    $data['passwds'] = array();
+    $resids = array();
+    while($row = mysql_fetch_assoc($qh)) {
+        array_push($data["reservations"], $row);
+        $resids[] = $row['reservationid'];
+        $data['passwds'][$row['reservationid']][$data['userid']] = $row['password'];
+    }
+    $query = "SELECT id, "
+        .        "name, "
+        .        "admingroupid, "
+        .        "logingroupid, "
+        .        "fixedIP, "
+        .        "fixedMAC "
+        . "FROM serverrequest "
+        . "WHERE requestid = $id";
+    $qh = doQuery($query, 101);
+    if($row = mysql_fetch_assoc($qh)) {
+        $data['serverrequest'] = 1;
+        $data['servername'] = $row['name'];
+        $data['admingroupid'] = $row['admingroupid'];
+        $data['logingroupid'] = $row['logingroupid'];
+        $data['fixedIP'] = $row['fixedIP'];
+        $data['fixedMAC'] = $row['fixedMAC'];
+        $inids = implode(',', $resids);
+        $query = "SELECT reservationid, "
+            .        "userid, "
+            .        "password "
+            . "FROM reservationaccounts "
+            . "WHERE reservationid IN ($inids)";
+        $qh = doQuery($query);
+        while($row = mysql_fetch_assoc($qh))
+            $data['passwds'][$row['reservationid']][$row['userid']] = $row['password'];
+    }
+    else
+        $data['serverrequest'] = 0;
+    return $data;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -5242,62 +5256,62 @@ function getRequestInfo($id, $returnNULL=0) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function updateRequest($requestid) {
-	global $requestInfo;
-	$startstamp = unixToDatetime($requestInfo["start"]);
-	$endstamp = unixToDatetime($requestInfo["end"]);
+    global $requestInfo;
+    $startstamp = unixToDatetime($requestInfo["start"]);
+    $endstamp = unixToDatetime($requestInfo["end"]);
 
-	if($requestInfo["start"] <= time())
-		$nowfuture = "now";
-	else
-		$nowfuture = "future";
+    if($requestInfo["start"] <= time())
+        $nowfuture = "now";
+    else
+        $nowfuture = "future";
 
-	$query = "SELECT logid FROM request WHERE id = $requestid";
-	$qh = doQuery($query, 146);
-	if(! $row = mysql_fetch_row($qh)) {
-		abort(148);
-	}
-	$logid = $row[0];
+    $query = "SELECT logid FROM request WHERE id = $requestid";
+    $qh = doQuery($query, 146);
+    if(! $row = mysql_fetch_row($qh)) {
+        abort(148);
+    }
+    $logid = $row[0];
 
-	$query = "UPDATE request "
-	       . "SET start = '$startstamp', "
-	       .     "end = '$endstamp', "
-	       .     "datemodified = NOW() "
-	       . "WHERE id = $requestid";
-	doQuery($query, 101);
+    $query = "UPDATE request "
+        . "SET start = '$startstamp', "
+        .     "end = '$endstamp', "
+        .     "datemodified = NOW() "
+        . "WHERE id = $requestid";
+    doQuery($query, 101);
 
-	if($nowfuture == 'now') {
-		addChangeLogEntry($logid, NULL, $endstamp, $startstamp, NULL, NULL, 1);
-		return;
-	}
+    if($nowfuture == 'now') {
+        addChangeLogEntry($logid, NULL, $endstamp, $startstamp, NULL, NULL, 1);
+        return;
+    }
 
-	$requestData = getRequestInfo($requestid);
-	foreach($requestInfo["images"] as $key => $imgid) {
-		foreach($requestData["reservations"] as $key2 => $res) {
-			if($res["imageid"] == $imgid) {
-				$oldCompid = $res["computerid"];
-				unset($requestData['reservations'][$key2]);
-				break;
-			}
-		}
-		$computerid = $requestInfo["computers"][$key];
-		$mgmtnodeid = $requestInfo['mgmtnodes'][$key];
+    $requestData = getRequestInfo($requestid);
+    foreach($requestInfo["images"] as $key => $imgid) {
+        foreach($requestData["reservations"] as $key2 => $res) {
+            if($res["imageid"] == $imgid) {
+                $oldCompid = $res["computerid"];
+                unset($requestData['reservations'][$key2]);
+                break;
+            }
+        }
+        $computerid = $requestInfo["computers"][$key];
+        $mgmtnodeid = $requestInfo['mgmtnodes'][$key];
 
-		$query = "UPDATE reservation "
-		       . "SET computerid = $computerid, "
-		       .     "managementnodeid = $mgmtnodeid "
-		       . "WHERE requestid = $requestid AND "
-		       .       "imageid = $imgid AND "
-		       .       "computerid = $oldCompid";
-		doQuery($query, 147);
-		addChangeLogEntry($logid, NULL, $endstamp, $startstamp, $computerid, NULL, 
-		                  1);
-		$query = "UPDATE sublog "
-		       . "SET computerid = $computerid "
-		       . "WHERE logid = $logid AND "
-		       .       "imageid = $imgid AND "
-		       .       "computerid = $oldCompid";
-		doQuery($query, 101);
-	}
+        $query = "UPDATE reservation "
+            . "SET computerid = $computerid, "
+            .     "managementnodeid = $mgmtnodeid "
+            . "WHERE requestid = $requestid AND "
+            .       "imageid = $imgid AND "
+            .       "computerid = $oldCompid";
+        doQuery($query, 147);
+        addChangeLogEntry($logid, NULL, $endstamp, $startstamp, $computerid, NULL,
+            1);
+        $query = "UPDATE sublog "
+            . "SET computerid = $computerid "
+            . "WHERE logid = $logid AND "
+            .       "imageid = $imgid AND "
+            .       "computerid = $oldCompid";
+        doQuery($query, 101);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -5310,81 +5324,81 @@ function updateRequest($requestid) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function deleteRequest($request) {
-	# new - 13
-	# deleted - 1
-	# complete - 12
-	# reserved - 3
-	# inuse - 8
-	# pending - 14
-	# timeout - 11
-	$now = time();
-	if(datetimeToUnix($request["start"]) < $now) {
-		# current: new, last: none OR
-		# current: pending, last: new
-		if($request["stateid"] == 13 ||
-		   ($request["stateid"] == 14 && $request["laststateid"] == 13)) {
-			$query = "UPDATE request "
-			       . "SET stateid = 1, "
-			       .     "laststateid = 3 "
-			       . "WHERE id = {$request['id']}";
-		}
-		# current: reserved, last: new OR
-		# current: pending, last: reserved
-		elseif(($request["stateid"] == 3 && $request["laststateid"] == 13) ||
-		   ($request["stateid"] == 14 && $request["laststateid"] == 3)) {
-			$query = "UPDATE request "
-			       . "SET stateid = 1, "
-			       .     "laststateid = 3 "
-			       . "WHERE id = {$request['id']}";
-		}
-		# current: inuse, last: reserved OR
-		# current: pending, last: inuse
-		elseif(($request["stateid"] == 8 && $request["laststateid"] == 3) ||
-		       ($request["stateid"] == 14 && $request["laststateid"] == 8)) {
-			$query = "UPDATE request "
-			       . "SET stateid = 1, "
-			       .     "laststateid = 8 "
-			       . "WHERE id = {$request['id']}";
-		}
-		# shouldn't happen, but if current: pending, set to deleted or
-		// if not current: pending, set laststate to current state and
-		# current state to deleted
-		else {
-			if($request["stateid"] == 14) {
-				$query = "UPDATE request "
-				       . "SET stateid = 1 "
-				       . "WHERE id = {$request['id']}";
-				}
-			else {
-				# somehow a user submitted a deleteRequest where the current
-				# stateid was empty
-				if(! is_numeric($request["stateid"]) || $request["stateid"] < 0)
-					$request["stateid"] = 1;
-				$query = "UPDATE request "
-				       . "SET stateid = 1, "
-				       .     "laststateid = {$request['stateid']} "
-				       . "WHERE id = {$request['id']}";
-			}
-		}
-		$qh = doQuery($query, 150);
+    # new - 13
+    # deleted - 1
+    # complete - 12
+    # reserved - 3
+    # inuse - 8
+    # pending - 14
+    # timeout - 11
+    $now = time();
+    if(datetimeToUnix($request["start"]) < $now) {
+        # current: new, last: none OR
+        # current: pending, last: new
+        if($request["stateid"] == 13 ||
+            ($request["stateid"] == 14 && $request["laststateid"] == 13)) {
+            $query = "UPDATE request "
+                . "SET stateid = 1, "
+                .     "laststateid = 3 "
+                . "WHERE id = {$request['id']}";
+        }
+        # current: reserved, last: new OR
+        # current: pending, last: reserved
+        elseif(($request["stateid"] == 3 && $request["laststateid"] == 13) ||
+            ($request["stateid"] == 14 && $request["laststateid"] == 3)) {
+            $query = "UPDATE request "
+                . "SET stateid = 1, "
+                .     "laststateid = 3 "
+                . "WHERE id = {$request['id']}";
+        }
+        # current: inuse, last: reserved OR
+        # current: pending, last: inuse
+        elseif(($request["stateid"] == 8 && $request["laststateid"] == 3) ||
+            ($request["stateid"] == 14 && $request["laststateid"] == 8)) {
+            $query = "UPDATE request "
+                . "SET stateid = 1, "
+                .     "laststateid = 8 "
+                . "WHERE id = {$request['id']}";
+        }
+        # shouldn't happen, but if current: pending, set to deleted or
+        // if not current: pending, set laststate to current state and
+        # current state to deleted
+        else {
+            if($request["stateid"] == 14) {
+                $query = "UPDATE request "
+                    . "SET stateid = 1 "
+                    . "WHERE id = {$request['id']}";
+            }
+            else {
+                # somehow a user submitted a deleteRequest where the current
+                # stateid was empty
+                if(! is_numeric($request["stateid"]) || $request["stateid"] < 0)
+                    $request["stateid"] = 1;
+                $query = "UPDATE request "
+                    . "SET stateid = 1, "
+                    .     "laststateid = {$request['stateid']} "
+                    . "WHERE id = {$request['id']}";
+            }
+        }
+        $qh = doQuery($query, 150);
 
-		addChangeLogEntry($request["logid"], NULL, unixToDatetime($now), NULL,
-		                  NULL, "released");
-		return;
-	}
+        addChangeLogEntry($request["logid"], NULL, unixToDatetime($now), NULL,
+            NULL, "released");
+        return;
+    }
 
-	if($request['serverrequest']) {
-		$query = "DELETE FROM serverrequest WHERE requestid = {$request['id']}";
-		$qh = doQuery($query, 152);
-	}
+    if($request['serverrequest']) {
+        $query = "DELETE FROM serverrequest WHERE requestid = {$request['id']}";
+        $qh = doQuery($query, 152);
+    }
 
-	$query = "DELETE FROM request WHERE id = {$request['id']}";
-	$qh = doQuery($query, 153);
+    $query = "DELETE FROM request WHERE id = {$request['id']}";
+    $qh = doQuery($query, 153);
 
-	$query = "DELETE FROM reservation WHERE requestid = {$request['id']}";
-	doQuery($query, 154);
+    $query = "DELETE FROM reservation WHERE requestid = {$request['id']}";
+    doQuery($query, 154);
 
-	addChangeLogEntry($request["logid"], NULL, NULL, NULL, NULL, "deleted");
+    addChangeLogEntry($request["logid"], NULL, NULL, NULL, NULL, "deleted");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -5403,93 +5417,93 @@ function deleteRequest($request) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function moveReservationsOffComputer($compid=0, $count=0) {
-	global $requestInfo, $user;
-	$resInfo = array();
-	$checkstart = unixToDatetime(time() + 180);
-	if($compid == 0) {
-		$resources = getUserResources(array("imageAdmin", "imageCheckOut"),
-			                           array("available"), 0, 0);
-		$computers = implode("','", array_keys($resources["computer"]));
-		$computers = "'$computers'";
-		$query = "SELECT DISTINCT COUNT(rs.id) AS reservations, "
-		       .        "rs.computerid "
-		       . "FROM reservation rs, "
-		       .      "request rq "
-		       . "WHERE rq.start > '$checkstart' AND "
-		       .       "rs.computerid IN ($computers) "
-		       . "GROUP BY computerid "
-		       . "ORDER BY reservations "
-		       . "LIMIT 1";
-		$qh = doQuery($query, 101);
-		if($row = mysql_fetch_assoc($qh))
-			$compid = $row["computerid"];
-		else
-			return -1;
-	}
-	# get all reservation info for $compid
-	$query = "SELECT rs.id, "
-	       .        "rs.requestid, "
-	       .        "rs.imageid, "
-	       .        "rs.imagerevisionid, "
-	       .        "rq.logid, "
-	       .        "rq.userid, "
-	       .        "rq.start, "
-	       .        "rq.end "
-	       . "FROM reservation rs, "
-	       .      "request rq "
-	       . "WHERE rs.computerid = $compid AND "
-	       .       "rs.requestid = rq.id AND "
-	       .       "rq.start > '$checkstart' AND "
-	       .       "rq.stateid NOT IN (1, 5, 11, 12) "
-	       . "ORDER BY rq.start";
-	if($count)
-		$query .= " LIMIT $count";
-	$qh = doQuery($query, 101);
-	while($row = mysql_fetch_assoc($qh)) {
-		$resInfo[$row["id"]] = $row;
-	}
-	if(! count($resInfo))
-		return -1;
-	$images = getImages();
-	$allmovable = 1;
-	foreach($resInfo as $res) {
-		$rc = isAvailable($images, $res["imageid"], $res['imagerevisionid'], 
-		      datetimeToUnix($res["start"]), datetimeToUnix($res["end"]), 0,
-		      $res["userid"]);
-		if($rc < 1) {
-			$allmovable = 0;
-			break;
-		}
-	}
-	if(! $allmovable)
-		return 0;
-	foreach($resInfo as $res) {
-		$rc = isAvailable($images, $res["imageid"], $res['imagerevisionid'],
-		      datetimeToUnix($res["start"]), datetimeToUnix($res["end"]), 0, 
-		      $res["userid"]);
-		if($rc > 0) {
-			$newcompid = array_shift($requestInfo["computers"]);
-			# get mgmt node for computer
-			$mgmtnodeid = findManagementNode($newcompid, $res['start'], 'future');
-			# update mgmt node and computer in reservation table
-			$query = "UPDATE reservation "
-			       . "SET computerid = $newcompid, "
-			       .     "managementnodeid = $mgmtnodeid "
-			       . "WHERE id = {$res['id']}";
-			doQuery($query, 101);
-			# add changelog entry
-			addChangeLogEntry($res['logid'], NULL, NULL, NULL, $newcompid);
-			# update sublog entry
-			$query = "UPDATE sublog "
-			       . "SET computerid = $newcompid "
-			       . "WHERE logid = {$res['logid']} AND "
-			       .       "computerid = $compid";
-			doQuery($query, 101);
-		}
-		else
-			return 0;
-	}
-	return 1;
+    global $requestInfo, $user;
+    $resInfo = array();
+    $checkstart = unixToDatetime(time() + 180);
+    if($compid == 0) {
+        $resources = getUserResources(array("imageAdmin", "imageCheckOut"),
+            array("available"), 0, 0);
+        $computers = implode("','", array_keys($resources["computer"]));
+        $computers = "'$computers'";
+        $query = "SELECT DISTINCT COUNT(rs.id) AS reservations, "
+            .        "rs.computerid "
+            . "FROM reservation rs, "
+            .      "request rq "
+            . "WHERE rq.start > '$checkstart' AND "
+            .       "rs.computerid IN ($computers) "
+            . "GROUP BY computerid "
+            . "ORDER BY reservations "
+            . "LIMIT 1";
+        $qh = doQuery($query, 101);
+        if($row = mysql_fetch_assoc($qh))
+            $compid = $row["computerid"];
+        else
+            return -1;
+    }
+    # get all reservation info for $compid
+    $query = "SELECT rs.id, "
+        .        "rs.requestid, "
+        .        "rs.imageid, "
+        .        "rs.imagerevisionid, "
+        .        "rq.logid, "
+        .        "rq.userid, "
+        .        "rq.start, "
+        .        "rq.end "
+        . "FROM reservation rs, "
+        .      "request rq "
+        . "WHERE rs.computerid = $compid AND "
+        .       "rs.requestid = rq.id AND "
+        .       "rq.start > '$checkstart' AND "
+        .       "rq.stateid NOT IN (1, 5, 11, 12) "
+        . "ORDER BY rq.start";
+    if($count)
+        $query .= " LIMIT $count";
+    $qh = doQuery($query, 101);
+    while($row = mysql_fetch_assoc($qh)) {
+        $resInfo[$row["id"]] = $row;
+    }
+    if(! count($resInfo))
+        return -1;
+    $images = getImages();
+    $allmovable = 1;
+    foreach($resInfo as $res) {
+        $rc = isAvailable($images, $res["imageid"], $res['imagerevisionid'],
+            datetimeToUnix($res["start"]), datetimeToUnix($res["end"]), 0,
+            $res["userid"]);
+        if($rc < 1) {
+            $allmovable = 0;
+            break;
+        }
+    }
+    if(! $allmovable)
+        return 0;
+    foreach($resInfo as $res) {
+        $rc = isAvailable($images, $res["imageid"], $res['imagerevisionid'],
+            datetimeToUnix($res["start"]), datetimeToUnix($res["end"]), 0,
+            $res["userid"]);
+        if($rc > 0) {
+            $newcompid = array_shift($requestInfo["computers"]);
+            # get mgmt node for computer
+            $mgmtnodeid = findManagementNode($newcompid, $res['start'], 'future');
+            # update mgmt node and computer in reservation table
+            $query = "UPDATE reservation "
+                . "SET computerid = $newcompid, "
+                .     "managementnodeid = $mgmtnodeid "
+                . "WHERE id = {$res['id']}";
+            doQuery($query, 101);
+            # add changelog entry
+            addChangeLogEntry($res['logid'], NULL, NULL, NULL, $newcompid);
+            # update sublog entry
+            $query = "UPDATE sublog "
+                . "SET computerid = $newcompid "
+                . "WHERE logid = {$res['logid']} AND "
+                .       "computerid = $compid";
+            doQuery($query, 101);
+        }
+        else
+            return 0;
+    }
+    return 1;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -5504,31 +5518,31 @@ function moveReservationsOffComputer($compid=0, $count=0) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getCompFinalReservationTime($compid) {
-	$end = 0;
-	$query = "SELECT UNIX_TIMESTAMP(rq.end) as end "
-	       . "FROM request rq, "
-	       .      "reservation rs "
-	       . "WHERE rs.requestid = rq.id AND "
-	       .       "rs.computerid = $compid AND "
-	       .       "rq.stateid NOT IN (1,5,12) "
-	       . "ORDER BY rq.end DESC "
-	       . "LIMIT 1";
-	$qh = doQuery($query, 101);
-	if($row = mysql_fetch_assoc($qh))
-		$end = $row['end'];
-	$query = "SELECT UNIX_TIMESTAMP(t.end) as end "
-	       . "FROM blockComputers c, "
-	       .      "blockTimes t "
-	       . "WHERE c.computerid = $compid AND "
-	       .       "c.blockTimeid = t.id AND "
-	       .       "t.end > NOW() "
-	       . "ORDER BY t.end DESC "
-	       . "LIMIT 1";
-	$qh = doQuery($query, 101);
-	if($row = mysql_fetch_assoc($qh))
-		if($row['end'] > $end)
-			$end = $row['end'];
-	return $end;
+    $end = 0;
+    $query = "SELECT UNIX_TIMESTAMP(rq.end) as end "
+        . "FROM request rq, "
+        .      "reservation rs "
+        . "WHERE rs.requestid = rq.id AND "
+        .       "rs.computerid = $compid AND "
+        .       "rq.stateid NOT IN (1,5,12) "
+        . "ORDER BY rq.end DESC "
+        . "LIMIT 1";
+    $qh = doQuery($query, 101);
+    if($row = mysql_fetch_assoc($qh))
+        $end = $row['end'];
+    $query = "SELECT UNIX_TIMESTAMP(t.end) as end "
+        . "FROM blockComputers c, "
+        .      "blockTimes t "
+        . "WHERE c.computerid = $compid AND "
+        .       "c.blockTimeid = t.id AND "
+        .       "t.end > NOW() "
+        . "ORDER BY t.end DESC "
+        . "LIMIT 1";
+    $qh = doQuery($query, 101);
+    if($row = mysql_fetch_assoc($qh))
+        if($row['end'] > $end)
+            $end = $row['end'];
+    return $end;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -5601,145 +5615,145 @@ function getCompFinalReservationTime($compid) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getUserRequests($type, $id=0) {
-	global $user;
-	if($id == 0)
-		$id = $user["id"];
-	if(empty($user['groups']))
-		$ingroupids = "''";
-	else
-		$ingroupids = implode(',', array_keys($user['groups']));
-	$query = "SELECT i.name AS image, "
-	       .        "i.prettyname AS prettyimage, "
-	       .        "i.id AS imageid, "
-	       .        "rq.userid, "
-	       .        "rq.start, "
-	       .        "rq.end, "
-	       .        "rq.daterequested, "
-	       .        "rq.id, "
-	       .        "o.prettyname AS OS, "
-	       .        "o.installtype AS OSinstalltype, "
-	       .        "o.type AS ostype,"
-	       .        "rq.stateid AS currstateid, "
-	       .        "rq.laststateid, "
-	       .        "rs.computerid, "
-	       .        "rs.id AS resid, "
-	       .        "c.currentimageid AS compimageid, "
-	       .        "c.stateid AS computerstateid, "
-	       .        "c.IPaddress, "
-	       .        "c.type AS comptype, "
-	       .        "c.vmhostid, "
-	       .        "rq.forimaging, "
-	       .        "i.forcheckout, "
-	       .        "rs.managementnodeid, "
-	       .        "rs.imagerevisionid, "
-	       .        "rq.test,"
-	       .        "sp.name AS servername, "
-	       .        "sp.requestid AS serverrequestid, "
-	       .        "sp.fixedIP, "
-	       .        "sp.fixedMAC, "
-	       .        "sp.admingroupid AS serveradmingroupid, "
-	       .        "uga.name AS serveradmingroup, "
-	       .        "sp.logingroupid AS serverlogingroupid, "
-	       .        "ugl.name AS serverlogingroup, "
-	       .        "sp.monitored, "
-	       .        "ra.password, "
-	       .        "ra.userid AS resacctuserid, "
-	       .        "rs.pw "
-	       . "FROM image i, "
-	       .      "OS o, "
-	       .      "computer c, "
-	       .      "request rq "
-	       . "LEFT JOIN serverrequest sp ON (sp.requestid = rq.id) "
-	       . "LEFT JOIN usergroup uga ON (uga.id = sp.admingroupid) "
-	       . "LEFT JOIN usergroup ugl ON (ugl.id = sp.logingroupid) "
-	       . "LEFT JOIN reservation rs ON (rs.requestid = rq.id) "
-	       . "LEFT JOIN reservationaccounts ra ON (ra.reservationid = rs.id AND ra.userid = $id) "
-	       . "WHERE (rq.userid = $id OR "
-	       .       "sp.admingroupid IN ($ingroupids) OR "
-	       .       "sp.logingroupid IN ($ingroupids)) AND "
-	       .       "rs.imageid = i.id AND "
-	       .       "rq.end > NOW() AND "
-	       .       "i.OSid = o.id AND "
-	       .       "c.id = rs.computerid AND "
-	       .       "rq.stateid NOT IN (1, 10, 16, 17) AND "      # deleted, maintenance, complete, image, makeproduction
-	       .       "rq.laststateid NOT IN (1, 10, 16, 17) ";  # deleted, maintenance, complete, image, makeproduction
-	if($type == "normal")
-		$query .=   "AND rq.forimaging = 0 "
-		       .    "AND i.forcheckout = 1 "
-		       .    "AND sp.requestid IS NULL ";
-	if($type == "forimaging")
-		$query .=   "AND rq.forimaging = 1 "
-		       .    "AND sp.requestid IS NULL ";
-	if($type == "server")
-		$query .=   "AND sp.requestid IS NOT NULL ";
-	$query .= "ORDER BY rq.start, "
-	       .           "rs.id";
-	$qh = doQuery($query, 160);
-	$count = -1;
-	$data = array();
-	$foundids = array();
-	$lastreqid = 0;
-	while($row = mysql_fetch_assoc($qh)) {
-		if($row['id'] != $lastreqid) {
-			$lastreqid = $row['id'];
-			$count++;
-			$data[$count] = $row;
-			$data[$count]['useraccountready'] = 1;
-			$data[$count]['reservations'] = array();
-		}
-		if(array_key_exists($row['id'], $foundids)) {
-			$data[$count]['reservations'][] = array(
-				'resid' => $row['resid'],
-				'image' => $row['image'],
-				'prettyname' => $row['prettyimage'],
-				'imageid' => $row['imageid'],
-				'imagerevisionid' => $row['imagerevisionid'],
-				'OS' => $row['OS'],
-				'computerid' => $row['computerid'],
-				'compimageid' => $row['compimageid'],
-				'computerstateid' => $row['computerstateid'],
-				'IPaddress' => $row['IPaddress'],
-				'comptype' => $row['comptype'],
-				'password' => $row['password'],
-				'resacctuserid' => $row['resacctuserid']
-			);
-			if($row['userid'] != $id && empty($row['resacctuserid']))
-				$data[$count]['useraccountready'] = 0;
-			continue;
-		}
-		$foundids[$row['id']] = 1;
-		if(! is_null($row['serverrequestid'])) {
-			$data[$count]['server'] = 1;
-			$data[$count]['longterm'] = 0;
-			if($row['userid'] == $user['id']) {
-				$data[$count]['serverowner'] = 1;
-				$data[$count]['serveradmin'] = 1;
-			}
-			else {
-				$data[$count]['serverowner'] = 0;
-				if(! empty($row['serveradmingroupid']) && 
-				   array_key_exists($row['serveradmingroupid'], $user['groups']))
-					$data[$count]['serveradmin'] = 1;
-				else
-					$data[$count]['serveradmin'] = 0;
-			}
-		}
-		elseif((datetimeToUnix($row['end']) - datetimeToUnix($row['start'])) > SECINDAY) {
-			$data[$count]['server'] = 0;
-			$data[$count]['longterm'] = 1;
-			$data[$count]['serverowner'] = 1;
-			$data[$count]['serveradmin'] = 1;
-		}
-		else {
-			$data[$count]['server'] = 0;
-			$data[$count]['longterm'] = 0;
-			$data[$count]['serverowner'] = 1;
-			$data[$count]['serveradmin'] = 1;
-		}
-		if($row['userid'] != $id && empty($row['resacctuserid']))
-			$data[$count]['useraccountready'] = 0;
-	}
-	return $data;
+    global $user;
+    if($id == 0)
+        $id = $user["id"];
+    if(empty($user['groups']))
+        $ingroupids = "''";
+    else
+        $ingroupids = implode(',', array_keys($user['groups']));
+    $query = "SELECT i.name AS image, "
+        .        "i.prettyname AS prettyimage, "
+        .        "i.id AS imageid, "
+        .        "rq.userid, "
+        .        "rq.start, "
+        .        "rq.end, "
+        .        "rq.daterequested, "
+        .        "rq.id, "
+        .        "o.prettyname AS OS, "
+        .        "o.installtype AS OSinstalltype, "
+        .        "o.type AS ostype,"
+        .        "rq.stateid AS currstateid, "
+        .        "rq.laststateid, "
+        .        "rs.computerid, "
+        .        "rs.id AS resid, "
+        .        "c.currentimageid AS compimageid, "
+        .        "c.stateid AS computerstateid, "
+        .        "c.IPaddress, "
+        .        "c.type AS comptype, "
+        .        "c.vmhostid, "
+        .        "rq.forimaging, "
+        .        "i.forcheckout, "
+        .        "rs.managementnodeid, "
+        .        "rs.imagerevisionid, "
+        .        "rq.test,"
+        .        "sp.name AS servername, "
+        .        "sp.requestid AS serverrequestid, "
+        .        "sp.fixedIP, "
+        .        "sp.fixedMAC, "
+        .        "sp.admingroupid AS serveradmingroupid, "
+        .        "uga.name AS serveradmingroup, "
+        .        "sp.logingroupid AS serverlogingroupid, "
+        .        "ugl.name AS serverlogingroup, "
+        .        "sp.monitored, "
+        .        "ra.password, "
+        .        "ra.userid AS resacctuserid, "
+        .        "rs.pw "
+        . "FROM image i, "
+        .      "OS o, "
+        .      "computer c, "
+        .      "request rq "
+        . "LEFT JOIN serverrequest sp ON (sp.requestid = rq.id) "
+        . "LEFT JOIN usergroup uga ON (uga.id = sp.admingroupid) "
+        . "LEFT JOIN usergroup ugl ON (ugl.id = sp.logingroupid) "
+        . "LEFT JOIN reservation rs ON (rs.requestid = rq.id) "
+        . "LEFT JOIN reservationaccounts ra ON (ra.reservationid = rs.id AND ra.userid = $id) "
+        . "WHERE (rq.userid = $id OR "
+        .       "sp.admingroupid IN ($ingroupids) OR "
+        .       "sp.logingroupid IN ($ingroupids)) AND "
+        .       "rs.imageid = i.id AND "
+        .       "rq.end > NOW() AND "
+        .       "i.OSid = o.id AND "
+        .       "c.id = rs.computerid AND "
+        .       "rq.stateid NOT IN (1, 10, 16, 17) AND "      # deleted, maintenance, complete, image, makeproduction
+        .       "rq.laststateid NOT IN (1, 10, 16, 17) ";  # deleted, maintenance, complete, image, makeproduction
+    if($type == "normal")
+        $query .=   "AND rq.forimaging = 0 "
+            .    "AND i.forcheckout = 1 "
+            .    "AND sp.requestid IS NULL ";
+    if($type == "forimaging")
+        $query .=   "AND rq.forimaging = 1 "
+            .    "AND sp.requestid IS NULL ";
+    if($type == "server")
+        $query .=   "AND sp.requestid IS NOT NULL ";
+    $query .= "ORDER BY rq.start, "
+        .           "rs.id";
+    $qh = doQuery($query, 160);
+    $count = -1;
+    $data = array();
+    $foundids = array();
+    $lastreqid = 0;
+    while($row = mysql_fetch_assoc($qh)) {
+        if($row['id'] != $lastreqid) {
+            $lastreqid = $row['id'];
+            $count++;
+            $data[$count] = $row;
+            $data[$count]['useraccountready'] = 1;
+            $data[$count]['reservations'] = array();
+        }
+        if(array_key_exists($row['id'], $foundids)) {
+            $data[$count]['reservations'][] = array(
+                'resid' => $row['resid'],
+                'image' => $row['image'],
+                'prettyname' => $row['prettyimage'],
+                'imageid' => $row['imageid'],
+                'imagerevisionid' => $row['imagerevisionid'],
+                'OS' => $row['OS'],
+                'computerid' => $row['computerid'],
+                'compimageid' => $row['compimageid'],
+                'computerstateid' => $row['computerstateid'],
+                'IPaddress' => $row['IPaddress'],
+                'comptype' => $row['comptype'],
+                'password' => $row['password'],
+                'resacctuserid' => $row['resacctuserid']
+            );
+            if($row['userid'] != $id && empty($row['resacctuserid']))
+                $data[$count]['useraccountready'] = 0;
+            continue;
+        }
+        $foundids[$row['id']] = 1;
+        if(! is_null($row['serverrequestid'])) {
+            $data[$count]['server'] = 1;
+            $data[$count]['longterm'] = 0;
+            if($row['userid'] == $user['id']) {
+                $data[$count]['serverowner'] = 1;
+                $data[$count]['serveradmin'] = 1;
+            }
+            else {
+                $data[$count]['serverowner'] = 0;
+                if(! empty($row['serveradmingroupid']) &&
+                    array_key_exists($row['serveradmingroupid'], $user['groups']))
+                    $data[$count]['serveradmin'] = 1;
+                else
+                    $data[$count]['serveradmin'] = 0;
+            }
+        }
+        elseif((datetimeToUnix($row['end']) - datetimeToUnix($row['start'])) > SECINDAY) {
+            $data[$count]['server'] = 0;
+            $data[$count]['longterm'] = 1;
+            $data[$count]['serverowner'] = 1;
+            $data[$count]['serveradmin'] = 1;
+        }
+        else {
+            $data[$count]['server'] = 0;
+            $data[$count]['longterm'] = 0;
+            $data[$count]['serverowner'] = 1;
+            $data[$count]['serveradmin'] = 1;
+        }
+        if($row['userid'] != $id && empty($row['resacctuserid']))
+            $data[$count]['useraccountready'] = 0;
+    }
+    return $data;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -5756,17 +5770,17 @@ function getUserRequests($type, $id=0) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function isComputerLoading($request, $computers) {
-	if($computers[$request["computerid"]]["stateid"] == 6 ||
-	   ($computers[$request["computerid"]]["stateid"] == 2 &&
-	   $computers[$request["computerid"]]["imagerevisionid"] != $request["imagerevisionid"]))
-		return 1;
-	foreach($request["reservations"] as $res) {
-		if($computers[$res["computerid"]]["stateid"] == 6 ||
-		   ($computers[$res["computerid"]]["stateid"] == 2 &&
-		   $computers[$res["computerid"]]["imagerevisionid"] != $res["imagerevisionid"]))
-			return 1;
-	}
-	return 0;
+    if($computers[$request["computerid"]]["stateid"] == 6 ||
+        ($computers[$request["computerid"]]["stateid"] == 2 &&
+            $computers[$request["computerid"]]["imagerevisionid"] != $request["imagerevisionid"]))
+        return 1;
+    foreach($request["reservations"] as $res) {
+        if($computers[$res["computerid"]]["stateid"] == 6 ||
+            ($computers[$res["computerid"]]["stateid"] == 2 &&
+                $computers[$res["computerid"]]["imagerevisionid"] != $res["imagerevisionid"]))
+            return 1;
+    }
+    return 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -5783,12 +5797,12 @@ function isComputerLoading($request, $computers) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getMaxReloadTime($request, $images) {
-	$reloadtime = $images[$request["imageid"]]["reloadtime"];
-	foreach($request["reservations"] as $res) {
-		if($images[$res["imageid"]]["reloadtime"] > $reloadtime)
-			$reloadtime = $images[$res["imageid"]]["reloadtime"];
-	}
-	return $reloadtime;
+    $reloadtime = $images[$request["imageid"]]["reloadtime"];
+    foreach($request["reservations"] as $res) {
+        if($images[$res["imageid"]]["reloadtime"] > $reloadtime)
+            $reloadtime = $images[$res["imageid"]]["reloadtime"];
+    }
+    return $reloadtime;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -5803,10 +5817,10 @@ function getMaxReloadTime($request, $images) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function datetimeToUnix($datetime) {
-	$tmp = explode(' ', $datetime);
-	list($year, $month, $day) = explode('-', $tmp[0]);
-	list($hour, $min, $sec) = explode(':', $tmp[1]);
-	return mktime($hour, $min, $sec, $month, $day, $year, -1);
+    $tmp = explode(' ', $datetime);
+    list($year, $month, $day) = explode('-', $tmp[0]);
+    list($hour, $min, $sec) = explode(':', $tmp[1]);
+    return mktime($hour, $min, $sec, $month, $day, $year, -1);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -5821,7 +5835,7 @@ function datetimeToUnix($datetime) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function unixToDatetime($timestamp) {
-	return date("Y-m-d H:i:s", $timestamp);
+    return date("Y-m-d H:i:s", $timestamp);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -5836,13 +5850,13 @@ function unixToDatetime($timestamp) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function numdatetimeToDatetime($numtime) {
-	$year = substr($numtime, 0, 4);
-	$month = substr($numtime, 4, 2);
-	$day = substr($numtime, 6, 2);
-	$hour = substr($numtime, 8, 2);
-	$min = substr($numtime, 10, 2);
-	$sec = substr($numtime, 12, 2);
-	return "$year-$month-$day $hour:$min:$sec";
+    $year = substr($numtime, 0, 4);
+    $month = substr($numtime, 4, 2);
+    $day = substr($numtime, 6, 2);
+    $hour = substr($numtime, 8, 2);
+    $min = substr($numtime, 10, 2);
+    $sec = substr($numtime, 12, 2);
+    return "$year-$month-$day $hour:$min:$sec";
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -5858,7 +5872,7 @@ function numdatetimeToDatetime($numtime) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function minuteOfDay($hour, $min) {
-	return ($hour * 60) + $min;
+    return ($hour * 60) + $min;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -5873,18 +5887,18 @@ function minuteOfDay($hour, $min) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function minuteOfDay2($time) {
-	$timeArr = explode(':', $time);
-	$hour = $timeArr[0];
-	$timeArr = explode(' ', $timeArr[1]);
-	$min = $timeArr[0];
-	$meridian = $timeArr[1];
-	if($meridian == "am" && $hour == 12) {
-		return $min;
-	}
-	elseif($meridian == "pm" && $hour < 12) {
-		$hour += 12;
-	}
-	return ($hour * 60) + $min;
+    $timeArr = explode(':', $time);
+    $hour = $timeArr[0];
+    $timeArr = explode(' ', $timeArr[1]);
+    $min = $timeArr[0];
+    $meridian = $timeArr[1];
+    if($meridian == "am" && $hour == 12) {
+        return $min;
+    }
+    elseif($meridian == "pm" && $hour < 12) {
+        $hour += 12;
+    }
+    return ($hour * 60) + $min;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -5900,8 +5914,8 @@ function minuteOfDay2($time) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function minuteOfWeek($ts) {
-	# ((day of week (0-6)) * 1440) + ((hour in day) * 60) + (min in hour)
-	return (date('w', $ts) * 1440) + (date('G', $ts) * 60) + date('i', $ts);
+    # ((day of week (0-6)) * 1440) + ((hour in day) * 60) + (min in hour)
+    return (date('w', $ts) * 1440) + (date('G', $ts) * 60) + date('i', $ts);
 }
 
 
@@ -5917,20 +5931,20 @@ function minuteOfWeek($ts) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function minuteToTime($minutes) {
-	$hour = sprintf("%d", $minutes / 60);
-	$min = sprintf("%02d", $minutes % 60);
-	$meridian = "am";
-	if($hour == 0) {
-		$hour = 12;
-	}
-	elseif($hour == 12) {
-		$meridian = "pm";
-	}
-	elseif($hour > 12) {
-		$hour -= 12;
-		$meridian = "pm";
-	}
-	return "$hour:$min $meridian";
+    $hour = sprintf("%d", $minutes / 60);
+    $min = sprintf("%02d", $minutes % 60);
+    $meridian = "am";
+    if($hour == 0) {
+        $hour = 12;
+    }
+    elseif($hour == 12) {
+        $meridian = "pm";
+    }
+    elseif($hour > 12) {
+        $hour -= 12;
+        $meridian = "pm";
+    }
+    return "$hour:$min $meridian";
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -5946,11 +5960,11 @@ function minuteToTime($minutes) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function hour12to24($hour, $meridian) {
-	if($meridian == 'pm' && $hour < 12)
-		return $hour + 12;
-	elseif($meridian == 'am' && $hour == 12)
-		return 0;
-	return $hour;
+    if($meridian == 'pm' && $hour < 12)
+        return $hour + 12;
+    elseif($meridian == 'am' && $hour == 12)
+        return 0;
+    return $hour;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -5966,16 +5980,16 @@ function hour12to24($hour, $meridian) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function hour24to12($hour) {
-	$m = 'am';
-	if($hour == 0)
-		$hour = 12;
-	elseif($hour == 12)
-		$m = 'pm';
-	elseif($hour > 12) {
-		$m = 'pm';
-		$hour -= 12;
-	}
-	return array($hour, $m);
+    $m = 'am';
+    if($hour == 0)
+        $hour = 12;
+    elseif($hour == 12)
+        $m = 'pm';
+    elseif($hour > 12) {
+        $m = 'pm';
+        $hour -= 12;
+    }
+    return array($hour, $m);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -5991,21 +6005,21 @@ function hour24to12($hour) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getDepartmentName($id) {
-	$query = "SELECT name FROM department WHERE id = '$id'";
-	$qh = doQuery($query, 101);
-	if($row = mysql_fetch_row($qh)) {
-		return $row[0];
-	}
-	else {
-		return 0;
-	}
+    $query = "SELECT name FROM department WHERE id = '$id'";
+    $qh = doQuery($query, 101);
+    if($row = mysql_fetch_row($qh)) {
+        return $row[0];
+    }
+    else {
+        return 0;
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 ///
 /// \fn getImageId($image)
 ///
-/// \param $image - name of an image (must match name (not prettyname) in the 
+/// \param $image - name of an image (must match name (not prettyname) in the
 /// image table)
 ///
 /// \return the id of matching $image in the image table or 0 if lookup fails
@@ -6014,11 +6028,11 @@ function getDepartmentName($id) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getImageId($image) {
-	$qh = doQuery("SELECT id FROM image WHERE name = '$image'", 170);
-	if($row = mysql_fetch_row($qh)) {
-		return $row[0];
-	}
-	return 0;
+    $qh = doQuery("SELECT id FROM image WHERE name = '$image'", 170);
+    if($row = mysql_fetch_row($qh)) {
+        return $row[0];
+    }
+    return 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -6033,11 +6047,11 @@ function getImageId($image) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getOSId($os) {
-	$qh = doQuery("SELECT id FROM OS WHERE name = '$os'", 175);
-	if($row = mysql_fetch_row($qh)) {
-		return $row[0];
-	}
-	return 0;
+    $qh = doQuery("SELECT id FROM OS WHERE name = '$os'", 175);
+    if($row = mysql_fetch_row($qh)) {
+        return $row[0];
+    }
+    return 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -6050,12 +6064,12 @@ function getOSId($os) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getStates() {
-	$qh = doQuery("SELECT id, name FROM state", 176);
-	$states = array();
-	while($row = mysql_fetch_row($qh)) {
-		$states[$row[0]] = $row[1];
-	}
-	return $states;
+    $qh = doQuery("SELECT id, name FROM state", 176);
+    $states = array();
+    while($row = mysql_fetch_row($qh)) {
+        $states[$row[0]] = $row[1];
+    }
+    return $states;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -6068,12 +6082,12 @@ function getStates() {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getPlatforms() {
-	$qh = doQuery("SELECT id, name FROM platform", 178);
-	$platforms = array();
-	while($row = mysql_fetch_row($qh)) {
-		$platforms[$row[0]] = $row[1];
-	}
-	return $platforms;
+    $qh = doQuery("SELECT id, name FROM platform", 178);
+    $platforms = array();
+    while($row = mysql_fetch_row($qh)) {
+        $platforms[$row[0]] = $row[1];
+    }
+    return $platforms;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -6087,20 +6101,20 @@ function getPlatforms() {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getProvisioning() {
-	$query = "SELECT p.id, "
-	       .        "p.name, "
-	       .        "p.prettyname, "
-	       .        "p.moduleid, "
-	       .        "m.prettyname AS modulename "
-	       . "FROM provisioning p, "
-	       .      "module m "
-	       . "WHERE p.moduleid = m.id "
-	       . "ORDER BY p.prettyname";
-	$qh = doQuery($query, 101);
-	$provisioning = array();
-	while($row = mysql_fetch_assoc($qh))
-		$provisioning[$row['id']] = $row;
-	return $provisioning;
+    $query = "SELECT p.id, "
+        .        "p.name, "
+        .        "p.prettyname, "
+        .        "p.moduleid, "
+        .        "m.prettyname AS modulename "
+        . "FROM provisioning p, "
+        .      "module m "
+        . "WHERE p.moduleid = m.id "
+        . "ORDER BY p.prettyname";
+    $qh = doQuery($query, 101);
+    $provisioning = array();
+    while($row = mysql_fetch_assoc($qh))
+        $provisioning[$row['id']] = $row;
+    return $provisioning;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -6118,40 +6132,40 @@ function getProvisioning() {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getSchedules() {
-	$query = "SELECT s.id, "
-	       .        "s.name, "
-	       .        "s.ownerid, "
-	       .        "CONCAT(u.unityid, '@', a.name) AS owner, "
-	       .        "r.id AS resourceid "
-	       . "FROM schedule s, "
-	       .      "resource r, "
-	       .      "resourcetype t, "
-	       .      "user u, "
-	       .      "affiliation a "
-	       . "WHERE r.subid = s.id AND "
-	       .       "r.resourcetypeid = t.id AND "
-	       .       "t.name = 'schedule' AND "
-	       .       "s.ownerid = u.id AND "
-	       .       "u.affiliationid = a.id "
-	       . "ORDER BY s.name";
-	$qh = doQuery($query, 179);
-	$schedules = array();
-	while($row = mysql_fetch_assoc($qh)) {
-		$schedules[$row["id"]] = $row;
-		$schedules[$row["id"]]["times"] = array();
-	}
-	$query = "SELECT scheduleid, "
-	       .        "start, "
-	       .        "end "
-	       . "FROM scheduletimes "
-	       . "ORDER BY scheduleid, "
-	       .          "start";
-	$qh = doQuery($query, 101);
-	while($row = mysql_fetch_assoc($qh)) {
-		array_push($schedules[$row["scheduleid"]]["times"],
-		           array("start" => $row["start"], "end" => $row["end"]));
-	}
-	return $schedules;
+    $query = "SELECT s.id, "
+        .        "s.name, "
+        .        "s.ownerid, "
+        .        "CONCAT(u.unityid, '@', a.name) AS owner, "
+        .        "r.id AS resourceid "
+        . "FROM schedule s, "
+        .      "resource r, "
+        .      "resourcetype t, "
+        .      "user u, "
+        .      "affiliation a "
+        . "WHERE r.subid = s.id AND "
+        .       "r.resourcetypeid = t.id AND "
+        .       "t.name = 'schedule' AND "
+        .       "s.ownerid = u.id AND "
+        .       "u.affiliationid = a.id "
+        . "ORDER BY s.name";
+    $qh = doQuery($query, 179);
+    $schedules = array();
+    while($row = mysql_fetch_assoc($qh)) {
+        $schedules[$row["id"]] = $row;
+        $schedules[$row["id"]]["times"] = array();
+    }
+    $query = "SELECT scheduleid, "
+        .        "start, "
+        .        "end "
+        . "FROM scheduletimes "
+        . "ORDER BY scheduleid, "
+        .          "start";
+    $qh = doQuery($query, 101);
+    while($row = mysql_fetch_assoc($qh)) {
+        array_push($schedules[$row["scheduleid"]]["times"],
+            array("start" => $row["start"], "end" => $row["end"]));
+    }
+    return $schedules;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -6166,34 +6180,34 @@ function getSchedules() {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function formatMinOfWeek($min) {
-	$time = minuteToTime($min % 1440);
-	if($min / 1440 == 0) {
-		return "Sunday, $time";
-	}
-	elseif((int)($min / 1440) == 1) {
-		return "Monday, $time";
-	}
-	elseif((int)($min / 1440) == 2) {
-		return "Tuesday, $time";
-	}
-	elseif((int)($min / 1440) == 3) {
-		return "Wednesday, $time";
-	}
-	elseif((int)($min / 1440) == 4) {
-		return "Thursday, $time";
-	}
-	elseif((int)($min / 1440) == 5) {
-		return "Friday, $time";
-	}
-	elseif((int)($min / 1440) == 6) {
-		return "Saturday, $time";
-	}
-	elseif((int)($min / 1440) > 6) {
-		return "Sunday, $time";
-	}
-	else {
-		return "$time";
-	}
+    $time = minuteToTime($min % 1440);
+    if($min / 1440 == 0) {
+        return "Sunday, $time";
+    }
+    elseif((int)($min / 1440) == 1) {
+        return "Monday, $time";
+    }
+    elseif((int)($min / 1440) == 2) {
+        return "Tuesday, $time";
+    }
+    elseif((int)($min / 1440) == 3) {
+        return "Wednesday, $time";
+    }
+    elseif((int)($min / 1440) == 4) {
+        return "Thursday, $time";
+    }
+    elseif((int)($min / 1440) == 5) {
+        return "Friday, $time";
+    }
+    elseif((int)($min / 1440) == 6) {
+        return "Saturday, $time";
+    }
+    elseif((int)($min / 1440) > 6) {
+        return "Sunday, $time";
+    }
+    else {
+        return "$time";
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -6213,62 +6227,62 @@ function formatMinOfWeek($min) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getManagementNodes($alive="neither") {
-	if($alive == "now")
-		$lastcheckin = unixToDatetime(time() - 300);
-	elseif($alive == "future")
-		$lastcheckin = unixToDatetime(time() - 3600);
+    if($alive == "now")
+        $lastcheckin = unixToDatetime(time() - 300);
+    elseif($alive == "future")
+        $lastcheckin = unixToDatetime(time() - 3600);
 
-	$query = "SELECT m.id, "
-	       .        "m.IPaddress, "
-	       .        "m.hostname, "
-	       .        "m.ownerid, "
-	       .        "CONCAT(u.unityid, '@', a.name) as owner, "
-	       .        "m.stateid, "
-	       .        "s.name as state, "
-	       .        "m.lastcheckin, "
-	       .        "m.checkininterval, "
-	       .        "m.installpath, "
-	       .        "m.imagelibenable, "
-	       .        "m.imagelibgroupid, "
-	       .        "rg.name AS imagelibgroup, "
-	       .        "m.imagelibuser, "
-	       .        "m.imagelibkey, "
-	       .        "m.keys, "
-	       .        "m.sshport, "
-	       .        "m.publicIPconfiguration AS publicIPconfig, "
-	       .        "m.publicSubnetMask AS publicnetmask, "
-	       .        "m.publicDefaultGateway AS publicgateway, "
-	       .        "m.publicDNSserver AS publicdnsserver, "
-	       .        "m.sysadminEmailAddress AS sysadminemail, "
-	       .        "m.sharedMailBox AS sharedmailbox, "
-	       .        "r.id as resourceid, "
-	       .        "m.predictivemoduleid, "
-	       .        "mo.prettyname AS predictivemodule "
-	       . "FROM user u, "
-	       .      "state s, "
-	       .      "resource r, "
-	       .      "resourcetype rt, "
-	       .      "affiliation a, "
-	       .      "module mo, "
-	       .      "managementnode m "
-	       . "LEFT JOIN resourcegroup rg ON (m.imagelibgroupid = rg.id) "
-	       . "WHERE m.ownerid = u.id AND "
-	       .       "m.stateid = s.id AND "
-	       .       "m.id = r.subid AND "
-	       .       "r.resourcetypeid = rt.id AND "
-	       .       "rt.name = 'managementnode' AND "
-	       .       "u.affiliationid = a.id AND "
-	       .       "m.predictivemoduleid = mo.id";
-	if($alive == "now" || $alive == "future") {
-		$query .= " AND m.lastcheckin > '$lastcheckin'"
-		       .  " AND s.name != 'maintenance'";
-	}
-	$qh = doQuery($query, 101);
-	$return = array();
-	while($row = mysql_fetch_assoc($qh)) {
-		$return[$row["id"]] = $row;
-	}
-	return $return;
+    $query = "SELECT m.id, "
+        .        "m.IPaddress, "
+        .        "m.hostname, "
+        .        "m.ownerid, "
+        .        "CONCAT(u.unityid, '@', a.name) as owner, "
+        .        "m.stateid, "
+        .        "s.name as state, "
+        .        "m.lastcheckin, "
+        .        "m.checkininterval, "
+        .        "m.installpath, "
+        .        "m.imagelibenable, "
+        .        "m.imagelibgroupid, "
+        .        "rg.name AS imagelibgroup, "
+        .        "m.imagelibuser, "
+        .        "m.imagelibkey, "
+        .        "m.keys, "
+        .        "m.sshport, "
+        .        "m.publicIPconfiguration AS publicIPconfig, "
+        .        "m.publicSubnetMask AS publicnetmask, "
+        .        "m.publicDefaultGateway AS publicgateway, "
+        .        "m.publicDNSserver AS publicdnsserver, "
+        .        "m.sysadminEmailAddress AS sysadminemail, "
+        .        "m.sharedMailBox AS sharedmailbox, "
+        .        "r.id as resourceid, "
+        .        "m.predictivemoduleid, "
+        .        "mo.prettyname AS predictivemodule "
+        . "FROM user u, "
+        .      "state s, "
+        .      "resource r, "
+        .      "resourcetype rt, "
+        .      "affiliation a, "
+        .      "module mo, "
+        .      "managementnode m "
+        . "LEFT JOIN resourcegroup rg ON (m.imagelibgroupid = rg.id) "
+        . "WHERE m.ownerid = u.id AND "
+        .       "m.stateid = s.id AND "
+        .       "m.id = r.subid AND "
+        .       "r.resourcetypeid = rt.id AND "
+        .       "rt.name = 'managementnode' AND "
+        .       "u.affiliationid = a.id AND "
+        .       "m.predictivemoduleid = mo.id";
+    if($alive == "now" || $alive == "future") {
+        $query .= " AND m.lastcheckin > '$lastcheckin'"
+            .  " AND s.name != 'maintenance'";
+    }
+    $qh = doQuery($query, 101);
+    $return = array();
+    while($row = mysql_fetch_assoc($qh)) {
+        $return[$row["id"]] = $row;
+    }
+    return $return;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -6282,18 +6296,18 @@ function getManagementNodes($alive="neither") {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getPredictiveModules() {
-	$query = "SELECT id, "
-	       .        "name, "
-	       .        "prettyname, "
-	       .        "description, "
-	       .        "perlpackage "
-	       . "FROM module "
-	       . "WHERE perlpackage LIKE 'VCL::Module::Predictive::%'";
-	$qh = doQuery($query, 101);
-	$modules = array();
-	while($row = mysql_fetch_assoc($qh))
-		$modules[$row['id']] = $row;
-	return $modules;
+    $query = "SELECT id, "
+        .        "name, "
+        .        "prettyname, "
+        .        "description, "
+        .        "perlpackage "
+        . "FROM module "
+        . "WHERE perlpackage LIKE 'VCL::Module::Predictive::%'";
+    $qh = doQuery($query, 101);
+    $modules = array();
+    while($row = mysql_fetch_assoc($qh))
+        $modules[$row['id']] = $row;
+    return $modules;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -6306,7 +6320,7 @@ function getPredictiveModules() {
 /// \return array of free/used timeslotes
 ///
 /// \brief generates an array of availability for computers where index is a
-/// computerid with a value that is an array whose indexes are unix timestamps 
+/// computerid with a value that is an array whose indexes are unix timestamps
 /// that increment by 15 minutes with a value that is an array with 2 indexes:
 /// 'scheduleclosed' and 'available' that tell if the computer's schedule is
 /// closed at that moment and if the computer is available at that moment\n
@@ -6325,220 +6339,220 @@ function getPredictiveModules() {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getTimeSlots($compids, $end=0, $start=0) {
-	if(empty($compids))
-		return array();
-	$requestid = processInputVar("requestid", ARG_NUMERIC, 0);
+    if(empty($compids))
+        return array();
+    $requestid = processInputVar("requestid", ARG_NUMERIC, 0);
 
-	$platsel = getContinuationVar("platforms");
-	if(empty($platsel))
-		$platsel = processInputVar("platforms", ARG_MULTINUMERIC);
-	$schsel = getContinuationVar("schedules");
-	if(empty($schsel))
-		$schsel = processInputVar("schedules", ARG_MULTINUMERIC);
+    $platsel = getContinuationVar("platforms");
+    if(empty($platsel))
+        $platsel = processInputVar("platforms", ARG_MULTINUMERIC);
+    $schsel = getContinuationVar("schedules");
+    if(empty($schsel))
+        $schsel = processInputVar("schedules", ARG_MULTINUMERIC);
 
-	# all computations done with unix timestamps
-	if($end != 0) {
-		$enddate = unixToDatetime($end);
-	}
-	if($start != 0) {
-		$startdate = unixToDatetime($start);
-	}
+    # all computations done with unix timestamps
+    if($end != 0) {
+        $enddate = unixToDatetime($end);
+    }
+    if($start != 0) {
+        $startdate = unixToDatetime($start);
+    }
 
-	$computerids = array();
-	$reservedComputerids = array();
-	$schedules = getSchedules();
-	$times = array();
-	$scheduleids = array();
-	$compinlist = implode(",", $compids);
-	$query = "SELECT id, scheduleid "
-	       . "FROM computer "
-	       . "WHERE scheduleid IS NOT NULL AND "
-	       .       "scheduleid != 0 AND "
-	       .       "id IN ($compinlist) ";
-	if(! empty($schsel) && ! empty($platsel)) {
-		$schinlist = implode(',', $schsel);
-		$platinlist = implode(',', $platsel);
-		$query .= "AND scheduleid IN ($schinlist) "
-		       .  "AND platformid IN ($platinlist)";
-	}
-	$qh = doQuery($query, 155);
-	while($row = mysql_fetch_row($qh)) {
-		array_push($computerids, $row[0]);
-		$times[$row[0]] = array();
-		$scheduleids[$row[0]] = $row[1];
-	}
+    $computerids = array();
+    $reservedComputerids = array();
+    $schedules = getSchedules();
+    $times = array();
+    $scheduleids = array();
+    $compinlist = implode(",", $compids);
+    $query = "SELECT id, scheduleid "
+        . "FROM computer "
+        . "WHERE scheduleid IS NOT NULL AND "
+        .       "scheduleid != 0 AND "
+        .       "id IN ($compinlist) ";
+    if(! empty($schsel) && ! empty($platsel)) {
+        $schinlist = implode(',', $schsel);
+        $platinlist = implode(',', $platsel);
+        $query .= "AND scheduleid IN ($schinlist) "
+            .  "AND platformid IN ($platinlist)";
+    }
+    $qh = doQuery($query, 155);
+    while($row = mysql_fetch_row($qh)) {
+        array_push($computerids, $row[0]);
+        $times[$row[0]] = array();
+        $scheduleids[$row[0]] = $row[1];
+    }
 
-	if($start != 0 && $end != 0) {
-		$query = "SELECT rs.computerid, "
-		       .        "rq.start, "
-		       .        "rq.end + INTERVAL 900 SECOND AS end, "
-		       .        "rq.id, "
-		       .        "u.unityid, "
-		       .        "i.prettyname "
-		       . "FROM reservation rs, "
-		       .      "request rq, "
-		       .      "user u, "
-		       .      "image i "
-		       . "WHERE (rq.start < '$enddate' AND "
-		       .       "rq.end > '$startdate') AND "
-		       .       "rq.id = rs.requestid AND "
-		       .       "u.id = rq.userid AND "
-		       .       "i.id = rs.imageid AND "
-		       .       "rq.stateid NOT IN (1,5,12) "
-		       . "ORDER BY rs.computerid, "
-		       .          "rq.start";
-	}
-	else {
-		$query = "SELECT rs.computerid, "
-		       .        "rq.start, "
-		       .        "rq.end + INTERVAL 900 SECOND AS end, "
-		       .        "rq.id, "
-		       .        "u.unityid, "
-		       .        "i.prettyname "
-		       . "FROM reservation rs, "
-		       .      "request rq, "
-		       .      "user u, "
-		       .      "image i "
-		       . "WHERE rq.end > NOW() AND "
-		       .       "rq.id = rs.requestid AND "
-		       .       "u.id = rq.userid AND "
-		       .       "i.id = rs.imageid AND "
-		       .       "rq.stateid NOT IN (1,5,12) "
-		       . "ORDER BY rs.computerid, "
-		       .          "rq.start";
-	}
-	$qh = doQuery($query, 156);
+    if($start != 0 && $end != 0) {
+        $query = "SELECT rs.computerid, "
+            .        "rq.start, "
+            .        "rq.end + INTERVAL 900 SECOND AS end, "
+            .        "rq.id, "
+            .        "u.unityid, "
+            .        "i.prettyname "
+            . "FROM reservation rs, "
+            .      "request rq, "
+            .      "user u, "
+            .      "image i "
+            . "WHERE (rq.start < '$enddate' AND "
+            .       "rq.end > '$startdate') AND "
+            .       "rq.id = rs.requestid AND "
+            .       "u.id = rq.userid AND "
+            .       "i.id = rs.imageid AND "
+            .       "rq.stateid NOT IN (1,5,12) "
+            . "ORDER BY rs.computerid, "
+            .          "rq.start";
+    }
+    else {
+        $query = "SELECT rs.computerid, "
+            .        "rq.start, "
+            .        "rq.end + INTERVAL 900 SECOND AS end, "
+            .        "rq.id, "
+            .        "u.unityid, "
+            .        "i.prettyname "
+            . "FROM reservation rs, "
+            .      "request rq, "
+            .      "user u, "
+            .      "image i "
+            . "WHERE rq.end > NOW() AND "
+            .       "rq.id = rs.requestid AND "
+            .       "u.id = rq.userid AND "
+            .       "i.id = rs.imageid AND "
+            .       "rq.stateid NOT IN (1,5,12) "
+            . "ORDER BY rs.computerid, "
+            .          "rq.start";
+    }
+    $qh = doQuery($query, 156);
 
-	$id = "";
-	while($row = mysql_fetch_row($qh)) {
-		if($row[3] == $requestid) {
-			continue;
-		}
-		if($id != $row[0]) {
-			$count = 0;
-			$id = $row[0];
-			array_push($reservedComputerids, $id);
-		}
-		$times[$id][$count] = array();
-		$times[$id][$count]["start"] = datetimeToUnix($row[1]);
-		$times[$id][$count]["end"] = datetimeToUnix($row[2]);
-		$times[$id][$count]["requestid"] = $row[3];
-		$times[$id][$count]["unityid"] = $row[4];
-		$times[$id][$count++]["prettyimage"] = $row[5];
-	}
+    $id = "";
+    while($row = mysql_fetch_row($qh)) {
+        if($row[3] == $requestid) {
+            continue;
+        }
+        if($id != $row[0]) {
+            $count = 0;
+            $id = $row[0];
+            array_push($reservedComputerids, $id);
+        }
+        $times[$id][$count] = array();
+        $times[$id][$count]["start"] = datetimeToUnix($row[1]);
+        $times[$id][$count]["end"] = datetimeToUnix($row[2]);
+        $times[$id][$count]["requestid"] = $row[3];
+        $times[$id][$count]["unityid"] = $row[4];
+        $times[$id][$count++]["prettyimage"] = $row[5];
+    }
 
-	# use floor function to get to a 15 min increment for start
-	if($start != 0) {
-		$start = unixFloor15($start);
-	}
-	else {
-		$start = unixFloor15() + 900;
-	}
+    # use floor function to get to a 15 min increment for start
+    if($start != 0) {
+        $start = unixFloor15($start);
+    }
+    else {
+        $start = unixFloor15() + 900;
+    }
 
-	# last time to look at
-	if($end != 0) {
-		$endtime = $end;
-	}
-	else {
-		$endtime = $start + (DAYSAHEAD * SECINDAY);
-	}
+    # last time to look at
+    if($end != 0) {
+        $endtime = $end;
+    }
+    else {
+        $endtime = $start + (DAYSAHEAD * SECINDAY);
+    }
 
-	$blockData = getBlockTimeData($start, $endtime);
-	$maintItems = getMaintItemsForTimeTable($start, $endtime);
-	$reserveInfo = array();    // 0 = reserved, 1 = available
-	foreach($computerids as $id) {
-		$reserveInfo[$id] = array();
-		$first = 1;
-		# loop from $start to $endtime by 15 minute increments
-		for($current = $start, $count = 0, $max = count($times[$id]);
-		    $current < $endtime;
-		    $current += 900) {
-			/*print "compid - $id<br>\n";
-			print "count - $count<br>\n";
-			print "current - " . unixToDatetime($current) . "<br>\n";
-			if(array_key_exists($count, $times[$id])) {
-				print "start - " . unixToDatetime($times[$id][$count]["start"]) . "<br>\n";
-				print "end - " . unixToDatetime($times[$id][$count]["end"]) . "<br>\n";
-			}
-			print "-----------------------------------------------------<br>\n";*/
-			$reserveInfo[$id][$current]['blockAllocation'] = 0;
-			$reserveInfo[$id][$current]["inmaintenance"] = 0;
-			if(scheduleClosed($id, $current, $schedules[$scheduleids[$id]])) {
-				$reserveInfo[$id][$current]["available"] = 0;
-				$reserveInfo[$id][$current]["scheduleclosed"] = 1;
-				continue;
-			}
-			if(checkInMaintenanceForTimeTable($current, $current + 900, $maintItems)) {
-				$reserveInfo[$id][$current]["available"] = 0;
-				$reserveInfo[$id][$current]["inmaintenance"] = 1;
-				continue;
-			}
-			if($blockid = isBlockAllocationTime($id, $current, $blockData)) {
-				$reserveInfo[$id][$current]['blockAllocation'] = 1;
-				$reserveInfo[$id][$current]['blockInfo']['groupid'] = $blockData[$blockid]['groupid'];
-				$reserveInfo[$id][$current]['blockInfo']['imageid'] = $blockData[$blockid]['imageid'];
-				$reserveInfo[$id][$current]['blockInfo']['name'] = $blockData[$blockid]['name'];
-				$reserveInfo[$id][$current]['blockInfo']['image'] = $blockData[$blockid]['image'];
-			}
-			$reserveInfo[$id][$current]["scheduleclosed"] = 0;
-			//if computer not in $reservedComputerids, it is free
-			if(! in_array($id, $reservedComputerids)) {
-				$reserveInfo[$id][$current]["available"] = 1;
-				continue;
-			}
-			//if past an end
-			if($count != $max && $current >= $times[$id][$count]["end"]) {
-				$count++;
-			}
-			# past the end of all reservations
-			if($count == $max) {
-				$reserveInfo[$id][$current]["available"] = 1;
-				continue;
-			}
-			//if before any start times
-			if($count == 0 && $current < $times[$id][0]["start"]) {
-				$reserveInfo[$id][$current]["available"] = 1;
-				continue;
-			}
-			//if between a start and end time
-			if($current >= $times[$id][$count]["start"] && 
-			   $current <  $times[$id][$count]["end"]) {
-				if($first) {
-					# set the previous 15 minute block to show as busy to allow for load time
-					$first = 0;
-					$reserveInfo[$id][$current - 900]['blockAllocation'] = 0;
-					$reserveInfo[$id][$current - 900]["scheduleclosed"] = 0;
-					$reserveInfo[$id][$current - 900]["available"] = 0;
-					$reserveInfo[$id][$current - 900]["requestid"] = $times[$id][$count]["requestid"];
-					$reserveInfo[$id][$current - 900]["unityid"] = $times[$id][$count]["unityid"];
-					$reserveInfo[$id][$current - 900]["prettyimage"] = $times[$id][$count]["prettyimage"];
-				}
-				$reserveInfo[$id][$current]["available"] = 0;
-				$reserveInfo[$id][$current]["requestid"] = $times[$id][$count]["requestid"];
-				$reserveInfo[$id][$current]["unityid"] = $times[$id][$count]["unityid"];
-				$reserveInfo[$id][$current]["prettyimage"] = $times[$id][$count]["prettyimage"];
-				continue;
-			}
-			//if after previous end but before this start
-			if($current >= $times[$id][$count - 1]["end"] && 
-			   $current <  $times[$id][$count]["start"]) {
-				$reserveInfo[$id][$current]["available"] = 1;
-				continue;
-			}
-			# shouldn't get here; print debug info if we do
-			if(checkUserHasPerm('View Debug Information')) {
-				print "******************************************************<br>\n";
-				print "current - " . unixToDatetime($current) . "<br>\n";
-				print "endtime - " . unixToDatetime($endtime) . "<br>\n";
-				print "count - $count<br>\n";
-				print "max - $max<br>\n";
-				print "start - " . unixToDatetime($times[$id][$count]["start"]) . "<br>\n";
-				print "end - " . unixToDatetime($times[$id][$count]["end"]) . "<br>\n";
-				print "------------------------------------------------------<br>\n";
-			}
-		}
-	}
-	return $reserveInfo;
+    $blockData = getBlockTimeData($start, $endtime);
+    $maintItems = getMaintItemsForTimeTable($start, $endtime);
+    $reserveInfo = array();    // 0 = reserved, 1 = available
+    foreach($computerids as $id) {
+        $reserveInfo[$id] = array();
+        $first = 1;
+        # loop from $start to $endtime by 15 minute increments
+        for($current = $start, $count = 0, $max = count($times[$id]);
+            $current < $endtime;
+            $current += 900) {
+            /*print "compid - $id<br>\n";
+            print "count - $count<br>\n";
+            print "current - " . unixToDatetime($current) . "<br>\n";
+            if(array_key_exists($count, $times[$id])) {
+                print "start - " . unixToDatetime($times[$id][$count]["start"]) . "<br>\n";
+                print "end - " . unixToDatetime($times[$id][$count]["end"]) . "<br>\n";
+            }
+            print "-----------------------------------------------------<br>\n";*/
+            $reserveInfo[$id][$current]['blockAllocation'] = 0;
+            $reserveInfo[$id][$current]["inmaintenance"] = 0;
+            if(scheduleClosed($id, $current, $schedules[$scheduleids[$id]])) {
+                $reserveInfo[$id][$current]["available"] = 0;
+                $reserveInfo[$id][$current]["scheduleclosed"] = 1;
+                continue;
+            }
+            if(checkInMaintenanceForTimeTable($current, $current + 900, $maintItems)) {
+                $reserveInfo[$id][$current]["available"] = 0;
+                $reserveInfo[$id][$current]["inmaintenance"] = 1;
+                continue;
+            }
+            if($blockid = isBlockAllocationTime($id, $current, $blockData)) {
+                $reserveInfo[$id][$current]['blockAllocation'] = 1;
+                $reserveInfo[$id][$current]['blockInfo']['groupid'] = $blockData[$blockid]['groupid'];
+                $reserveInfo[$id][$current]['blockInfo']['imageid'] = $blockData[$blockid]['imageid'];
+                $reserveInfo[$id][$current]['blockInfo']['name'] = $blockData[$blockid]['name'];
+                $reserveInfo[$id][$current]['blockInfo']['image'] = $blockData[$blockid]['image'];
+            }
+            $reserveInfo[$id][$current]["scheduleclosed"] = 0;
+            //if computer not in $reservedComputerids, it is free
+            if(! in_array($id, $reservedComputerids)) {
+                $reserveInfo[$id][$current]["available"] = 1;
+                continue;
+            }
+            //if past an end
+            if($count != $max && $current >= $times[$id][$count]["end"]) {
+                $count++;
+            }
+            # past the end of all reservations
+            if($count == $max) {
+                $reserveInfo[$id][$current]["available"] = 1;
+                continue;
+            }
+            //if before any start times
+            if($count == 0 && $current < $times[$id][0]["start"]) {
+                $reserveInfo[$id][$current]["available"] = 1;
+                continue;
+            }
+            //if between a start and end time
+            if($current >= $times[$id][$count]["start"] &&
+                $current <  $times[$id][$count]["end"]) {
+                if($first) {
+                    # set the previous 15 minute block to show as busy to allow for load time
+                    $first = 0;
+                    $reserveInfo[$id][$current - 900]['blockAllocation'] = 0;
+                    $reserveInfo[$id][$current - 900]["scheduleclosed"] = 0;
+                    $reserveInfo[$id][$current - 900]["available"] = 0;
+                    $reserveInfo[$id][$current - 900]["requestid"] = $times[$id][$count]["requestid"];
+                    $reserveInfo[$id][$current - 900]["unityid"] = $times[$id][$count]["unityid"];
+                    $reserveInfo[$id][$current - 900]["prettyimage"] = $times[$id][$count]["prettyimage"];
+                }
+                $reserveInfo[$id][$current]["available"] = 0;
+                $reserveInfo[$id][$current]["requestid"] = $times[$id][$count]["requestid"];
+                $reserveInfo[$id][$current]["unityid"] = $times[$id][$count]["unityid"];
+                $reserveInfo[$id][$current]["prettyimage"] = $times[$id][$count]["prettyimage"];
+                continue;
+            }
+            //if after previous end but before this start
+            if($current >= $times[$id][$count - 1]["end"] &&
+                $current <  $times[$id][$count]["start"]) {
+                $reserveInfo[$id][$current]["available"] = 1;
+                continue;
+            }
+            # shouldn't get here; print debug info if we do
+            if(checkUserHasPerm('View Debug Information')) {
+                print "******************************************************<br>\n";
+                print "current - " . unixToDatetime($current) . "<br>\n";
+                print "endtime - " . unixToDatetime($endtime) . "<br>\n";
+                print "count - $count<br>\n";
+                print "max - $max<br>\n";
+                print "start - " . unixToDatetime($times[$id][$count]["start"]) . "<br>\n";
+                print "end - " . unixToDatetime($times[$id][$count]["end"]) . "<br>\n";
+                print "------------------------------------------------------<br>\n";
+            }
+        }
+    }
+    return $reserveInfo;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -6553,29 +6567,29 @@ function getTimeSlots($compids, $end=0, $start=0) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function unixFloor15($timestamp=0) {
-	if($timestamp == 0) {
-		$timestamp = time();
-	}
-	$timeval = getdate($timestamp);
-	if($timeval["minutes"] < 15) {
-		$timeval["minutes"] = 0;
-	}
-	elseif($timeval["minutes"] < 30) {
-		$timeval["minutes"] = 15;
-	}
-	elseif($timeval["minutes"] < 45) {
-		$timeval["minutes"] = 30;
-	}
-	elseif($timeval["minutes"] < 60) {
-		$timeval["minutes"] = 45;
-	}
-	return mktime($timeval["hours"],
-	              $timeval["minutes"],
-	              0,
-	              $timeval["mon"],
-	              $timeval["mday"],
-	              $timeval["year"],
-	              -1);
+    if($timestamp == 0) {
+        $timestamp = time();
+    }
+    $timeval = getdate($timestamp);
+    if($timeval["minutes"] < 15) {
+        $timeval["minutes"] = 0;
+    }
+    elseif($timeval["minutes"] < 30) {
+        $timeval["minutes"] = 15;
+    }
+    elseif($timeval["minutes"] < 45) {
+        $timeval["minutes"] = 30;
+    }
+    elseif($timeval["minutes"] < 60) {
+        $timeval["minutes"] = 45;
+    }
+    return mktime($timeval["hours"],
+        $timeval["minutes"],
+        0,
+        $timeval["mon"],
+        $timeval["mday"],
+        $timeval["year"],
+        -1);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -6586,28 +6600,28 @@ function unixFloor15($timestamp=0) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function pickTimeTable() {
-	$data = getUserComputerMetaData();
-	print "<H2 align=center>Time Table</H2>\n";
-	print "Select the criteria for the computers you want to have in the timetable:\n";
-	print "<FORM action=\"" . BASEURL . SCRIPT . "\" method=post>\n";
-	print "<table summary=\"\">\n";
-	print "  <TR>\n";
-	print "    <TH>Platforms:</TH>\n";
-	print "    <TH>Schedules:</TH>\n";
-	print "  </TR>\n";
-	print "  <TR valign=top>\n";
-	print "    <TD>\n";
-	printSelectInput("platforms[]", $data["platforms"], -1, 0, 1);
-	print "    </TD>\n";
-	print "    <TD>\n";
-	printSelectInput("schedules[]", $data["schedules"], -1, 0, 1);
-	print "    </TD>\n";
-	print "  </TR>\n";
-	print "</table>\n";
-	$cont = addContinuationsEntry('showTimeTable');
-	print "<INPUT type=hidden name=continuation value=\"$cont\">\n";
-	print "<INPUT type=submit value=Submit>\n";
-	print "</FORM>\n";
+    $data = getUserComputerMetaData();
+    print "<H2 align=center>Time Table</H2>\n";
+    print "Select the criteria for the computers you want to have in the timetable:\n";
+    print "<FORM action=\"" . BASEURL . SCRIPT . "\" method=post>\n";
+    print "<table summary=\"\">\n";
+    print "  <TR>\n";
+    print "    <TH>Platforms:</TH>\n";
+    print "    <TH>Schedules:</TH>\n";
+    print "  </TR>\n";
+    print "  <TR valign=top>\n";
+    print "    <TD>\n";
+    printSelectInput("platforms[]", $data["platforms"], -1, 0, 1);
+    print "    </TD>\n";
+    print "    <TD>\n";
+    printSelectInput("schedules[]", $data["schedules"], -1, 0, 1);
+    print "    </TD>\n";
+    print "  </TR>\n";
+    print "</table>\n";
+    $cont = addContinuationsEntry('showTimeTable');
+    print "<INPUT type=hidden name=continuation value=\"$cont\">\n";
+    print "<INPUT type=submit value=Submit>\n";
+    print "</FORM>\n";
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -6620,310 +6634,310 @@ function pickTimeTable() {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function showTimeTable($links) {
-	global $mode, $user;
-	$imaging = getContinuationVar('imaging', 0);
-	if($links == 1) {
-		$imageid = getContinuationVar('imageid');
-		$length = getContinuationVar('length');
-		$requestid = getContinuationVar('requestid', 0);
-		$showmessage = getContinuationVar('showmessage', 0);
-		$platforms = array();
-		$schedules = array();
-	}
-	else {
-		$imageid = 0;
-		$length = 0;
-		$requestid = 0;
-		$showmessage = 0;
-		$platforms = getContinuationVar("platforms");
-		if(empty($platforms))
-			$platforms = processInputVar("platforms", ARG_MULTINUMERIC);
-		$schedules = getContinuationVar("schedules");
-		if(empty($schedules))
-			$schedules = processInputVar("schedules", ARG_MULTINUMERIC);
-	}
-	$argstart = getContinuationVar("start");
-	$argend = getContinuationVar("end");
+    global $mode, $user;
+    $imaging = getContinuationVar('imaging', 0);
+    if($links == 1) {
+        $imageid = getContinuationVar('imageid');
+        $length = getContinuationVar('length');
+        $requestid = getContinuationVar('requestid', 0);
+        $showmessage = getContinuationVar('showmessage', 0);
+        $platforms = array();
+        $schedules = array();
+    }
+    else {
+        $imageid = 0;
+        $length = 0;
+        $requestid = 0;
+        $showmessage = 0;
+        $platforms = getContinuationVar("platforms");
+        if(empty($platforms))
+            $platforms = processInputVar("platforms", ARG_MULTINUMERIC);
+        $schedules = getContinuationVar("schedules");
+        if(empty($schedules))
+            $schedules = processInputVar("schedules", ARG_MULTINUMERIC);
+    }
+    $argstart = getContinuationVar("start");
+    $argend = getContinuationVar("end");
 
-	$resources = getUserResources(array("computerAdmin"));
-	$userCompIDs = array_keys($resources["computer"]);
+    $resources = getUserResources(array("computerAdmin"));
+    $userCompIDs = array_keys($resources["computer"]);
 
-	$computerData = getComputers();
-	$imageData = getImages();
-	$now = time();
-	if($links) {
-		$resources = getUserResources(array("imageAdmin", "imageCheckOut"));
-		$usercomputerids = array_keys($resources["computer"]);
-		# get list of computers' platformids
-		$qh = doQuery("SELECT platformid FROM image WHERE id = $imageid", 110);
-		$row = mysql_fetch_row($qh);
-		$platformid = $row[0];
-		$computer_platformids = array();
-		$qh = doQuery("SELECT id, platformid FROM computer", 111);
-		while($row = mysql_fetch_row($qh)) {
-			$computer_platformids[$row[0]] = $row[1];
-		}
-		$mappedcomputers = getMappedResources($imageid, "image", "computer");
-		$compidlist = array_intersect($mappedcomputers, $usercomputerids);
-	}
-	else
-		$compidlist = $userCompIDs;
-	if(! empty($argstart) && ! empty($argend)) {
-		$timeslots = getTimeSlots($compidlist, $argend, $argstart);
-		$start = $argstart;
-		$end = $argend;
-	}
-	else {
-		$start = $now;
-		$end = $start + (SECINDAY / 2);
-		$timeslots = getTimeSlots($compidlist, $end);
-	}
+    $computerData = getComputers();
+    $imageData = getImages();
+    $now = time();
+    if($links) {
+        $resources = getUserResources(array("imageAdmin", "imageCheckOut"));
+        $usercomputerids = array_keys($resources["computer"]);
+        # get list of computers' platformids
+        $qh = doQuery("SELECT platformid FROM image WHERE id = $imageid", 110);
+        $row = mysql_fetch_row($qh);
+        $platformid = $row[0];
+        $computer_platformids = array();
+        $qh = doQuery("SELECT id, platformid FROM computer", 111);
+        while($row = mysql_fetch_row($qh)) {
+            $computer_platformids[$row[0]] = $row[1];
+        }
+        $mappedcomputers = getMappedResources($imageid, "image", "computer");
+        $compidlist = array_intersect($mappedcomputers, $usercomputerids);
+    }
+    else
+        $compidlist = $userCompIDs;
+    if(! empty($argstart) && ! empty($argend)) {
+        $timeslots = getTimeSlots($compidlist, $argend, $argstart);
+        $start = $argstart;
+        $end = $argend;
+    }
+    else {
+        $start = $now;
+        $end = $start + (SECINDAY / 2);
+        $timeslots = getTimeSlots($compidlist, $end);
+    }
 
-	print "<DIV align=center>\n";
-	print _("<H2>Time Table</H2>\n");
-	print "</DIV>\n";
-	$computeridrow = "";
-	$displayedids = array();
-	$computers = array_keys($timeslots);
-	if($links) {
-		$computers = array_intersect($computers, $usercomputerids);
-	}
-	foreach($computers as $id) {
-		if($links) {
-			# don't show computers that don't meet hardware criteria, are not
-			# in the available state, are the wrong platform, or wrong group,
-			# or aren't mapped in resourcemap
-			if($computer_platformids[$id] != $platformid ||
-			   ($computerData[$id]["stateid"] != 2 &&
-				$computerData[$id]["stateid"] != 3 &&
-				$computerData[$id]["stateid"] != 6 &&
-				$computerData[$id]["stateid"] != 8) ||
-			   $computerData[$id]["ram"] < $imageData[$imageid]["minram"] ||
-			   $computerData[$id]["procnumber"] < $imageData[$imageid]["minprocnumber"] ||
-			   $computerData[$id]["procspeed"] < $imageData[$imageid]["minprocspeed"] ||
-			   $computerData[$id]["network"] < $imageData[$imageid]["minnetwork"] ||
-			   ! in_array($id, $mappedcomputers)) {
-				continue;
-			}
-		}
-		elseif(! array_key_exists($id, $computerData) ||
-		       ! in_array($computerData[$id]["platformid"], $platforms) ||
-		       ! in_array($computerData[$id]["scheduleid"], $schedules) ||
-		       ! in_array($id, $userCompIDs)) {
-			continue;
-		}
-		$computeridrow .= "          <TH>$id</TH>\n";
-		array_push($displayedids, $id);
-	}
-	if(empty($displayedids)) {
-		if($links) {
-			print _("There are currently no computers available that can run the application you selected.\n");
-		}
-		else {
-			print _("There are no computers that meet the specified criteria\n");
-		}
-		return;
-	}
-	if($showmessage) {
-		print _("The time you have requested to use the environment is not ");
-		print _("available. You may select from the green blocks of time to ");
-		print _("select an available time slot to make a reservation.<br>\n");
-	}
-	print "<table summary=\"\">\n";
-	print "  <TR>\n";
-	print "    <TD>";
-	# print Previous/Next links
-	if(! empty($argstart) && ($argstart - (SECINDAY / 2) > $now - 600)) {
-		$prevstart = $start - (SECINDAY / 2);
-		$prevend = $end - (SECINDAY / 2);
-		print "<FORM action=\"" . BASEURL . SCRIPT . "\" method=post>\n";
-		$cdata = array('start' => $prevstart,
-		               'end' => $prevend,
-		               'imageid' => $imageid,
-		               'requestid' => $requestid,
-		               'length' => $length,
-		               'platforms' => $platforms,
-		               'schedules' => $schedules,
-		               'imaging' => $imaging);
-		$cont = addContinuationsEntry($mode, $cdata, SECINDAY);
-		print "<INPUT type=hidden name=continuation value=\"$cont\">\n";
-		print _("<INPUT type=submit value=Previous>\n");
-		print "</FORM>\n";
-	}
-	print "</TD>\n";
-	print "    <TD>";
-	if($end + (SECINDAY / 2) < $now + DAYSAHEAD * SECINDAY) {
-		$nextstart = $start + (SECINDAY / 2);
-		$nextend = $end + (SECINDAY / 2);
-		print "<FORM action=\"" . BASEURL . SCRIPT . "\" method=post>\n";
-		$cdata = array('start' => $nextstart,
-		               'end' => $nextend,
-		               'imageid' => $imageid,
-		               'requestid' => $requestid,
-		               'length' => $length,
-		               'platforms' => $platforms,
-		               'schedules' => $schedules,
-		               'imaging' => $imaging);
-		$cont = addContinuationsEntry($mode, $cdata, SECINDAY);
-		print "<INPUT type=hidden name=continuation value=\"$cont\">\n";
-		print _("<INPUT type=submit value=Next>\n");
-		print "</FORM>\n";
-	}
-	print "</TD>\n";
-	print "  </TR>\n";
-	print "  <TR>\n";
-	print "    <TD>\n";
+    print "<DIV align=center>\n";
+    print _("<H2>Time Table</H2>\n");
+    print "</DIV>\n";
+    $computeridrow = "";
+    $displayedids = array();
+    $computers = array_keys($timeslots);
+    if($links) {
+        $computers = array_intersect($computers, $usercomputerids);
+    }
+    foreach($computers as $id) {
+        if($links) {
+            # don't show computers that don't meet hardware criteria, are not
+            # in the available state, are the wrong platform, or wrong group,
+            # or aren't mapped in resourcemap
+            if($computer_platformids[$id] != $platformid ||
+                ($computerData[$id]["stateid"] != 2 &&
+                    $computerData[$id]["stateid"] != 3 &&
+                    $computerData[$id]["stateid"] != 6 &&
+                    $computerData[$id]["stateid"] != 8) ||
+                $computerData[$id]["ram"] < $imageData[$imageid]["minram"] ||
+                $computerData[$id]["procnumber"] < $imageData[$imageid]["minprocnumber"] ||
+                $computerData[$id]["procspeed"] < $imageData[$imageid]["minprocspeed"] ||
+                $computerData[$id]["network"] < $imageData[$imageid]["minnetwork"] ||
+                ! in_array($id, $mappedcomputers)) {
+                continue;
+            }
+        }
+        elseif(! array_key_exists($id, $computerData) ||
+            ! in_array($computerData[$id]["platformid"], $platforms) ||
+            ! in_array($computerData[$id]["scheduleid"], $schedules) ||
+            ! in_array($id, $userCompIDs)) {
+            continue;
+        }
+        $computeridrow .= "          <TH>$id</TH>\n";
+        array_push($displayedids, $id);
+    }
+    if(empty($displayedids)) {
+        if($links) {
+            print _("There are currently no computers available that can run the application you selected.\n");
+        }
+        else {
+            print _("There are no computers that meet the specified criteria\n");
+        }
+        return;
+    }
+    if($showmessage) {
+        print _("The time you have requested to use the environment is not ");
+        print _("available. You may select from the green blocks of time to ");
+        print _("select an available time slot to make a reservation.<br>\n");
+    }
+    print "<table summary=\"\">\n";
+    print "  <TR>\n";
+    print "    <TD>";
+    # print Previous/Next links
+    if(! empty($argstart) && ($argstart - (SECINDAY / 2) > $now - 600)) {
+        $prevstart = $start - (SECINDAY / 2);
+        $prevend = $end - (SECINDAY / 2);
+        print "<FORM action=\"" . BASEURL . SCRIPT . "\" method=post>\n";
+        $cdata = array('start' => $prevstart,
+            'end' => $prevend,
+            'imageid' => $imageid,
+            'requestid' => $requestid,
+            'length' => $length,
+            'platforms' => $platforms,
+            'schedules' => $schedules,
+            'imaging' => $imaging);
+        $cont = addContinuationsEntry($mode, $cdata, SECINDAY);
+        print "<INPUT type=hidden name=continuation value=\"$cont\">\n";
+        print _("<INPUT type=submit value=Previous>\n");
+        print "</FORM>\n";
+    }
+    print "</TD>\n";
+    print "    <TD>";
+    if($end + (SECINDAY / 2) < $now + DAYSAHEAD * SECINDAY) {
+        $nextstart = $start + (SECINDAY / 2);
+        $nextend = $end + (SECINDAY / 2);
+        print "<FORM action=\"" . BASEURL . SCRIPT . "\" method=post>\n";
+        $cdata = array('start' => $nextstart,
+            'end' => $nextend,
+            'imageid' => $imageid,
+            'requestid' => $requestid,
+            'length' => $length,
+            'platforms' => $platforms,
+            'schedules' => $schedules,
+            'imaging' => $imaging);
+        $cont = addContinuationsEntry($mode, $cdata, SECINDAY);
+        print "<INPUT type=hidden name=continuation value=\"$cont\">\n";
+        print _("<INPUT type=submit value=Next>\n");
+        print "</FORM>\n";
+    }
+    print "</TD>\n";
+    print "  </TR>\n";
+    print "  <TR>\n";
+    print "    <TD>\n";
 
-	$tmpArr = array_keys($computers);
-	$first = $computers[$tmpArr[0]];
-	print "      <table id=ttlayout summary=\"\">\n";
-	if(! $links || checkUserHasPerm('View Debug Information')) {
-		print "        <TR>\n";
-		print "          <TH align=right>Computer&nbsp;ID:</TH>\n";
-		print $computeridrow;
-		print "        </TR>\n";
-	}
-	$yesterday = "";
-	foreach(array_keys($timeslots[$first]) as $stamp) {
-		if($stamp < $now)
-			continue;
-		print "        <TR>\n";
-		$stampArr = getdate($stamp);
-		$label = "";
-		if($stampArr["mday"] != $yesterday) {
-			$label = date('n/d/Y+g:i+a', $stamp);
-			$label = str_replace('+', '&nbsp;', $label);
-			$yesterday = $stampArr["mday"];
-		}
-		elseif($stampArr["minutes"] == 0) {
-			$label = date('g:i a', $stamp);
-		}
-		print "          <TH align=right>$label</TH>\n";
-		$free = 0;
-		# print the cells
-		foreach($computers as $id) {
-			if(! in_array($id, $displayedids)) {
-				continue;
-			}
-			if($links && ($computer_platformids[$id] != $platformid ||
-				$computerData[$id]["stateid"] == 10 ||
-			   $computerData[$id]["stateid"] == 5)) {
-				continue;
-			}
-			# maintenance window
-			if($timeslots[$id][$stamp]["inmaintenance"] == 1) {
-				print "          <TD bgcolor=\"#a0a0a0\"><img src=images/gray.jpg ";
-				print "alt=sitemaintenance border=0></TD>\n";
-			}
-			# computer's schedule is currently closed
-			elseif($timeslots[$id][$stamp]["scheduleclosed"] == 1) {
-				print "          <TD bgcolor=\"#a0a0a0\"><img src=images/gray.jpg ";
-				print "alt=scheduleclosed border=0></TD>\n";
-			}
-			# computer is in maintenance state
-			elseif($computerData[$id]["stateid"] == 10) {
-				print "          <TD bgcolor=\"#a0a0a0\"><img src=images/gray.jpg ";
-				print "alt=maintenance border=0></TD>\n";
-			}
-			# computer is reserved for a block allocation that doesn't match this
-			elseif($timeslots[$id][$stamp]['blockAllocation'] &&
-			   ($timeslots[$id][$stamp]['blockInfo']['imageid'] != $imageid ||  # this line threw an error at one point, but we couldn't recreate it later
-			   (! in_array($timeslots[$id][$stamp]['blockInfo']['groupid'], array_keys($user['groups'])))) &&
-				$timeslots[$id][$stamp]['available']) {
-				if($links) {
-					print "          <TD bgcolor=\"#ff0000\"><img src=images/red.jpg ";
-					print "alt=blockallocation border=0></TD>\n";
-				}
-				else {
-					print "          <TD bgcolor=\"#e58304\"><img src=images/orange.jpg ";
-					$title = "Block Allocation: {$timeslots[$id][$stamp]['blockInfo']['name']}\n"
-					       . "Image: {$timeslots[$id][$stamp]['blockInfo']['image']}";
-					print "alt=blockallocation border=0 title=\"$title\"></TD>\n";
-				}
-			}
-			# computer is free
-			elseif($timeslots[$id][$stamp]["available"]) {
-				if($links) {
-					print "          <TD bgcolor=\"#00ff00\"><a href=\"" . BASEURL . SCRIPT;
-					print "?mode=newRequest&stamp=$stamp&imageid=$imageid&length=$length&imaging=$imaging\"><img ";
-					print "src=images/green.jpg alt=free border=0></a></TD>\n";
-				}
-				else {
-					print "          <TD bgcolor=\"#00ff00\"><img src=images/green.jpg alt=free border=0></TD>\n";
-				}
-			}
-			# computer is used
-			else {
-				if($links) {
-					print "          <TD bgcolor=\"#ff0000\"><font color=\"#ff0000\">used</font></TD>\n";
-				}
-				else {
-					$title = _("User: ") . $timeslots[$id][$stamp]["unityid"]
-					       . _(" Image: ") . $timeslots[$id][$stamp]["prettyimage"];
-					$ttdata = array('start' => $argstart,
-					                'end' => $argend,
-					                'imageid' => $imageid,
-					                'requestid' => $timeslots[$id][$stamp]["requestid"],
-					                'length' => $length,
-					                'platforms' => $platforms,
-					                'schedules' => $schedules,
-					                'imaging' => $imaging);
-					$cdata = array('requestid' => $timeslots[$id][$stamp]["requestid"],
-					               'ttdata' => $ttdata);
-					$cont = addContinuationsEntry('viewRequestInfo', $cdata);
-					print "          <TD bgcolor=\"#ff0000\"><a href=\"" . BASEURL;
-					print SCRIPT . "?continuation=$cont\"><img src=images/red.jpg ";
-					print "alt=used border=0 title=\"$title\"></a></TD>\n";
-				}
-			}
-		}
-		print "        </TR>\n";
-	}
-	print "      </table>\n";
-	print "    </TD>\n";
-	print "  </TR>\n";
-	print "  <TR>\n";
-	print "    <TD>";
-	# print Previous/Next links
-	if(! empty($argstart) && ($argstart - (SECINDAY / 2) > $now - 600)) {
-		$prevstart = $start - (SECINDAY / 2);
-		$prevend = $end - (SECINDAY / 2);
-		print "<FORM action=\"" . BASEURL . SCRIPT . "\" method=post>\n";
-		$cdata = array('start' => $prevstart,
-		               'end' => $prevend,
-		               'imageid' => $imageid,
-		               'requestid' => $requestid,
-		               'length' => $length,
-		               'platforms' => $platforms,
-		               'schedules' => $schedules,
-		               'imaging' => $imaging);
-		$cont = addContinuationsEntry($mode, $cdata, SECINDAY);
-		print "<INPUT type=hidden name=continuation value=\"$cont\">\n";
-		print _("<INPUT type=submit value=Previous>\n");
-		print "</FORM>\n";
-	}
-	print "</TD>\n";
-	print "    <TD>";
-	if($end + (SECINDAY / 2) < $now + DAYSAHEAD * SECINDAY) {
-		$nextstart = $start + (SECINDAY / 2);
-		$nextend = $end + (SECINDAY / 2);
-		print "<FORM action=\"" . BASEURL . SCRIPT . "\" method=post>\n";
-		$cdata = array('start' => $nextstart,
-		               'end' => $nextend,
-		               'imageid' => $imageid,
-		               'requestid' => $requestid,
-		               'length' => $length,
-		               'platforms' => $platforms,
-		               'schedules' => $schedules,
-		               'imaging' => $imaging);
-		$cont = addContinuationsEntry($mode, $cdata, SECINDAY);
-		print "<INPUT type=hidden name=continuation value=\"$cont\">\n";
-		print _("<INPUT type=submit value=Next>\n");
-		print "</FORM>\n";
-	}
-	print "</TD>\n";
-	print "  </TR>\n";
-	print "</table>\n";
+    $tmpArr = array_keys($computers);
+    $first = $computers[$tmpArr[0]];
+    print "      <table id=ttlayout summary=\"\">\n";
+    if(! $links || checkUserHasPerm('View Debug Information')) {
+        print "        <TR>\n";
+        print "          <TH align=right>Computer&nbsp;ID:</TH>\n";
+        print $computeridrow;
+        print "        </TR>\n";
+    }
+    $yesterday = "";
+    foreach(array_keys($timeslots[$first]) as $stamp) {
+        if($stamp < $now)
+            continue;
+        print "        <TR>\n";
+        $stampArr = getdate($stamp);
+        $label = "";
+        if($stampArr["mday"] != $yesterday) {
+            $label = date('n/d/Y+g:i+a', $stamp);
+            $label = str_replace('+', '&nbsp;', $label);
+            $yesterday = $stampArr["mday"];
+        }
+        elseif($stampArr["minutes"] == 0) {
+            $label = date('g:i a', $stamp);
+        }
+        print "          <TH align=right>$label</TH>\n";
+        $free = 0;
+        # print the cells
+        foreach($computers as $id) {
+            if(! in_array($id, $displayedids)) {
+                continue;
+            }
+            if($links && ($computer_platformids[$id] != $platformid ||
+                $computerData[$id]["stateid"] == 10 ||
+                $computerData[$id]["stateid"] == 5)) {
+                continue;
+            }
+            # maintenance window
+            if($timeslots[$id][$stamp]["inmaintenance"] == 1) {
+                print "          <TD bgcolor=\"#a0a0a0\"><img src=images/gray.jpg ";
+                print "alt=sitemaintenance border=0></TD>\n";
+            }
+            # computer's schedule is currently closed
+            elseif($timeslots[$id][$stamp]["scheduleclosed"] == 1) {
+                print "          <TD bgcolor=\"#a0a0a0\"><img src=images/gray.jpg ";
+                print "alt=scheduleclosed border=0></TD>\n";
+            }
+            # computer is in maintenance state
+            elseif($computerData[$id]["stateid"] == 10) {
+                print "          <TD bgcolor=\"#a0a0a0\"><img src=images/gray.jpg ";
+                print "alt=maintenance border=0></TD>\n";
+            }
+            # computer is reserved for a block allocation that doesn't match this
+            elseif($timeslots[$id][$stamp]['blockAllocation'] &&
+                ($timeslots[$id][$stamp]['blockInfo']['imageid'] != $imageid ||  # this line threw an error at one point, but we couldn't recreate it later
+                    (! in_array($timeslots[$id][$stamp]['blockInfo']['groupid'], array_keys($user['groups'])))) &&
+                $timeslots[$id][$stamp]['available']) {
+                if($links) {
+                    print "          <TD bgcolor=\"#ff0000\"><img src=images/red.jpg ";
+                    print "alt=blockallocation border=0></TD>\n";
+                }
+                else {
+                    print "          <TD bgcolor=\"#e58304\"><img src=images/orange.jpg ";
+                    $title = "Block Allocation: {$timeslots[$id][$stamp]['blockInfo']['name']}\n"
+                        . "Image: {$timeslots[$id][$stamp]['blockInfo']['image']}";
+                    print "alt=blockallocation border=0 title=\"$title\"></TD>\n";
+                }
+            }
+            # computer is free
+            elseif($timeslots[$id][$stamp]["available"]) {
+                if($links) {
+                    print "          <TD bgcolor=\"#00ff00\"><a href=\"" . BASEURL . SCRIPT;
+                    print "?mode=newRequest&stamp=$stamp&imageid=$imageid&length=$length&imaging=$imaging\"><img ";
+                    print "src=images/green.jpg alt=free border=0></a></TD>\n";
+                }
+                else {
+                    print "          <TD bgcolor=\"#00ff00\"><img src=images/green.jpg alt=free border=0></TD>\n";
+                }
+            }
+            # computer is used
+            else {
+                if($links) {
+                    print "          <TD bgcolor=\"#ff0000\"><font color=\"#ff0000\">used</font></TD>\n";
+                }
+                else {
+                    $title = _("User: ") . $timeslots[$id][$stamp]["unityid"]
+                        . _(" Image: ") . $timeslots[$id][$stamp]["prettyimage"];
+                    $ttdata = array('start' => $argstart,
+                        'end' => $argend,
+                        'imageid' => $imageid,
+                        'requestid' => $timeslots[$id][$stamp]["requestid"],
+                        'length' => $length,
+                        'platforms' => $platforms,
+                        'schedules' => $schedules,
+                        'imaging' => $imaging);
+                    $cdata = array('requestid' => $timeslots[$id][$stamp]["requestid"],
+                        'ttdata' => $ttdata);
+                    $cont = addContinuationsEntry('viewRequestInfo', $cdata);
+                    print "          <TD bgcolor=\"#ff0000\"><a href=\"" . BASEURL;
+                    print SCRIPT . "?continuation=$cont\"><img src=images/red.jpg ";
+                    print "alt=used border=0 title=\"$title\"></a></TD>\n";
+                }
+            }
+        }
+        print "        </TR>\n";
+    }
+    print "      </table>\n";
+    print "    </TD>\n";
+    print "  </TR>\n";
+    print "  <TR>\n";
+    print "    <TD>";
+    # print Previous/Next links
+    if(! empty($argstart) && ($argstart - (SECINDAY / 2) > $now - 600)) {
+        $prevstart = $start - (SECINDAY / 2);
+        $prevend = $end - (SECINDAY / 2);
+        print "<FORM action=\"" . BASEURL . SCRIPT . "\" method=post>\n";
+        $cdata = array('start' => $prevstart,
+            'end' => $prevend,
+            'imageid' => $imageid,
+            'requestid' => $requestid,
+            'length' => $length,
+            'platforms' => $platforms,
+            'schedules' => $schedules,
+            'imaging' => $imaging);
+        $cont = addContinuationsEntry($mode, $cdata, SECINDAY);
+        print "<INPUT type=hidden name=continuation value=\"$cont\">\n";
+        print _("<INPUT type=submit value=Previous>\n");
+        print "</FORM>\n";
+    }
+    print "</TD>\n";
+    print "    <TD>";
+    if($end + (SECINDAY / 2) < $now + DAYSAHEAD * SECINDAY) {
+        $nextstart = $start + (SECINDAY / 2);
+        $nextend = $end + (SECINDAY / 2);
+        print "<FORM action=\"" . BASEURL . SCRIPT . "\" method=post>\n";
+        $cdata = array('start' => $nextstart,
+            'end' => $nextend,
+            'imageid' => $imageid,
+            'requestid' => $requestid,
+            'length' => $length,
+            'platforms' => $platforms,
+            'schedules' => $schedules,
+            'imaging' => $imaging);
+        $cont = addContinuationsEntry($mode, $cdata, SECINDAY);
+        print "<INPUT type=hidden name=continuation value=\"$cont\">\n";
+        print _("<INPUT type=submit value=Next>\n");
+        print "</FORM>\n";
+    }
+    print "</TD>\n";
+    print "  </TR>\n";
+    print "</table>\n";
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -6946,7 +6960,7 @@ function showTimeTable($links) {
 /// \param $ip - (optional, default='') desired IP address
 /// \param $mac - (optional, default='') desired MAC address
 ///
-/// \return an array where each key is a unix timestamp for the start time of 
+/// \return an array where each key is a unix timestamp for the start time of
 /// the available slot and each element is an array with these items:\n
 /// \b start - start of slot in datetime format\n
 /// \b startts - start of slot in unix timestamp format\n
@@ -6959,356 +6973,356 @@ function showTimeTable($links) {
 ////////////////////////////////////////////////////////////////////////////////
 function findAvailableTimes($start, $end, $imageid, $userid, $usedaysahead,
                             $reqid='', $extendonly=0, $ip='', $mac='') {
-	global $user;
-	if($userid == $user['id'])
-		$ingroups = implode(',', array_keys($user['groups']));
-	else {
-		$userdata = getUserInfo($userid, 0, 1);
-		$ingroups = implode(',', array_keys($userdata['groups']));
-	}
-	# TODO make this work for cluster images
-	if(! $extendonly) {
-		$mappedcomputers = getMappedResources($imageid, 'image', 'computer');
-		$resources = getUserResources(array('imageAdmin', 'imageCheckOut'),
-		                              array('available'), 0, 0, $userid);
-		$compids = array_intersect($mappedcomputers, array_keys($resources['computer']));
-		if(! count($compids)) {
-			return array();
-		}
-		$incompids = implode(',', $compids);
-	}
-	else {
-		$request = getRequestInfo($reqid);
-		$incompids = $request['reservations'][0]['computerid'];
-	}
-	$scheduleids = getAvailableSchedules($start, $end);
-	if(empty($scheduleids))
-		return array();
-	$schedules = implode(',', $scheduleids);
-	$platformid = getImagePlatform($imageid);
-	if(is_null($platformid))
-		return array();
-	$reqduration = $end - $start;
-	$startdt = unixToDatetime($start);
-	$end += 900;
-	$enddt = unixToDatetime($end);
-	$ignorestates = "'maintenance','vmhostinuse','hpc','failed'";
-	$nowignorestates = "$ignorestates,'timeout'";
-	if(! $extendonly)
-		$nowignorestates .= ",'reloading','reload','inuse'";
-	$slots = array();
-	$removes = array();
-	$minstart = $start;
-	$maxend = $start;
-	$newcompids = array();
-	$daysahead = time() + (DAYSAHEAD * SECINDAY);
+    global $user;
+    if($userid == $user['id'])
+        $ingroups = implode(',', array_keys($user['groups']));
+    else {
+        $userdata = getUserInfo($userid, 0, 1);
+        $ingroups = implode(',', array_keys($userdata['groups']));
+    }
+    # TODO make this work for cluster images
+    if(! $extendonly) {
+        $mappedcomputers = getMappedResources($imageid, 'image', 'computer');
+        $resources = getUserResources(array('imageAdmin', 'imageCheckOut'),
+            array('available'), 0, 0, $userid);
+        $compids = array_intersect($mappedcomputers, array_keys($resources['computer']));
+        if(! count($compids)) {
+            return array();
+        }
+        $incompids = implode(',', $compids);
+    }
+    else {
+        $request = getRequestInfo($reqid);
+        $incompids = $request['reservations'][0]['computerid'];
+    }
+    $scheduleids = getAvailableSchedules($start, $end);
+    if(empty($scheduleids))
+        return array();
+    $schedules = implode(',', $scheduleids);
+    $platformid = getImagePlatform($imageid);
+    if(is_null($platformid))
+        return array();
+    $reqduration = $end - $start;
+    $startdt = unixToDatetime($start);
+    $end += 900;
+    $enddt = unixToDatetime($end);
+    $ignorestates = "'maintenance','vmhostinuse','hpc','failed'";
+    $nowignorestates = "$ignorestates,'timeout'";
+    if(! $extendonly)
+        $nowignorestates .= ",'reloading','reload','inuse'";
+    $slots = array();
+    $removes = array();
+    $minstart = $start;
+    $maxend = $start;
+    $newcompids = array();
+    $daysahead = time() + (DAYSAHEAD * SECINDAY);
 
-	# add computers that are available now with no future reservations
-	# restricting duration; we do this so that they'll be in our arrays to check
-	# for concurrent image use, block allocations, ip/mac overlap, and
-	# maintenance window overlap
-	$query = "SELECT c.id AS compid "
-	       . "FROM computer c, "
-	       .      "image i, "
-	       .      "state s "
-	       . "WHERE c.stateid = s.id AND "
-	       .       "i.id = $imageid AND "
-	       .       "s.name NOT IN ($nowignorestates) AND "
-	       .       "c.platformid = $platformid AND "
-	       .       "c.scheduleid IN ($schedules) AND "
-	       .       "c.RAM >= i.minram AND "
-	       .       "c.procnumber >= i.minprocnumber AND "
-	       .       "c.procspeed >= i.minprocspeed AND "
-	       .       "c.network >= i.minnetwork AND "
-	       .       "c.id NOT IN (SELECT rs.computerid "
-	       .                    "FROM reservation rs, "
-	       .                         "request rq "
-	       .                    "WHERE rs.requestid = rq.id AND ";
-	if($reqid != '')
-		$query .=                      "rq.id != $reqid AND ";
-	$query .=                         "DATE_ADD(rq.end, INTERVAL 15 MINUTE) >= '$startdt' AND "
-	       .                          "rs.computerid IN ($incompids)) AND "
-	       .       "c.id IN ($incompids) "
-	       . "ORDER BY (c.procspeed * c.procnumber) DESC, "
-	       .          "RAM DESC, "
-	       .          "network DESC";
-	$qh = doQuery($query, 101);
-	while($row = mysql_fetch_assoc($qh)) {
-		$row['duration'] = $reqduration;
-		$row['startts'] = $start;
-		$row['start'] = $startdt;
-		$row['endts'] = $start + $reqduration;
-		$slots[$row['compid']] = array();
-		$slots[$row['compid']][] = $row;
-		$newcompids[] = $row['compid'];
-	}
+    # add computers that are available now with no future reservations
+    # restricting duration; we do this so that they'll be in our arrays to check
+    # for concurrent image use, block allocations, ip/mac overlap, and
+    # maintenance window overlap
+    $query = "SELECT c.id AS compid "
+        . "FROM computer c, "
+        .      "image i, "
+        .      "state s "
+        . "WHERE c.stateid = s.id AND "
+        .       "i.id = $imageid AND "
+        .       "s.name NOT IN ($nowignorestates) AND "
+        .       "c.platformid = $platformid AND "
+        .       "c.scheduleid IN ($schedules) AND "
+        .       "c.RAM >= i.minram AND "
+        .       "c.procnumber >= i.minprocnumber AND "
+        .       "c.procspeed >= i.minprocspeed AND "
+        .       "c.network >= i.minnetwork AND "
+        .       "c.id NOT IN (SELECT rs.computerid "
+        .                    "FROM reservation rs, "
+        .                         "request rq "
+        .                    "WHERE rs.requestid = rq.id AND ";
+    if($reqid != '')
+        $query .=                      "rq.id != $reqid AND ";
+    $query .=                         "DATE_ADD(rq.end, INTERVAL 15 MINUTE) >= '$startdt' AND "
+        .                          "rs.computerid IN ($incompids)) AND "
+        .       "c.id IN ($incompids) "
+        . "ORDER BY (c.procspeed * c.procnumber) DESC, "
+        .          "RAM DESC, "
+        .          "network DESC";
+    $qh = doQuery($query, 101);
+    while($row = mysql_fetch_assoc($qh)) {
+        $row['duration'] = $reqduration;
+        $row['startts'] = $start;
+        $row['start'] = $startdt;
+        $row['endts'] = $start + $reqduration;
+        $slots[$row['compid']] = array();
+        $slots[$row['compid']][] = $row;
+        $newcompids[] = $row['compid'];
+    }
 
-	if(! $extendonly) {
-		# find available timeslots based on spacing between existing reservations
-		$query = "SELECT rs1.computerid AS compid, "
-		       .        "DATE_ADD(rq1.end, INTERVAL 15 MINUTE) AS start, "
-		       .        "MIN(UNIX_TIMESTAMP(rq2.start) - UNIX_TIMESTAMP(rq1.end) - 1800) AS duration " # 1800 is adding 15 min to end of rq1.end and end of requested reservation
-		       . "FROM request rq1, "
-		       .      "request rq2, "
-		       .      "reservation rs1, "
-		       .      "reservation rs2, "
-		       .      "image i, "
-		       .      "state s, "
-		       .      "computer c "
-		       . "WHERE rq1.id = rs1.requestid AND "
-		       .       "rs2.requestid = rq2.id AND "
-		       .       "rq1.id != rq2.id AND "
-		       .       "rq1.start < rq2.start AND "
-		       .       "DATE_ADD(rq1.end, INTERVAL 15 MINUTE) >= '$startdt' AND "
-		       .       "rs1.computerid = rs2.computerid AND "
-		       .       "rs1.computerid IN ($incompids) AND "
-		       .       "i.id = $imageid AND "
-		       .       "c.id = rs1.computerid AND "
-		       .       "c.platformid = $platformid AND "
-		       .       "c.scheduleid IN ($schedules) AND "
-		       .       "c.RAM >= i.minram AND "
-		       .       "c.procnumber >= i.minprocnumber AND "
-		       .       "c.procspeed >= i.minprocspeed AND "
-		       .       "c.network >= i.minnetwork AND "
-		       .       "c.stateid = s.id AND "
-		       .       "s.name NOT IN ($ignorestates) AND ";
-		if($reqid != '')
-			$query .=   "rq1.id != $reqid AND "
-			       .    "rq2.id != $reqid AND ";
-		$query .=      "(c.type != 'virtualmachine' OR c.vmhostid IS NOT NULL) "
-		       . "GROUP BY rq1.id ";
-		$query .= "ORDER BY rs1.computerid, rq1.start, rq1.end";
-		$qh = doQuery($query, 101);
-		while($row = mysql_fetch_assoc($qh)) {
-			$row['startts'] = datetimeToUnix($row['start']);
-			if($row['startts'] % 900) {
-				$row['startts'] = $row['startts'] - ($row['startts'] % 900) + 900;
-				$row['start'] = unixToDatetime($row['startts']);
-				$row['duration'] -= 900;
-			}
-			if($row['duration'] >= 1800) {
-				if($usedaysahead && $row['startts'] > $daysahead)
-					continue;
-				if($row['duration'] > $reqduration)
-					$row['duration'] = $reqduration;
-				$row['endts'] = $row['startts'] + $row['duration'];
-				if(! array_key_exists($row['compid'], $slots))
-					$slots[$row['compid']] = array();
-				$slots[$row['compid']][] = $row;
-				if($row['startts'] < $minstart)
-					$minstart = $row['startts'];
-				if($row['endts'] > $maxend)
-					$maxend = $row['endts'];
-				$newcompids[] = $row['compid'];
-			}
-		}
-	}
+    if(! $extendonly) {
+        # find available timeslots based on spacing between existing reservations
+        $query = "SELECT rs1.computerid AS compid, "
+            .        "DATE_ADD(rq1.end, INTERVAL 15 MINUTE) AS start, "
+            .        "MIN(UNIX_TIMESTAMP(rq2.start) - UNIX_TIMESTAMP(rq1.end) - 1800) AS duration " # 1800 is adding 15 min to end of rq1.end and end of requested reservation
+            . "FROM request rq1, "
+            .      "request rq2, "
+            .      "reservation rs1, "
+            .      "reservation rs2, "
+            .      "image i, "
+            .      "state s, "
+            .      "computer c "
+            . "WHERE rq1.id = rs1.requestid AND "
+            .       "rs2.requestid = rq2.id AND "
+            .       "rq1.id != rq2.id AND "
+            .       "rq1.start < rq2.start AND "
+            .       "DATE_ADD(rq1.end, INTERVAL 15 MINUTE) >= '$startdt' AND "
+            .       "rs1.computerid = rs2.computerid AND "
+            .       "rs1.computerid IN ($incompids) AND "
+            .       "i.id = $imageid AND "
+            .       "c.id = rs1.computerid AND "
+            .       "c.platformid = $platformid AND "
+            .       "c.scheduleid IN ($schedules) AND "
+            .       "c.RAM >= i.minram AND "
+            .       "c.procnumber >= i.minprocnumber AND "
+            .       "c.procspeed >= i.minprocspeed AND "
+            .       "c.network >= i.minnetwork AND "
+            .       "c.stateid = s.id AND "
+            .       "s.name NOT IN ($ignorestates) AND ";
+        if($reqid != '')
+            $query .=   "rq1.id != $reqid AND "
+                .    "rq2.id != $reqid AND ";
+        $query .=      "(c.type != 'virtualmachine' OR c.vmhostid IS NOT NULL) "
+            . "GROUP BY rq1.id ";
+        $query .= "ORDER BY rs1.computerid, rq1.start, rq1.end";
+        $qh = doQuery($query, 101);
+        while($row = mysql_fetch_assoc($qh)) {
+            $row['startts'] = datetimeToUnix($row['start']);
+            if($row['startts'] % 900) {
+                $row['startts'] = $row['startts'] - ($row['startts'] % 900) + 900;
+                $row['start'] = unixToDatetime($row['startts']);
+                $row['duration'] -= 900;
+            }
+            if($row['duration'] >= 1800) {
+                if($usedaysahead && $row['startts'] > $daysahead)
+                    continue;
+                if($row['duration'] > $reqduration)
+                    $row['duration'] = $reqduration;
+                $row['endts'] = $row['startts'] + $row['duration'];
+                if(! array_key_exists($row['compid'], $slots))
+                    $slots[$row['compid']] = array();
+                $slots[$row['compid']][] = $row;
+                if($row['startts'] < $minstart)
+                    $minstart = $row['startts'];
+                if($row['endts'] > $maxend)
+                    $maxend = $row['endts'];
+                $newcompids[] = $row['compid'];
+            }
+        }
+    }
 
-	# find slots that are available now
-	$query = "SELECT UNIX_TIMESTAMP(MIN(rq.start)) - UNIX_TIMESTAMP('$startdt') - 900 AS duration, "
-	       .        "UNIX_TIMESTAMP(MIN(rq.start)) AS endts, "
-	       .        "rs.computerid AS compid "
-	       . "FROM request rq, "
-	       .      "reservation rs, "
-	       .      "image i, "
-	       .      "state s, "
-	       .      "computer c "
-	       . "WHERE rs.requestid = rq.id AND "
-	       .       "(rq.start > '$startdt' OR "
-	       .        "(DATE_ADD(rq.end, INTERVAL 15 MINUTE) > '$startdt' AND rq.start <= '$startdt')) AND "
-	       .       "rs.computerid IN ($incompids) AND "
-	       .       "i.id = $imageid AND "
-	       .       "c.id = rs.computerid AND "
-	       .       "c.platformid = $platformid AND "
-	       .       "c.scheduleid IN ($schedules) AND "
-	       .       "c.RAM >= i.minram AND "
-	       .       "c.procnumber >= i.minprocnumber AND "
-	       .       "c.procspeed >= i.minprocspeed AND "
-	       .       "c.network >= i.minnetwork AND "
-	       .       "c.stateid = s.id AND "
-	       .       "s.name NOT IN ($nowignorestates) AND ";
-	if($reqid != '')
-		$query .=   "rq.id != $reqid AND ";
-	$query .=      "(c.type != 'virtualmachine' OR c.vmhostid IS NOT NULL) "
-	       . "GROUP BY rs.computerid";
-	$qh = doQuery($query, 101);
-	while($row = mysql_fetch_assoc($qh)) {
-		if($row['endts'] % 900) {
-			$row['endts'] = $row['endts'] - ($row['endts'] % 900);
-			$row['duration'] -= 900;
-		}
-		if($row['duration'] >= 1800) {
-			if($row['duration'] > $reqduration)
-				$row['duration'] = $reqduration;
-			$row['start'] = $startdt;
-			$row['startts'] = $start;
-			if(! array_key_exists($row['compid'], $slots))
-				$slots[$row['compid']] = array();
-			$slots[$row['compid']][] = $row;
-			if($row['endts'] > $maxend)
-				$maxend = $row['endts'];
-			$newcompids[] = $row['compid'];
-		}
-	}
+    # find slots that are available now
+    $query = "SELECT UNIX_TIMESTAMP(MIN(rq.start)) - UNIX_TIMESTAMP('$startdt') - 900 AS duration, "
+        .        "UNIX_TIMESTAMP(MIN(rq.start)) AS endts, "
+        .        "rs.computerid AS compid "
+        . "FROM request rq, "
+        .      "reservation rs, "
+        .      "image i, "
+        .      "state s, "
+        .      "computer c "
+        . "WHERE rs.requestid = rq.id AND "
+        .       "(rq.start > '$startdt' OR "
+        .        "(DATE_ADD(rq.end, INTERVAL 15 MINUTE) > '$startdt' AND rq.start <= '$startdt')) AND "
+        .       "rs.computerid IN ($incompids) AND "
+        .       "i.id = $imageid AND "
+        .       "c.id = rs.computerid AND "
+        .       "c.platformid = $platformid AND "
+        .       "c.scheduleid IN ($schedules) AND "
+        .       "c.RAM >= i.minram AND "
+        .       "c.procnumber >= i.minprocnumber AND "
+        .       "c.procspeed >= i.minprocspeed AND "
+        .       "c.network >= i.minnetwork AND "
+        .       "c.stateid = s.id AND "
+        .       "s.name NOT IN ($nowignorestates) AND ";
+    if($reqid != '')
+        $query .=   "rq.id != $reqid AND ";
+    $query .=      "(c.type != 'virtualmachine' OR c.vmhostid IS NOT NULL) "
+        . "GROUP BY rs.computerid";
+    $qh = doQuery($query, 101);
+    while($row = mysql_fetch_assoc($qh)) {
+        if($row['endts'] % 900) {
+            $row['endts'] = $row['endts'] - ($row['endts'] % 900);
+            $row['duration'] -= 900;
+        }
+        if($row['duration'] >= 1800) {
+            if($row['duration'] > $reqduration)
+                $row['duration'] = $reqduration;
+            $row['start'] = $startdt;
+            $row['startts'] = $start;
+            if(! array_key_exists($row['compid'], $slots))
+                $slots[$row['compid']] = array();
+            $slots[$row['compid']][] = $row;
+            if($row['endts'] > $maxend)
+                $maxend = $row['endts'];
+            $newcompids[] = $row['compid'];
+        }
+    }
 
-	# find slots that are available after all reservations are over
-	$query = "SELECT UNIX_TIMESTAMP(MAX(rq.end)) + 900 AS startts, "
-	       .        "DATE_ADD(MAX(rq.end), INTERVAL 15 MINUTE) AS start, "
-	       .        "rs.computerid AS compid "
-	       . "FROM request rq, "
-	       .      "reservation rs, "
-	       .      "image i, "
-	       .      "state s, "
-	       .      "computer c "
-	       . "WHERE rs.requestid = rq.id AND "
-	       .       "(rq.start > '$startdt' OR "
-	       .        "(DATE_ADD(rq.end, INTERVAL 15 MINUTE) > '$startdt' AND rq.start <= '$startdt')) AND "
-	       .       "rs.computerid IN ($incompids) AND "
-	       .       "i.id = $imageid AND "
-	       .       "c.id = rs.computerid AND "
-	       .       "c.platformid = $platformid AND "
-	       .       "c.scheduleid IN ($schedules) AND "
-	       .       "c.RAM >= i.minram AND "
-	       .       "c.procnumber >= i.minprocnumber AND "
-	       .       "c.procspeed >= i.minprocspeed AND "
-	       .       "c.network >= i.minnetwork AND "
-	       .       "c.stateid = s.id AND "
-	       .       "s.name NOT IN ($ignorestates) AND ";
-	if($reqid != '')
-		$query .=   "rq.id != $reqid AND ";
-	$query .=      "(c.type != 'virtualmachine' OR c.vmhostid IS NOT NULL) "
-	       . "GROUP BY rs.computerid";
-	if($extendonly)
-		$query .= " HAVING start = '$startdt'";
-	$qh = doQuery($query, 101);
-	while($row = mysql_fetch_assoc($qh)) {
-		if($usedaysahead && $row['startts'] > $daysahead)
-			continue;
-		if($row['startts'] % 900) {
-			$row['startts'] = $row['startts'] - ($row['startts'] % 900) + 900;
-			$row['start'] = unixToDatetime($row['startts']);
-		}
-		$row['endts'] = $row['startts'] + $reqduration;
-		$row['duration'] = $reqduration;
-		if(! array_key_exists($row['compid'], $slots))
-			$slots[$row['compid']] = array();
-		$slots[$row['compid']][] = $row;
-		if($row['endts'] > $maxend)
-			$maxend = $row['endts'];
-		$newcompids[] = $row['compid'];
-	}
-	if(empty($newcompids))
-		return array();
+    # find slots that are available after all reservations are over
+    $query = "SELECT UNIX_TIMESTAMP(MAX(rq.end)) + 900 AS startts, "
+        .        "DATE_ADD(MAX(rq.end), INTERVAL 15 MINUTE) AS start, "
+        .        "rs.computerid AS compid "
+        . "FROM request rq, "
+        .      "reservation rs, "
+        .      "image i, "
+        .      "state s, "
+        .      "computer c "
+        . "WHERE rs.requestid = rq.id AND "
+        .       "(rq.start > '$startdt' OR "
+        .        "(DATE_ADD(rq.end, INTERVAL 15 MINUTE) > '$startdt' AND rq.start <= '$startdt')) AND "
+        .       "rs.computerid IN ($incompids) AND "
+        .       "i.id = $imageid AND "
+        .       "c.id = rs.computerid AND "
+        .       "c.platformid = $platformid AND "
+        .       "c.scheduleid IN ($schedules) AND "
+        .       "c.RAM >= i.minram AND "
+        .       "c.procnumber >= i.minprocnumber AND "
+        .       "c.procspeed >= i.minprocspeed AND "
+        .       "c.network >= i.minnetwork AND "
+        .       "c.stateid = s.id AND "
+        .       "s.name NOT IN ($ignorestates) AND ";
+    if($reqid != '')
+        $query .=   "rq.id != $reqid AND ";
+    $query .=      "(c.type != 'virtualmachine' OR c.vmhostid IS NOT NULL) "
+        . "GROUP BY rs.computerid";
+    if($extendonly)
+        $query .= " HAVING start = '$startdt'";
+    $qh = doQuery($query, 101);
+    while($row = mysql_fetch_assoc($qh)) {
+        if($usedaysahead && $row['startts'] > $daysahead)
+            continue;
+        if($row['startts'] % 900) {
+            $row['startts'] = $row['startts'] - ($row['startts'] % 900) + 900;
+            $row['start'] = unixToDatetime($row['startts']);
+        }
+        $row['endts'] = $row['startts'] + $reqduration;
+        $row['duration'] = $reqduration;
+        if(! array_key_exists($row['compid'], $slots))
+            $slots[$row['compid']] = array();
+        $slots[$row['compid']][] = $row;
+        if($row['endts'] > $maxend)
+            $maxend = $row['endts'];
+        $newcompids[] = $row['compid'];
+    }
+    if(empty($newcompids))
+        return array();
 
-	# remove block computers
-	$minstartdt = unixToDatetime($minstart);
-	$maxenddt = unixToDatetime($maxend);
-	$newincompids = implode(',', $newcompids);
-	$query = "SELECT bc.computerid AS compid, "
-	       .        "UNIX_TIMESTAMP(bt.start) AS start, "
-	       .        "UNIX_TIMESTAMP(bt.end) AS end "
-	       . "FROM blockComputers bc, "
-	       .      "blockTimes bt, "
-	       .      "blockRequest br "
-	       . "WHERE bt.id = bc.blockTimeid AND "
-	       .       "br.id = bt.blockRequestid AND "
-	       .       "bt.skip = 0 AND "
-	       .       "bt.start < '$maxenddt' AND "
-	       .       "bt.end > '$minstartdt' AND ";
-	if($ingroups != '')
-		$query .=   "(br.groupid NOT IN ($ingroups) OR "
-		       .    "br.imageid != $imageid) AND ";
-	$query .=      "bc.computerid IN ($newincompids)";
-	$qh = doQuery($query);
-	while($row = mysql_fetch_assoc($qh)) {
-		if(array_key_exists($row['compid'], $slots))
-			fATremoveOverlaps($slots, $row['compid'], $row['start'], $row['end'], 0);
-	}
+    # remove block computers
+    $minstartdt = unixToDatetime($minstart);
+    $maxenddt = unixToDatetime($maxend);
+    $newincompids = implode(',', $newcompids);
+    $query = "SELECT bc.computerid AS compid, "
+        .        "UNIX_TIMESTAMP(bt.start) AS start, "
+        .        "UNIX_TIMESTAMP(bt.end) AS end "
+        . "FROM blockComputers bc, "
+        .      "blockTimes bt, "
+        .      "blockRequest br "
+        . "WHERE bt.id = bc.blockTimeid AND "
+        .       "br.id = bt.blockRequestid AND "
+        .       "bt.skip = 0 AND "
+        .       "bt.start < '$maxenddt' AND "
+        .       "bt.end > '$minstartdt' AND ";
+    if($ingroups != '')
+        $query .=   "(br.groupid NOT IN ($ingroups) OR "
+            .    "br.imageid != $imageid) AND ";
+    $query .=      "bc.computerid IN ($newincompids)";
+    $qh = doQuery($query);
+    while($row = mysql_fetch_assoc($qh)) {
+        if(array_key_exists($row['compid'], $slots))
+            fATremoveOverlaps($slots, $row['compid'], $row['start'], $row['end'], 0);
+    }
 
-	# remove mac/ip overlaps
-	$newcompids = array_keys($slots);
-	$newincompids = implode(',', $newcompids);
-	if(! empty($ip) || ! empty($mac)) {
-		$query = "SELECT rs.computerid AS compid, "
-		       .        "UNIX_TIMESTAMP(rq.start) AS start, "
-		       .        "UNIX_TIMESTAMP(rq.end) AS end "
-		       . "FROM serverrequest s, "
-		       .      "request rq, "
-		       .      "reservation rs "
-		       . "WHERE s.requestid = rq.id AND "
-		       .       "rs.requestid = rq.id AND "
-		       .       "rq.start < '$maxenddt' AND "
-		       .       "rq.end > '$minstartdt' AND "
-		       .       "rs.computerid IN ($newincompids) AND ";
-		if($reqid != '')
-			$query .=   "rq.id != $reqid AND ";
-		if(! empty($ip) && ! empty($mac))
-			$query .=   "(s.fixedIP = '$ip' OR s.fixedMAC = '$mac')";
-		elseif(! empty($ip))
-			$query .=   "s.fixedIP = '$ip'";
-		elseif(! empty($mac))
-			$query .=   "s.fixedIP = '$mac'";
-		$qh = doQuery($query);
-		while($row = mysql_fetch_assoc($qh)) {
-			if(array_key_exists($row['compid'], $slots))
-				fATremoveOverlaps($slots, $row['compid'], $row['start'], $row['end'], 0);
-		}
-	}
+    # remove mac/ip overlaps
+    $newcompids = array_keys($slots);
+    $newincompids = implode(',', $newcompids);
+    if(! empty($ip) || ! empty($mac)) {
+        $query = "SELECT rs.computerid AS compid, "
+            .        "UNIX_TIMESTAMP(rq.start) AS start, "
+            .        "UNIX_TIMESTAMP(rq.end) AS end "
+            . "FROM serverrequest s, "
+            .      "request rq, "
+            .      "reservation rs "
+            . "WHERE s.requestid = rq.id AND "
+            .       "rs.requestid = rq.id AND "
+            .       "rq.start < '$maxenddt' AND "
+            .       "rq.end > '$minstartdt' AND "
+            .       "rs.computerid IN ($newincompids) AND ";
+        if($reqid != '')
+            $query .=   "rq.id != $reqid AND ";
+        if(! empty($ip) && ! empty($mac))
+            $query .=   "(s.fixedIP = '$ip' OR s.fixedMAC = '$mac')";
+        elseif(! empty($ip))
+            $query .=   "s.fixedIP = '$ip'";
+        elseif(! empty($mac))
+            $query .=   "s.fixedIP = '$mac'";
+        $qh = doQuery($query);
+        while($row = mysql_fetch_assoc($qh)) {
+            if(array_key_exists($row['compid'], $slots))
+                fATremoveOverlaps($slots, $row['compid'], $row['start'], $row['end'], 0);
+        }
+    }
 
-	# remove slots overlapping with scheduled maintenance
-	$query = "SELECT UNIX_TIMESTAMP(start) AS start, "
-	       .        "UNIX_TIMESTAMP(end) AS end, "
-	       .        "allowreservations "
-	       . "FROM sitemaintenance "
-	       . "WHERE start < '$maxenddt' AND "
-	       .       "end > '$minstartdt'";
-	$qh = doQuery($query);
-	while($row = mysql_fetch_assoc($qh)) {
-		foreach(array_keys($slots) AS $compid)
-			fATremoveOverlaps($slots, $compid, $row['start'], $row['end'],
-			                  $row['allowreservations']);
-	}
+    # remove slots overlapping with scheduled maintenance
+    $query = "SELECT UNIX_TIMESTAMP(start) AS start, "
+        .        "UNIX_TIMESTAMP(end) AS end, "
+        .        "allowreservations "
+        . "FROM sitemaintenance "
+        . "WHERE start < '$maxenddt' AND "
+        .       "end > '$minstartdt'";
+    $qh = doQuery($query);
+    while($row = mysql_fetch_assoc($qh)) {
+        foreach(array_keys($slots) AS $compid)
+            fATremoveOverlaps($slots, $compid, $row['start'], $row['end'],
+                $row['allowreservations']);
+    }
 
-	$imgdata = getImages(0, $imageid);
-	$options = array();
-	foreach($slots AS $comp) {
-		foreach($comp AS $data) {
-			$data['duration'] = $data['duration'] - ($data['duration'] % 900);
-			if(! $extendonly) {
-				if($data['duration'] > 3600 && $data['duration'] < 7200)
-					$data['duration'] = 3600;
-				elseif($data['duration'] > 7200 && $data['duration'] < (SECINDAY * 2))
-					$data['duration'] = $data['duration'] - ($data['duration'] % 7200);
-				elseif($data['duration'] > (SECINDAY * 2))
-					$data['duration'] = $data['duration'] - ($data['duration'] % SECINDAY);
-			}
-			# skip computers that have no controlling management node
-			if(! findManagementNode($data['compid'], $data['start'], 'future'))
-				continue;
-			# skip slots that would cause a concurrent use violation
-			if($imgdata[$imageid]['maxconcurrent'] != NULL &&
-				fATconcurrentOverlap($data['startts'], $data['duration'], $imageid,
-				                     $imgdata[$imageid]['maxconcurrent'], $ignorestates,
-				                     $extendonly, $reqid))
-				continue;
-			if(array_key_exists($data['startts'], $options)) {
-				if($data['duration'] > $options[$data['startts']]['duration']) {
-					$options[$data['startts']]['duration'] = $data['duration'];
-					if(checkUserHasPerm('View Debug Information'))
-						$options[$data['startts']]['compid'] = $data['compid'];
-				}
-			}
-			else {
-				$options[$data['startts']] = array('start' => $data['start'],
-				                                   'startts' => $data['startts'],
-				                                   'duration' => $data['duration']);
-				if(checkUserHasPerm('View Debug Information'))
-					$options[$data['startts']]['compid'] = $data['compid'];
-			}
-		}
-	}
-	uasort($options, "sortAvailableTimesByStart");
-	return $options;
+    $imgdata = getImages(0, $imageid);
+    $options = array();
+    foreach($slots AS $comp) {
+        foreach($comp AS $data) {
+            $data['duration'] = $data['duration'] - ($data['duration'] % 900);
+            if(! $extendonly) {
+                if($data['duration'] > 3600 && $data['duration'] < 7200)
+                    $data['duration'] = 3600;
+                elseif($data['duration'] > 7200 && $data['duration'] < (SECINDAY * 2))
+                    $data['duration'] = $data['duration'] - ($data['duration'] % 7200);
+                elseif($data['duration'] > (SECINDAY * 2))
+                    $data['duration'] = $data['duration'] - ($data['duration'] % SECINDAY);
+            }
+            # skip computers that have no controlling management node
+            if(! findManagementNode($data['compid'], $data['start'], 'future'))
+                continue;
+            # skip slots that would cause a concurrent use violation
+            if($imgdata[$imageid]['maxconcurrent'] != NULL &&
+                fATconcurrentOverlap($data['startts'], $data['duration'], $imageid,
+                    $imgdata[$imageid]['maxconcurrent'], $ignorestates,
+                    $extendonly, $reqid))
+                continue;
+            if(array_key_exists($data['startts'], $options)) {
+                if($data['duration'] > $options[$data['startts']]['duration']) {
+                    $options[$data['startts']]['duration'] = $data['duration'];
+                    if(checkUserHasPerm('View Debug Information'))
+                        $options[$data['startts']]['compid'] = $data['compid'];
+                }
+            }
+            else {
+                $options[$data['startts']] = array('start' => $data['start'],
+                    'startts' => $data['startts'],
+                    'duration' => $data['duration']);
+                if(checkUserHasPerm('View Debug Information'))
+                    $options[$data['startts']]['compid'] = $data['compid'];
+            }
+        }
+    }
+    uasort($options, "sortAvailableTimesByStart");
+    return $options;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -7325,60 +7339,60 @@ function findAvailableTimes($start, $end, $imageid, $userid, $usedaysahead,
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function fATremoveOverlaps(&$array, $compid, $start, $end, $allowstart) {
-	foreach($array[$compid] AS $key => $data) {
-		if($data['startts'] < $end && $data['endts'] > $start) {
-			# reservation within slot
-			if($data['startts'] <= $start && $data['endts'] >= $end) {
-				if($allowstart)
-					continue;
-				$test1 = $data['duration'] - ($data['endts'] - $start) - 900;
-				$test2 = $data['duration'] - ($end - $data['startts']) - 900;
-				if($test1 < 1800 && $test2 < 1800)
-					unset($array[$compid][$key]);
-				elseif($test1 >= 1800 && $test2 < 1800)
-					$array[$compid][$key]['duration'] = $test1;
-				elseif($test1 < 1800 && $test2 >= 1800) {
-					$array[$compid][$key]['duration'] = $test2;
-					$array[$compid][$key]['startts'] = $end + 900;
-					$array[$compid][$key]['start'] = unixToDatetime($end + 900);
-				}
-				else {
-					$array[$compid][$key]['duration'] = $test1;
-					$new = array('duration' => $test2,
-					             'endts' => $end + 900 + $test2,
-					             'compid' => $compid,
-					             'start' => unixToDatetime($end + 900),
-					             'startts' => $end + 900);
-					$array[$compid][] = $new;
-				}
-			}
-			# start of reservation overlaps slot
-			elseif($data['startts'] < $start && $data['endts'] > $start) {
-				if($allowstart)
-					continue;
-				$test = $data['duration'] - ($data['endts'] - $start) - 900;
-				if($test >= 1800)
-					$array[$compid][$key]['duration'] = $test;
-				else
-					unset($array[$compid][$key]);
-			}
-			# end of reservation overlaps slot
-			elseif($data['startts'] < $end && $data['endts'] > $end) {
-				$test = $data['duration'] - ($end - $data['startts']) - 900;
-				if($test >= 1800) {
-					$array[$compid][$key]['duration'] = $test;
-					$array[$compid][$key]['startts'] = $end + 900;
-					$array[$compid][$key]['start'] = unixToDatetime($end + 900);
-				}
-				else
-					unset($array[$compid][$key]);
-			}
-			# slot within reservation
-			#if($data['startts'] >= $start && $data['endts'] <= $end)
-			else
-				unset($array[$compid][$key]);
-		}
-	}
+    foreach($array[$compid] AS $key => $data) {
+        if($data['startts'] < $end && $data['endts'] > $start) {
+            # reservation within slot
+            if($data['startts'] <= $start && $data['endts'] >= $end) {
+                if($allowstart)
+                    continue;
+                $test1 = $data['duration'] - ($data['endts'] - $start) - 900;
+                $test2 = $data['duration'] - ($end - $data['startts']) - 900;
+                if($test1 < 1800 && $test2 < 1800)
+                    unset($array[$compid][$key]);
+                elseif($test1 >= 1800 && $test2 < 1800)
+                    $array[$compid][$key]['duration'] = $test1;
+                elseif($test1 < 1800 && $test2 >= 1800) {
+                    $array[$compid][$key]['duration'] = $test2;
+                    $array[$compid][$key]['startts'] = $end + 900;
+                    $array[$compid][$key]['start'] = unixToDatetime($end + 900);
+                }
+                else {
+                    $array[$compid][$key]['duration'] = $test1;
+                    $new = array('duration' => $test2,
+                        'endts' => $end + 900 + $test2,
+                        'compid' => $compid,
+                        'start' => unixToDatetime($end + 900),
+                        'startts' => $end + 900);
+                    $array[$compid][] = $new;
+                }
+            }
+            # start of reservation overlaps slot
+            elseif($data['startts'] < $start && $data['endts'] > $start) {
+                if($allowstart)
+                    continue;
+                $test = $data['duration'] - ($data['endts'] - $start) - 900;
+                if($test >= 1800)
+                    $array[$compid][$key]['duration'] = $test;
+                else
+                    unset($array[$compid][$key]);
+            }
+            # end of reservation overlaps slot
+            elseif($data['startts'] < $end && $data['endts'] > $end) {
+                $test = $data['duration'] - ($end - $data['startts']) - 900;
+                if($test >= 1800) {
+                    $array[$compid][$key]['duration'] = $test;
+                    $array[$compid][$key]['startts'] = $end + 900;
+                    $array[$compid][$key]['start'] = unixToDatetime($end + 900);
+                }
+                else
+                    unset($array[$compid][$key]);
+            }
+            # slot within reservation
+            #if($data['startts'] >= $start && $data['endts'] <= $end)
+            else
+                unset($array[$compid][$key]);
+        }
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -7402,26 +7416,26 @@ function fATremoveOverlaps(&$array, $compid, $start, $end, $allowstart) {
 ////////////////////////////////////////////////////////////////////////////////
 function fATconcurrentOverlap($start, $length, $imageid, $maxoverlap,
                               $ignorestates, $extendonly, $reqid) {
-	$end = $start + $length;
-	$query = "SELECT rq.start, "
-	       .        "rq.end "
-	       . "FROM request rq, "
-	       .      "reservation rs, "
-	       .      "state s, "
-	       .      "computer c "
-	       . "WHERE rs.requestid = rq.id AND "
-	       .       "rs.computerid = c.id AND "
-	       .       "rs.imageid = $imageid AND "
-	       .       "UNIX_TIMESTAMP(rq.start) < $end AND "
-	       .       "UNIX_TIMESTAMP(rq.end) > $start AND "
-	       .       "c.stateid = s.id AND "
-	       .       "s.name NOT IN ($ignorestates)";
-	if($extendonly)
-		$query .= " AND rq.id != $reqid";
-	$qh = doQuery($query);
-	if(mysql_num_rows($qh) >= $maxoverlap)
-		return 1;
-	return 0;
+    $end = $start + $length;
+    $query = "SELECT rq.start, "
+        .        "rq.end "
+        . "FROM request rq, "
+        .      "reservation rs, "
+        .      "state s, "
+        .      "computer c "
+        . "WHERE rs.requestid = rq.id AND "
+        .       "rs.computerid = c.id AND "
+        .       "rs.imageid = $imageid AND "
+        .       "UNIX_TIMESTAMP(rq.start) < $end AND "
+        .       "UNIX_TIMESTAMP(rq.end) > $start AND "
+        .       "c.stateid = s.id AND "
+        .       "s.name NOT IN ($ignorestates)";
+    if($extendonly)
+        $query .= " AND rq.id != $reqid";
+    $qh = doQuery($query);
+    if(mysql_num_rows($qh) >= $maxoverlap)
+        return 1;
+    return 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -7437,13 +7451,13 @@ function fATconcurrentOverlap($start, $length, $imageid, $maxoverlap,
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function sortAvailableTimesByStart($a, $b) {
-	$ats = datetimeToUnix($a['start']);
-	$bts = datetimeToUnix($b['start']);
-	if($ats < $bts)
-		return -1;
-	if($ats > $bts)
-		return 1;
-	return 0;
+    $ats = datetimeToUnix($a['start']);
+    $bts = datetimeToUnix($b['start']);
+    if($ats < $bts)
+        return -1;
+    if($ats > $bts)
+        return 1;
+    return 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -7494,76 +7508,76 @@ function sortAvailableTimesByStart($a, $b) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getComputers($sort=0, $includedeleted=0, $compid="") {
-	$return = array();
-	$query = "SELECT c.id AS id, "
-	       .        "st.name AS state, "
-	       .        "c.stateid AS stateid, "
-	       .        "CONCAT(u.unityid, '@', a.name) AS owner, "
-	       .        "u.id AS ownerid, "
-	       .        "p.name AS platform, "
-	       .        "c.platformid AS platformid, "
-	       .        "sc.name AS schedule, "
-	       .        "c.scheduleid AS scheduleid, "
-	       .        "cur.name AS currentimg, "
-	       .        "c.currentimageid AS currentimgid, "
-	       .        "c.imagerevisionid, "
-	       .        "next.name AS nextimg, "
-	       .        "c.nextimageid AS nextimgid, "
-	       .        "c.RAM AS ram, "
-	       .        "c.procnumber AS procnumber, "
-	       .        "c.procspeed AS procspeed, "
-	       .        "c.network AS network, "
-	       .        "c.hostname AS hostname, "
-	       .        "c.IPaddress AS IPaddress, "
-	       .        "c.privateIPaddress, "
-	       .        "c.eth0macaddress, "
-	       .        "c.eth1macaddress, "
-	       .        "c.type AS type, "
-	       .        "c.deleted AS deleted, "
-	       .        "r.id AS resourceid, "
-	       .        "c.notes, "
-	       .        "c.vmhostid, "
-	       .        "c2.hostname AS vmhost, "
-	       .        "c.location, "
-	       .        "c.provisioningid, "
-	       .        "pr.prettyname AS provisioning, "
-	       .        "vh2.vmprofileid "
-	       . "FROM state st, "
-	       .      "platform p, "
-	       .      "schedule sc, "
-	       .      "image cur, "
-	       .      "resource r, "
-	       .      "resourcetype t, "
-	       .      "user u, "
-	       .      "affiliation a, "
-	       .      "computer c "
-	       . "LEFT JOIN vmhost vh ON (c.vmhostid = vh.id) "
-	       . "LEFT JOIN vmhost vh2 ON (c.id = vh2.computerid) "
-	       . "LEFT JOIN computer c2 ON (c2.id = vh.computerid) "
-	       . "LEFT JOIN image next ON (c.nextimageid = next.id) "
-	       . "LEFT JOIN provisioning pr ON (c.provisioningid = pr.id) "
-	       . "WHERE c.stateid = st.id AND "
-	       .       "c.platformid = p.id AND "
-	       .       "c.scheduleid = sc.id AND "
-	       .       "c.currentimageid = cur.id AND "
-	       .       "r.resourcetypeid = t.id AND "
-	       .       "t.name = 'computer' AND "
-	       .       "r.subid = c.id AND "
-	       .       "c.ownerid = u.id AND "
-	       .       "u.affiliationid = a.id ";
-	if(! $includedeleted)
-		$query .= "AND c.deleted = 0 ";
-	if(! empty($compid))
-		$query .= "AND c.id = $compid ";
-	$query .= "ORDER BY c.hostname";
-	$qh = doQuery($query, 180);
-	while($row = mysql_fetch_assoc($qh)) {
-		$return[$row['id']] = $row;
-	}
-	if($sort) {
-		uasort($return, "sortComputers");
-	}
-	return $return;
+    $return = array();
+    $query = "SELECT c.id AS id, "
+        .        "st.name AS state, "
+        .        "c.stateid AS stateid, "
+        .        "CONCAT(u.unityid, '@', a.name) AS owner, "
+        .        "u.id AS ownerid, "
+        .        "p.name AS platform, "
+        .        "c.platformid AS platformid, "
+        .        "sc.name AS schedule, "
+        .        "c.scheduleid AS scheduleid, "
+        .        "cur.name AS currentimg, "
+        .        "c.currentimageid AS currentimgid, "
+        .        "c.imagerevisionid, "
+        .        "next.name AS nextimg, "
+        .        "c.nextimageid AS nextimgid, "
+        .        "c.RAM AS ram, "
+        .        "c.procnumber AS procnumber, "
+        .        "c.procspeed AS procspeed, "
+        .        "c.network AS network, "
+        .        "c.hostname AS hostname, "
+        .        "c.IPaddress AS IPaddress, "
+        .        "c.privateIPaddress, "
+        .        "c.eth0macaddress, "
+        .        "c.eth1macaddress, "
+        .        "c.type AS type, "
+        .        "c.deleted AS deleted, "
+        .        "r.id AS resourceid, "
+        .        "c.notes, "
+        .        "c.vmhostid, "
+        .        "c2.hostname AS vmhost, "
+        .        "c.location, "
+        .        "c.provisioningid, "
+        .        "pr.prettyname AS provisioning, "
+        .        "vh2.vmprofileid "
+        . "FROM state st, "
+        .      "platform p, "
+        .      "schedule sc, "
+        .      "image cur, "
+        .      "resource r, "
+        .      "resourcetype t, "
+        .      "user u, "
+        .      "affiliation a, "
+        .      "computer c "
+        . "LEFT JOIN vmhost vh ON (c.vmhostid = vh.id) "
+        . "LEFT JOIN vmhost vh2 ON (c.id = vh2.computerid) "
+        . "LEFT JOIN computer c2 ON (c2.id = vh.computerid) "
+        . "LEFT JOIN image next ON (c.nextimageid = next.id) "
+        . "LEFT JOIN provisioning pr ON (c.provisioningid = pr.id) "
+        . "WHERE c.stateid = st.id AND "
+        .       "c.platformid = p.id AND "
+        .       "c.scheduleid = sc.id AND "
+        .       "c.currentimageid = cur.id AND "
+        .       "r.resourcetypeid = t.id AND "
+        .       "t.name = 'computer' AND "
+        .       "r.subid = c.id AND "
+        .       "c.ownerid = u.id AND "
+        .       "u.affiliationid = a.id ";
+    if(! $includedeleted)
+        $query .= "AND c.deleted = 0 ";
+    if(! empty($compid))
+        $query .= "AND c.id = $compid ";
+    $query .= "ORDER BY c.hostname";
+    $qh = doQuery($query, 180);
+    while($row = mysql_fetch_assoc($qh)) {
+        $return[$row['id']] = $row;
+    }
+    if($sort) {
+        uasort($return, "sortComputers");
+    }
+    return $return;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -7577,28 +7591,28 @@ function getComputers($sort=0, $includedeleted=0, $compid="") {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getUserComputerMetaData() {
-	$key = getKey(array('getUserComputerMetaData'));
-	if(array_key_exists($key, $_SESSION['usersessiondata']))
-		return $_SESSION['usersessiondata'][$key];
-	$computers = getComputers();
-	$resources = getUserResources(array("computerAdmin"), 
-	                              array("administer", "manageGroup"), 0, 1);
-	$return = array("platforms" => array(),
-	                "schedules" => array());
-	foreach(array_keys($resources["computer"]) as $compid) {
-		if(! array_key_exists($compid, $computers))
-			continue;
-		if(! in_array($computers[$compid]["platform"], $return["platforms"]))
-			$return["platforms"][$computers[$compid]["platformid"]] =
-			      $computers[$compid]["platform"];
-		if(! in_array($computers[$compid]["schedule"], $return["schedules"]))
-			$return["schedules"][$computers[$compid]["scheduleid"]] =
-			      $computers[$compid]["schedule"];
-	}
-	uasort($return["platforms"], "sortKeepIndex");
-	uasort($return["schedules"], "sortKeepIndex");
-	$_SESSION['usersessiondata'][$key] = $return;
-	return $return;
+    $key = getKey(array('getUserComputerMetaData'));
+    if(array_key_exists($key, $_SESSION['usersessiondata']))
+        return $_SESSION['usersessiondata'][$key];
+    $computers = getComputers();
+    $resources = getUserResources(array("computerAdmin"),
+        array("administer", "manageGroup"), 0, 1);
+    $return = array("platforms" => array(),
+        "schedules" => array());
+    foreach(array_keys($resources["computer"]) as $compid) {
+        if(! array_key_exists($compid, $computers))
+            continue;
+        if(! in_array($computers[$compid]["platform"], $return["platforms"]))
+            $return["platforms"][$computers[$compid]["platformid"]] =
+                $computers[$compid]["platform"];
+        if(! in_array($computers[$compid]["schedule"], $return["schedules"]))
+            $return["schedules"][$computers[$compid]["scheduleid"]] =
+                $computers[$compid]["schedule"];
+    }
+    uasort($return["platforms"], "sortKeepIndex");
+    uasort($return["schedules"], "sortKeepIndex");
+    $_SESSION['usersessiondata'][$key] = $return;
+    return $return;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -7614,7 +7628,7 @@ function getUserComputerMetaData() {
 /// they occur\n
 /// \b nextstates - array where each key is a computerloadstate id and its value
 /// is that state's following state; the last state has a NULL value\n
-/// \b totaltime - estimated time (in seconds) it takes for all states to 
+/// \b totaltime - estimated time (in seconds) it takes for all states to
 /// complete\n
 /// \b data - array where each key is is a computerloadstate id and each value
 /// is an array with these elements:\n
@@ -7628,66 +7642,66 @@ function getUserComputerMetaData() {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getCompStateFlow($compid) {
-	$key = getKey(array($compid));
-	if(array_key_exists($key, $_SESSION['compstateflow']))
-		return $_SESSION['compstateflow'][$key];
+    $key = getKey(array($compid));
+    if(array_key_exists($key, $_SESSION['compstateflow']))
+        return $_SESSION['compstateflow'][$key];
 
-	# get id for repeat state, useful because several of the calling functions
-	#   need this information
-	$query = "SELECT id FROM computerloadstate WHERE loadstatename = 'repeat'";
-	$qh = doQuery($query, 101);
-	if(! $row = mysql_fetch_assoc($qh))
-		return array();
-	$loadstates['repeatid'] = $row['id'];
+    # get id for repeat state, useful because several of the calling functions
+    #   need this information
+    $query = "SELECT id FROM computerloadstate WHERE loadstatename = 'repeat'";
+    $qh = doQuery($query, 101);
+    if(! $row = mysql_fetch_assoc($qh))
+        return array();
+    $loadstates['repeatid'] = $row['id'];
 
-	$query = "SELECT `type` FROM computer WHERE id = $compid";
-	$qh = doQuery($query, 101);
-	if(! $row = mysql_fetch_assoc($qh))
-		return array();
+    $query = "SELECT `type` FROM computer WHERE id = $compid";
+    $qh = doQuery($query, 101);
+    if(! $row = mysql_fetch_assoc($qh))
+        return array();
 
-	$type = $row['type'];
-	$query = "SELECT cf.computerloadstateid AS stateid, "
-	       .        "cs1.prettyname AS state, "
-	       .        "cs1.loadstatename AS statename, "
-	       .        "cf.nextstateid, "
-	       .        "cs2.prettyname AS nextstate, "
-	       .        "cs1.est AS statetime "
-	       . "FROM computerloadstate cs1, "
-	       .      "computerloadflow cf "
-	       . "LEFT JOIN computerloadstate cs2 ON (cf.nextstateid = cs2.id) "
-	       . "WHERE cf.computerloadstateid = cs1.id AND "
-	       .       "cf.type = '$type' ";
-	$query2 = $query . "AND cf.computerloadstateid NOT IN "
-	        . "(SELECT nextstateid FROM computerloadflow WHERE `type` = '$type' "
-	        . "AND nextstateid IS NOT NULL)";
-	$qh = doQuery($query2, 101);
-	if(! $row = mysql_fetch_assoc($qh))
-		return array();
-	$loadstates['data'][$row['stateid']] = $row;
-	$loadstates['stateids'] = array($row['stateid']);
-	$loadstates['nextstates'] = array($row['stateid'] => $row['nextstateid']);
-	$loadstates['totaltime'] = 0;
-	for($i = 0; $i < 100; $i++) { # don't want an endless loop
-		$query2 = $query . "AND cf.computerloadstateid = {$row['nextstateid']} "
-		        . "AND `type` = '$type'";
-		$qh = doQuery($query2, 101);
-		if(! $row = mysql_fetch_assoc($qh)) {
-			$_SESSION['compstateflow'][$key] = $loadstates;
-			return $loadstates;
-		}
-		else {
-			array_push($loadstates['stateids'], $row['stateid']);
-			$loadstates['nextstates'][$row['stateid']] = $row['nextstateid'];
-			$loadstates['totaltime'] += $row['statetime'];
-			$loadstates['data'][$row['stateid']] = $row;
-		}
-		if(empty($row['nextstateid'])) {
-			$_SESSION['compstateflow'][$key] = $loadstates;
-			return $loadstates;
-		}
-	}
-	$_SESSION['compstateflow'][$key] = $loadstates;
-	return $loadstates;
+    $type = $row['type'];
+    $query = "SELECT cf.computerloadstateid AS stateid, "
+        .        "cs1.prettyname AS state, "
+        .        "cs1.loadstatename AS statename, "
+        .        "cf.nextstateid, "
+        .        "cs2.prettyname AS nextstate, "
+        .        "cs1.est AS statetime "
+        . "FROM computerloadstate cs1, "
+        .      "computerloadflow cf "
+        . "LEFT JOIN computerloadstate cs2 ON (cf.nextstateid = cs2.id) "
+        . "WHERE cf.computerloadstateid = cs1.id AND "
+        .       "cf.type = '$type' ";
+    $query2 = $query . "AND cf.computerloadstateid NOT IN "
+        . "(SELECT nextstateid FROM computerloadflow WHERE `type` = '$type' "
+        . "AND nextstateid IS NOT NULL)";
+    $qh = doQuery($query2, 101);
+    if(! $row = mysql_fetch_assoc($qh))
+        return array();
+    $loadstates['data'][$row['stateid']] = $row;
+    $loadstates['stateids'] = array($row['stateid']);
+    $loadstates['nextstates'] = array($row['stateid'] => $row['nextstateid']);
+    $loadstates['totaltime'] = 0;
+    for($i = 0; $i < 100; $i++) { # don't want an endless loop
+        $query2 = $query . "AND cf.computerloadstateid = {$row['nextstateid']} "
+            . "AND `type` = '$type'";
+        $qh = doQuery($query2, 101);
+        if(! $row = mysql_fetch_assoc($qh)) {
+            $_SESSION['compstateflow'][$key] = $loadstates;
+            return $loadstates;
+        }
+        else {
+            array_push($loadstates['stateids'], $row['stateid']);
+            $loadstates['nextstates'][$row['stateid']] = $row['nextstateid'];
+            $loadstates['totaltime'] += $row['statetime'];
+            $loadstates['data'][$row['stateid']] = $row;
+        }
+        if(empty($row['nextstateid'])) {
+            $_SESSION['compstateflow'][$key] = $loadstates;
+            return $loadstates;
+        }
+    }
+    $_SESSION['compstateflow'][$key] = $loadstates;
+    return $loadstates;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -7707,52 +7721,52 @@ function getCompStateFlow($compid) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getCompLoadLog($resid) {
-	$query = "SELECT UNIX_TIMESTAMP(rq.start) AS start, "
-	       .        "UNIX_TIMESTAMP(rq.daterequested) AS reqtime, "
-	       .        "rs.computerid "
-	       . "FROM request rq, "
-	       .      "reservation rs "
-	       . "WHERE rs.id = $resid AND "
-	       .       "rs.requestid = rq.id "
-	       . "LIMIT 1";
-	$qh = doQuery($query, 101);
-	if(! $row = mysql_fetch_assoc($qh))
-		abort(113);
-	if($row['start'] < $row['reqtime']) {
-		# now
-		$reqtime = $row['reqtime'];
-		$future = 0;
-	}
-	else
-		$future = 1;
-	$flow = getCompStateFlow($row['computerid']);
-	$instates = implode(',', $flow['stateids']);
-	$query = "SELECT id, "
-	       .        "computerid, "
-	       .        "loadstateid, "
-	       .        "UNIX_TIMESTAMP(timestamp) AS ts "
-	       . "FROM computerloadlog "
-	       . "WHERE reservationid = $resid AND "
-	       .       "(loadstateid IN ($instates) OR "
-	       .       "loadstateid = {$flow['repeatid']}) "
-	       . "ORDER BY id";
-	$qh = doQuery($query, 101);
-	$last = array();
-	$data = array();
-	while($row = mysql_fetch_assoc($qh)) {
-		$data[$row['id']] = $row;
-		if(empty($last)) {
-			if($future)
-				# just set to 10 sec for first state since we don't know when a preload started
-				$data[$row['id']]['time'] = 10;
-			else
-				$data[$row['id']]['time'] = $row['ts'] - $reqtime;
-		}
-		else
-			$data[$row['id']]['time'] = $row['ts'] - $last['ts'];
-		$last = $row;
-	}
-	return $data;
+    $query = "SELECT UNIX_TIMESTAMP(rq.start) AS start, "
+        .        "UNIX_TIMESTAMP(rq.daterequested) AS reqtime, "
+        .        "rs.computerid "
+        . "FROM request rq, "
+        .      "reservation rs "
+        . "WHERE rs.id = $resid AND "
+        .       "rs.requestid = rq.id "
+        . "LIMIT 1";
+    $qh = doQuery($query, 101);
+    if(! $row = mysql_fetch_assoc($qh))
+        abort(113);
+    if($row['start'] < $row['reqtime']) {
+        # now
+        $reqtime = $row['reqtime'];
+        $future = 0;
+    }
+    else
+        $future = 1;
+    $flow = getCompStateFlow($row['computerid']);
+    $instates = implode(',', $flow['stateids']);
+    $query = "SELECT id, "
+        .        "computerid, "
+        .        "loadstateid, "
+        .        "UNIX_TIMESTAMP(timestamp) AS ts "
+        . "FROM computerloadlog "
+        . "WHERE reservationid = $resid AND "
+        .       "(loadstateid IN ($instates) OR "
+        .       "loadstateid = {$flow['repeatid']}) "
+        . "ORDER BY id";
+    $qh = doQuery($query, 101);
+    $last = array();
+    $data = array();
+    while($row = mysql_fetch_assoc($qh)) {
+        $data[$row['id']] = $row;
+        if(empty($last)) {
+            if($future)
+                # just set to 10 sec for first state since we don't know when a preload started
+                $data[$row['id']]['time'] = 10;
+            else
+                $data[$row['id']]['time'] = $row['ts'] - $reqtime;
+        }
+        else
+            $data[$row['id']]['time'] = $row['ts'] - $last['ts'];
+        $last = $row;
+    }
+    return $data;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -7768,25 +7782,25 @@ function getCompLoadLog($resid) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getImageLoadEstimate($imageid) {
-	$query = "SELECT AVG(UNIX_TIMESTAMP(loaded) - UNIX_TIMESTAMP(start)) AS avgloadtime "
-	       . "FROM log "
-	       . "WHERE imageid = $imageid AND "
-	       .        "wasavailable = 1 AND "
-	       .        "UNIX_TIMESTAMP(loaded) - UNIX_TIMESTAMP(start) > 120 AND "
-	       .        "loaded > start AND "
-	       .        "ending != 'failed' AND "
-	       .        "nowfuture = 'now' AND "
-	       .        "start > (NOW() - INTERVAL 12 MONTH) AND "
-	       .        "UNIX_TIMESTAMP(loaded) - UNIX_TIMESTAMP(start) < 1800";
-	$qh = doQuery($query, 101);
-	if($row = mysql_fetch_assoc($qh)) {
-		if(! empty($row['avgloadtime']))
-			return (int)$row['avgloadtime'];
-		else
-			return 0;
-	}
-	else
-		return 0;
+    $query = "SELECT AVG(UNIX_TIMESTAMP(loaded) - UNIX_TIMESTAMP(start)) AS avgloadtime "
+        . "FROM log "
+        . "WHERE imageid = $imageid AND "
+        .        "wasavailable = 1 AND "
+        .        "UNIX_TIMESTAMP(loaded) - UNIX_TIMESTAMP(start) > 120 AND "
+        .        "loaded > start AND "
+        .        "ending != 'failed' AND "
+        .        "nowfuture = 'now' AND "
+        .        "start > (NOW() - INTERVAL 12 MONTH) AND "
+        .        "UNIX_TIMESTAMP(loaded) - UNIX_TIMESTAMP(start) < 1800";
+    $qh = doQuery($query, 101);
+    if($row = mysql_fetch_assoc($qh)) {
+        if(! empty($row['avgloadtime']))
+            return (int)$row['avgloadtime'];
+        else
+            return 0;
+    }
+    else
+        return 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -7800,16 +7814,16 @@ function getImageLoadEstimate($imageid) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getComputerCounts(&$computers) {
-	foreach(array_keys($computers) as $compid) {
-		$query = "SELECT COUNT(logid) "
-		       . "FROM sublog "
-		       . "WHERE computerid = $compid";
-		$qh = doQuery($query, 101);
-		if($row = mysql_fetch_row($qh))
-			$computers[$compid]["counts"] = $row[0];
-		else
-			$computers[$compid]["counts"] = 0;
-	}
+    foreach(array_keys($computers) as $compid) {
+        $query = "SELECT COUNT(logid) "
+            . "FROM sublog "
+            . "WHERE computerid = $compid";
+        $qh = doQuery($query, 101);
+        if($row = mysql_fetch_row($qh))
+            $computers[$compid]["counts"] = $row[0];
+        else
+            $computers[$compid]["counts"] = 0;
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -7825,58 +7839,58 @@ function getComputerCounts(&$computers) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function sortComputers($a, $b) {
-	//if somehow there are empty strings passed in, push them to the end
-	if(empty($a)) {
-		return 1;
-	}
-	if(empty($b)) {
-		return -1;
-	}
+    //if somehow there are empty strings passed in, push them to the end
+    if(empty($a)) {
+        return 1;
+    }
+    if(empty($b)) {
+        return -1;
+    }
 
-	$a['hostname'] = preg_replace('/-UNDELETED-[0-9]+$/', '', $a['hostname']);
-	$b['hostname'] = preg_replace('/-UNDELETED-[0-9]+$/', '', $b['hostname']);
+    $a['hostname'] = preg_replace('/-UNDELETED-[0-9]+$/', '', $a['hostname']);
+    $b['hostname'] = preg_replace('/-UNDELETED-[0-9]+$/', '', $b['hostname']);
 
-	# get hostname and first part of domain name
-	$tmp = explode('.', $a["hostname"]);
-	$h1 = array_shift($tmp);
-	$domain1 = array_shift($tmp);
-	$letters1 = preg_replace('([^a-zA-Z])', '', $h1);
+    # get hostname and first part of domain name
+    $tmp = explode('.', $a["hostname"]);
+    $h1 = array_shift($tmp);
+    $domain1 = array_shift($tmp);
+    $letters1 = preg_replace('([^a-zA-Z])', '', $h1);
 
-	$tmp = explode('.', $b["hostname"]);
-	$h2 = array_shift($tmp);
-	$domain2 = array_shift($tmp);
-	$letters2 = preg_replace('([^a-zA-Z])', '', $h2);
+    $tmp = explode('.', $b["hostname"]);
+    $h2 = array_shift($tmp);
+    $domain2 = array_shift($tmp);
+    $letters2 = preg_replace('([^a-zA-Z])', '', $h2);
 
-	// if different domain names, return based on that
-	$cmp = strcasecmp($domain1, $domain2);
-	if($cmp) {
-		return $cmp;
-	}
+    // if different domain names, return based on that
+    $cmp = strcasecmp($domain1, $domain2);
+    if($cmp) {
+        return $cmp;
+    }
 
-	// if non-numeric part is different, return based on that
-	$cmp = strcasecmp($letters1, $letters2);
-	if($cmp) {
-		return $cmp;
-	}
+    // if non-numeric part is different, return based on that
+    $cmp = strcasecmp($letters1, $letters2);
+    if($cmp) {
+        return $cmp;
+    }
 
-	// at this point, the only difference is in the numbers
-	$digits1 = preg_replace('([^\d-])', '', $h1);
-	$digits1Arr = explode('-', $digits1);
-	$digits2 = preg_replace('([^\d-])', '', $h2);
-	$digits2Arr = explode('-', $digits2);
+    // at this point, the only difference is in the numbers
+    $digits1 = preg_replace('([^\d-])', '', $h1);
+    $digits1Arr = explode('-', $digits1);
+    $digits2 = preg_replace('([^\d-])', '', $h2);
+    $digits2Arr = explode('-', $digits2);
 
-	$len1 = count($digits1Arr);
-	$len2 = count($digits2Arr);
-	for($i = 0; $i < $len1 && $i < $len2; $i++) {
-		if($digits1Arr[$i] < $digits2Arr[$i]) {
-			return -1;
-		}
-		elseif($digits1Arr[$i] > $digits2Arr[$i]) {
-			return 1;
-		}
-	}
+    $len1 = count($digits1Arr);
+    $len2 = count($digits2Arr);
+    for($i = 0; $i < $len1 && $i < $len2; $i++) {
+        if($digits1Arr[$i] < $digits2Arr[$i]) {
+            return -1;
+        }
+        elseif($digits1Arr[$i] > $digits2Arr[$i]) {
+            return 1;
+        }
+    }
 
-	return 0;
+    return 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -7901,42 +7915,42 @@ function sortComputers($a, $b) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getAvailableBlockComputerids($imageid, $start, $end, $allocatedcompids) {
-	global $user;
-	$data = array('compids' => array());
-	$groupids = implode(',', array_keys($user['groups']));
-	if(! count($user['groups']))
-		$groupids = "''";
-	$startdt = unixToDatetime($start);
-	$enddt = unixToDatetime($end);
-	$alloccompids = implode(",", $allocatedcompids);
-	$query = "SELECT c.computerid, "
-	       .        "t.start, "
-	       .        "t.end, "
-	       .        "r.id AS blockid "
-	       . "FROM blockComputers c, "
-	       .      "blockRequest r, "
-	       .      "blockTimes t, "
-	       .      "state s, "
-	       .      "computer c2 "
-	       . "WHERE r.groupid IN ($groupids) AND "
-	       .       "r.status = 'accepted' AND "
-	       .       "c.computerid = c2.id AND "
-	       .       "c2.currentimageid = $imageid AND "
-	       .       "r.expireTime > NOW() AND "
-	       .       "t.blockRequestid = r.id AND "
-	       .       "c.blockTimeid = t.id AND "
-	       .       "t.start < '$enddt' AND "
-	       .       "t.end > '$startdt' AND "
-	       .       "c2.stateid = s.id AND "
-	       .       "s.name != 'failed' AND "
-	       .       "c2.id NOT IN ($alloccompids) "
-	       . "ORDER BY s.name";
-	$qh = doQuery($query, 101);
-	while($row = mysql_fetch_assoc($qh)) {
-		$data['compids'][] = $row['computerid'];
-		$data[$row['computerid']] = $row;
-	}
-	return $data;
+    global $user;
+    $data = array('compids' => array());
+    $groupids = implode(',', array_keys($user['groups']));
+    if(! count($user['groups']))
+        $groupids = "''";
+    $startdt = unixToDatetime($start);
+    $enddt = unixToDatetime($end);
+    $alloccompids = implode(",", $allocatedcompids);
+    $query = "SELECT c.computerid, "
+        .        "t.start, "
+        .        "t.end, "
+        .        "r.id AS blockid "
+        . "FROM blockComputers c, "
+        .      "blockRequest r, "
+        .      "blockTimes t, "
+        .      "state s, "
+        .      "computer c2 "
+        . "WHERE r.groupid IN ($groupids) AND "
+        .       "r.status = 'accepted' AND "
+        .       "c.computerid = c2.id AND "
+        .       "c2.currentimageid = $imageid AND "
+        .       "r.expireTime > NOW() AND "
+        .       "t.blockRequestid = r.id AND "
+        .       "c.blockTimeid = t.id AND "
+        .       "t.start < '$enddt' AND "
+        .       "t.end > '$startdt' AND "
+        .       "c2.stateid = s.id AND "
+        .       "s.name != 'failed' AND "
+        .       "c2.id NOT IN ($alloccompids) "
+        . "ORDER BY s.name";
+    $qh = doQuery($query, 101);
+    while($row = mysql_fetch_assoc($qh)) {
+        $data['compids'][] = $row['computerid'];
+        $data[$row['computerid']] = $row;
+    }
+    return $data;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -7953,20 +7967,20 @@ function getAvailableBlockComputerids($imageid, $start, $end, $allocatedcompids)
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getUsedBlockComputerids($start, $end) {
-	$compids = array();
-	$startdt = unixToDatetime($start);
-	$enddt = unixToDatetime($end);
-	$query = "SELECT c.computerid "
-	       . "FROM blockComputers c, "
-	       .      "blockTimes t "
-	       . "WHERE t.end > '$startdt' AND "
-	       .       "t.start < '$enddt' AND "
-	       .       "c.blockTimeid = t.id";
-	$qh = doQuery($query, 101);
-	while($row = mysql_fetch_assoc($qh)) {
-		array_push($compids, $row['computerid']);
-	}
-	return $compids;
+    $compids = array();
+    $startdt = unixToDatetime($start);
+    $enddt = unixToDatetime($end);
+    $query = "SELECT c.computerid "
+        . "FROM blockComputers c, "
+        .      "blockTimes t "
+        . "WHERE t.end > '$startdt' AND "
+        .       "t.start < '$enddt' AND "
+        .       "c.blockTimeid = t.id";
+    $qh = doQuery($query, 101);
+    while($row = mysql_fetch_assoc($qh)) {
+        array_push($compids, $row['computerid']);
+    }
+    return $compids;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -8002,46 +8016,46 @@ function getUsedBlockComputerids($start, $end) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getBlockTimeData($start="", $end="") {
-	$return = array();
-	$query = "SELECT r.id AS blockid, "
-	       .        "r.name, "
-	       .        "r.imageid, "
-	       .        "i.prettyname AS image, "
-	       .        "r.numMachines, "
-	       .        "r.groupid, "
-	       .        "r.repeating, "
-	       .        "r.ownerid, "
-	       .        "r.admingroupid, "
-	       .        "r.managementnodeid, "
-	       .        "r.expireTime, "
-	       .        "t.id AS timeid, "
-	       .        "t.start, "
-	       .        "t.end "
-	       . "FROM blockRequest r, "
-	       .      "blockTimes t, "
-	       .      "image i "
-	       . "WHERE r.id = t.blockRequestid AND "
-	       .       "r.status = 'accepted' AND "
-	       .       "r.imageid = i.id";
-	if(! empty($start))
-		$query .= " AND t.start < '" . unixToDatetime($end) . "'";
-	if(! empty($end))
-		$query .= " AND t.end > '" . unixToDatetime($start) . "'";
-	$query .= " ORDER BY t.start, t.end";
-	$qh = doQuery($query, 101);
-	while($row = mysql_fetch_assoc($qh)) {
-		$return[$row['timeid']] = $row;
-		$return[$row['timeid']]['unixstart'] = datetimeToUnix($row['start']);
-		$return[$row['timeid']]['unixend'] = datetimeToUnix($row['end']);
-		$return[$row['timeid']]['computerids'] = array();
-		$query2 = "SELECT computerid "
-		        . "FROM blockComputers "
-		        . "WHERE blockTimeid = {$row['timeid']}";
-		$qh2 = doQuery($query2, 101);
-		while($row2 = mysql_fetch_assoc($qh2))
-			array_push($return[$row['timeid']]['computerids'], $row2['computerid']);
-	}
-	return $return;
+    $return = array();
+    $query = "SELECT r.id AS blockid, "
+        .        "r.name, "
+        .        "r.imageid, "
+        .        "i.prettyname AS image, "
+        .        "r.numMachines, "
+        .        "r.groupid, "
+        .        "r.repeating, "
+        .        "r.ownerid, "
+        .        "r.admingroupid, "
+        .        "r.managementnodeid, "
+        .        "r.expireTime, "
+        .        "t.id AS timeid, "
+        .        "t.start, "
+        .        "t.end "
+        . "FROM blockRequest r, "
+        .      "blockTimes t, "
+        .      "image i "
+        . "WHERE r.id = t.blockRequestid AND "
+        .       "r.status = 'accepted' AND "
+        .       "r.imageid = i.id";
+    if(! empty($start))
+        $query .= " AND t.start < '" . unixToDatetime($end) . "'";
+    if(! empty($end))
+        $query .= " AND t.end > '" . unixToDatetime($start) . "'";
+    $query .= " ORDER BY t.start, t.end";
+    $qh = doQuery($query, 101);
+    while($row = mysql_fetch_assoc($qh)) {
+        $return[$row['timeid']] = $row;
+        $return[$row['timeid']]['unixstart'] = datetimeToUnix($row['start']);
+        $return[$row['timeid']]['unixend'] = datetimeToUnix($row['end']);
+        $return[$row['timeid']]['computerids'] = array();
+        $query2 = "SELECT computerid "
+            . "FROM blockComputers "
+            . "WHERE blockTimeid = {$row['timeid']}";
+        $qh2 = doQuery($query2, 101);
+        while($row2 = mysql_fetch_assoc($qh2))
+            array_push($return[$row['timeid']]['computerids'], $row2['computerid']);
+    }
+    return $return;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -8059,13 +8073,13 @@ function getBlockTimeData($start="", $end="") {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function isBlockAllocationTime($compid, $ts, $blockData) {
-	foreach(array_keys($blockData) as $timeid) {
-		if(in_array($compid, $blockData[$timeid]['computerids']) &&
-		   $ts >= $blockData[$timeid]['unixstart'] &&
-		   $ts < $blockData[$timeid]['unixend'])
-			return $timeid;
-	}
-	return 0;
+    foreach(array_keys($blockData) as $timeid) {
+        if(in_array($compid, $blockData[$timeid]['computerids']) &&
+            $ts >= $blockData[$timeid]['unixstart'] &&
+            $ts < $blockData[$timeid]['unixend'])
+            return $timeid;
+    }
+    return 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -8082,19 +8096,19 @@ function isBlockAllocationTime($compid, $ts, $blockData) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function isImageBlockTimeActive($imageid) {
-	$now = time();
-	$nowdt = unixToDatetime($now);
-	$query = "SELECT bt.id "
-	       . "FROM blockTimes bt, "
-	       .      "blockRequest br "
-	       . "WHERE bt.blockRequestid = br.id AND "
-	       .       "bt.processed = 1 AND "
-	       .       "bt.end > '$nowdt' AND "
-	       .       "br.imageid = $imageid";
-	$qh = doQuery($query, 101);
-	if($row = mysql_fetch_assoc($qh))
-		return 1;
-	return 0;
+    $now = time();
+    $nowdt = unixToDatetime($now);
+    $query = "SELECT bt.id "
+        . "FROM blockTimes bt, "
+        .      "blockRequest br "
+        . "WHERE bt.blockRequestid = br.id AND "
+        .       "bt.processed = 1 AND "
+        .       "bt.end > '$nowdt' AND "
+        .       "br.imageid = $imageid";
+    $qh = doQuery($query, 101);
+    if($row = mysql_fetch_assoc($qh))
+        return 1;
+    return 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -8115,38 +8129,38 @@ function isImageBlockTimeActive($imageid) {
 /// \param $extra - (optional) any extra attributes that need to be set
 ///
 /// \brief prints out a select input part of a form\n
-/// it is assumed that if $selectedid is left off, we assume $dataArr has no 
+/// it is assumed that if $selectedid is left off, we assume $dataArr has no
 /// index '-1'\n
 /// each OPTION's value is the index of that element of the array
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function printSelectInput($name, $dataArr, $selectedid=-1, $skip=0, $multiple=0,
                           $domid="", $extra="") {
-	if(! empty($domid))
-		$domid = "id=\"$domid\"";
-	if($multiple)
-		$multiple = "multiple";
-	else
-		$multiple = "";
-	if($name != '')
-		print "      <select name=$name $multiple $domid $extra>\n";
-	else
-		print "      <select $multiple $domid $extra>\n";
-	foreach(array_keys($dataArr) as $id) {
-		if(($skip && $id == 4) || ($dataArr[$id] != 0 && empty($dataArr[$id])))
-			continue;
-		if($id == $selectedid)
-		   print "        <option value=\"$id\" selected=\"selected\">";
-		else
-		   print "        <option value=\"$id\">";
-		if(is_array($dataArr[$id]) && array_key_exists("prettyname", $dataArr[$id]))
-			print $dataArr[$id]["prettyname"] . "</option>\n";
-		elseif(is_array($dataArr[$id]) && array_key_exists("name", $dataArr[$id]))
-			print $dataArr[$id]["name"] . "</option>\n";
-		else
-			print $dataArr[$id] . "</option>\n";
-	}
-	print "      </select>\n";
+    if(! empty($domid))
+        $domid = "id=\"$domid\"";
+    if($multiple)
+        $multiple = "multiple";
+    else
+        $multiple = "";
+    if($name != '')
+        print "      <select name=$name $multiple $domid $extra>\n";
+    else
+        print "      <select $multiple $domid $extra>\n";
+    foreach(array_keys($dataArr) as $id) {
+        if(($skip && $id == 4) || ($dataArr[$id] != 0 && empty($dataArr[$id])))
+            continue;
+        if($id == $selectedid)
+            print "        <option value=\"$id\" selected=\"selected\">";
+        else
+            print "        <option value=\"$id\">";
+        if(is_array($dataArr[$id]) && array_key_exists("prettyname", $dataArr[$id]))
+            print $dataArr[$id]["prettyname"] . "</option>\n";
+        elseif(is_array($dataArr[$id]) && array_key_exists("name", $dataArr[$id]))
+            print $dataArr[$id]["name"] . "</option>\n";
+        else
+            print $dataArr[$id] . "</option>\n";
+    }
+    print "      </select>\n";
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -8160,59 +8174,59 @@ function printSelectInput($name, $dataArr, $selectedid=-1, $skip=0, $multiple=0,
 ///
 ////////////////////////////////////////////////////////////////////////////////
 /*function printHiddenInputs($data) {
-	foreach(array_keys($data) as $key) {
-		if(is_array($data[$key])) {
-			foreach(($data[$key]) as $index => $value) {
-				print "      <INPUT type=hidden name=$key" . "[$index] value=";
-				print "$value>\n";
-			}
-		}
-		else {
-			if($data[$key] != "") {
-				print "      <INPUT type=hidden name=$key value=\"";
-				print $data["$key"] . "\">\n";
-			}
-		}
-	}
+    foreach(array_keys($data) as $key) {
+        if(is_array($data[$key])) {
+            foreach(($data[$key]) as $index => $value) {
+                print "      <INPUT type=hidden name=$key" . "[$index] value=";
+                print "$value>\n";
+            }
+        }
+        else {
+            if($data[$key] != "") {
+                print "      <INPUT type=hidden name=$key value=\"";
+                print $data["$key"] . "\">\n";
+            }
+        }
+    }
 }*/
 
 ////////////////////////////////////////////////////////////////////////////////
 ///
 /// \fn requestIsReady($request)
 ///
-/// \param $request - a request element from the array returned by 
+/// \param $request - a request element from the array returned by
 /// getUserRequests
 ///
 /// \return 1 if request is ready for a user to connect, 0 if not
 ///
-/// \brief checks to see if a request is 
+/// \brief checks to see if a request is
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function requestIsReady($request) {
-	foreach($request["reservations"] as $res) {
-		if($res["computerstateid"] != 3 && $res["computerstateid"] != 8)
-			return 0;
-	}
-	if(($request["currstateid"] == 14 &&      // request current state pending 
-	   $request["laststateid"] == 3 &&        //   and last state reserved and
-	   $request["computerstateid"] == 3) ||   //   computer reserved
-	   ($request["currstateid"] == 8 &&       // request current state inuse
-	   $request["computerstateid"] == 8) ||   //   and computer state inuse
-	   ($request["currstateid"] == 24 &&      // request current state checkpoint
-	   $request["computerstateid"] == 8) ||   //   and computer state inuse
-	   ($request["currstateid"] == 29 &&      // request current state servermodified
-	   $request["computerstateid"] == 8) ||   //   and computer state inuse
-	   ($request["currstateid"] == 29 &&      // request current state servermodified
-	   $request["computerstateid"] == 3) ||   //   and computer state reserved
-	   ($request["currstateid"] == 14 &&      // request current state pending
-	   $request["laststateid"] == 8 &&        //   and last state inuse and
-	   $request["computerstateid"] == 8) ||   //   computer inuse
-	   ($request["currstateid"] == 14 &&      // request current state pending
-	   $request["laststateid"] == 8 &&        //   and last state inuse
-	   $request["computerstateid"] == 3)) {   //   and computer reserved
-		return 1;
-	}
-	return 0;
+    foreach($request["reservations"] as $res) {
+        if($res["computerstateid"] != 3 && $res["computerstateid"] != 8)
+            return 0;
+    }
+    if(($request["currstateid"] == 14 &&      // request current state pending
+        $request["laststateid"] == 3 &&        //   and last state reserved and
+        $request["computerstateid"] == 3) ||   //   computer reserved
+        ($request["currstateid"] == 8 &&       // request current state inuse
+            $request["computerstateid"] == 8) ||   //   and computer state inuse
+        ($request["currstateid"] == 24 &&      // request current state checkpoint
+            $request["computerstateid"] == 8) ||   //   and computer state inuse
+        ($request["currstateid"] == 29 &&      // request current state servermodified
+            $request["computerstateid"] == 8) ||   //   and computer state inuse
+        ($request["currstateid"] == 29 &&      // request current state servermodified
+            $request["computerstateid"] == 3) ||   //   and computer state reserved
+        ($request["currstateid"] == 14 &&      // request current state pending
+            $request["laststateid"] == 8 &&        //   and last state inuse and
+            $request["computerstateid"] == 8) ||   //   computer inuse
+        ($request["currstateid"] == 14 &&      // request current state pending
+            $request["laststateid"] == 8 &&        //   and last state inuse
+            $request["computerstateid"] == 3)) {   //   and computer reserved
+        return 1;
+    }
+    return 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -8229,17 +8243,17 @@ function requestIsReady($request) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function printSubmitErr($errno, $index=0, $errorDiv=0) {
-	global $submitErr, $submitErrMsg;
-	if($submitErr & $errno) {
-		if($errorDiv)
-			print "<p class=errormsg>";
-		if(is_array($submitErrMsg[$errno]))
-			print "<font color=red><em>{$submitErrMsg[$errno][$index]}</em></font>";
-		else
-			print "<font color=red><em>{$submitErrMsg[$errno]}</em></font>";
-		if($errorDiv)
-			print "</p>";
-	}
+    global $submitErr, $submitErrMsg;
+    if($submitErr & $errno) {
+        if($errorDiv)
+            print "<p class=errormsg>";
+        if(is_array($submitErrMsg[$errno]))
+            print "<font color=red><em>{$submitErrMsg[$errno][$index]}</em></font>";
+        else
+            print "<font color=red><em>{$submitErrMsg[$errno]}</em></font>";
+        if($errorDiv)
+            print "</p>";
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -8252,9 +8266,9 @@ function printSubmitErr($errno, $index=0, $errorDiv=0) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function printArray($array) {
-	print "<pre>\n";
-	print_r($array);
-	print "</pre>\n";
+    print "<pre>\n";
+    print_r($array);
+    print "</pre>\n";
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -8271,14 +8285,14 @@ function printArray($array) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function prettyDatetime($stamp, $showyear=0) {
-	global $locale;
-	if(! preg_match('/^[\d]+$/', $stamp))
-		$stamp = datetimeToUnix($stamp);
-	if($showyear)
-		$return = strftime('%A, %b&nbsp;%-d,&nbsp;%Y, %l:%M %P', $stamp);
-	else
-		$return = strftime('%A, %b&nbsp;%-d, %l:%M %P', $stamp);
-	return $return;
+    global $locale;
+    if(! preg_match('/^[\d]+$/', $stamp))
+        $stamp = datetimeToUnix($stamp);
+    if($showyear)
+        $return = strftime('%A, %b&nbsp;%-d,&nbsp;%Y, %l:%M %P', $stamp);
+    else
+        $return = strftime('%A, %b&nbsp;%-d, %l:%M %P', $stamp);
+    return $return;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -8293,16 +8307,16 @@ function prettyDatetime($stamp, $showyear=0) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function minToHourMin($min) {
-	if($min < 60)
-		return $min . _(" minutes");
-	elseif($min == 60)
-		return _("1 hour");
-	elseif($min % 60 == 0)
-		return sprintf("%d " . _("hours"), $min / 60);
-	elseif($min % 30 == 0)
-		return sprintf("%.1f " . _("hours"), $min / 60);
-	else
-		return sprintf("%.2f " . _("hours"), $min / 60);
+    if($min < 60)
+        return $min . _(" minutes");
+    elseif($min == 60)
+        return _("1 hour");
+    elseif($min % 60 == 0)
+        return sprintf("%d " . _("hours"), $min / 60);
+    elseif($min % 30 == 0)
+        return sprintf("%.1f " . _("hours"), $min / 60);
+    else
+        return sprintf("%.2f " . _("hours"), $min / 60);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -8317,14 +8331,14 @@ function minToHourMin($min) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function secToMinSec($sec) {
-	if($sec < 60)
-		return sprintf("0:%02d", $sec);
-	elseif($sec == 60)
-		return "1:00";
-	elseif($sec % 60 == 0)
-		return sprintf("%d:00", $sec / 60);
-	else
-		return sprintf("%d:%02d", $sec / 60, $sec % 60);
+    if($sec < 60)
+        return sprintf("0:%02d", $sec);
+    elseif($sec == 60)
+        return "1:00";
+    elseif($sec % 60 == 0)
+        return sprintf("%d:00", $sec / 60);
+    else
+        return sprintf("%d:%02d", $sec / 60, $sec % 60);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -8340,20 +8354,20 @@ function secToMinSec($sec) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function prettyLength($minutes) {
-	if($minutes < 60)
-		return (int)$minutes . _(" minutes");
-	elseif($minutes == 60)
-		return _("1 hour");
-	elseif($minutes % 60 == 0)
-		return $minutes / 60 . _(" hours");
-	else {
-		$hours = (int)($minutes / 60);
-		$min = (int)($minutes % 60);
-		if($hours == 1)
-			return "$hours " . _("hour") . ", $min " . _("minutes");
-		else
-			return "$hours " . _("hours") . ", $min " . _("minutes");
-	}
+    if($minutes < 60)
+        return (int)$minutes . _(" minutes");
+    elseif($minutes == 60)
+        return _("1 hour");
+    elseif($minutes % 60 == 0)
+        return $minutes / 60 . _(" hours");
+    else {
+        $hours = (int)($minutes / 60);
+        $min = (int)($minutes % 60);
+        if($hours == 1)
+            return "$hours " . _("hour") . ", $min " . _("minutes");
+        else
+            return "$hours " . _("hours") . ", $min " . _("minutes");
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -8368,15 +8382,15 @@ function prettyLength($minutes) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function addLoadTime($imageid, $start, $loadtime) {
-	$query = "INSERT INTO imageloadtimes "
-	       .        "(imageid, "
-	       .        "starttime, "
-	       .        "loadtimeseconds) "
-	       . "VALUES "
-	       .        "($imageid, "
-	       .        "$start, "
-	       .        "$loadtime)";
-	doQuery($query, 245);
+    $query = "INSERT INTO imageloadtimes "
+        .        "(imageid, "
+        .        "starttime, "
+        .        "loadtimeseconds) "
+        . "VALUES "
+        .        "($imageid, "
+        .        "$start, "
+        .        "$loadtime)";
+    doQuery($query, 245);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -8389,17 +8403,17 @@ function addLoadTime($imageid, $start, $loadtime) {
 ///
 /// \return 1 if schedule is closed at $timestamp, 0 if it is open
 ///
-/// \brief checks to see if the computer's schedule is open or closed at 
+/// \brief checks to see if the computer's schedule is open or closed at
 /// $timestamp
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function scheduleClosed($computerid, $timestamp, $schedule) {
-	$time = minuteOfWeek($timestamp);
-	foreach($schedule["times"] as $schtime) {
-		if($schtime["start"] <= $time && $time < $schtime["end"])
-			return 0;
-	}
-	return 1;
+    $time = minuteOfWeek($timestamp);
+    foreach($schedule["times"] as $schtime) {
+        if($schtime["start"] <= $time && $time < $schtime["end"])
+            return 0;
+    }
+    return 1;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -8418,11 +8432,11 @@ function scheduleClosed($computerid, $timestamp, $schedule) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function checkInMaintenanceForTimeTable($start, $end, $items) {
-	foreach($items as $item) {
-		if($item['start'] < $end && $item['end'] > $start)
-			return 1;
-	}
-	return 0;
+    foreach($items as $item) {
+        if($item['start'] < $end && $item['end'] > $start)
+            return 1;
+    }
+    return 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -8437,39 +8451,39 @@ function checkInMaintenanceForTimeTable($start, $end, $items) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function updateGroups($newusergroups, $userid) {
-	$query = "SELECT m.usergroupid "
-	       . "FROM usergroupmembers m, "
-	       .      "usergroup u "
-	       . "WHERE m.userid = $userid AND "
-	       .       "m.usergroupid = u.id AND "
-	       .       "u.custom = 0 AND "
-	       .       "u.courseroll = 0";
-	$qh = doQuery($query, 305);
-	$oldusergroups = array();
-	while($row = mysql_fetch_row($qh)) {
-		array_push($oldusergroups, $row[0]);
-	}
-	if(count(array_diff($oldusergroups, $newusergroups)) ||
-	   count(array_diff($newusergroups, $oldusergroups))) {
-		$query = "DELETE m "
-		       . "FROM usergroupmembers m, "
-		       .             "usergroup u "
-		       . "WHERE m.userid = $userid AND "
-		       .       "m.usergroupid = u.id AND "
-		       .       "u.custom = 0 AND "
-		       .       "u.courseroll = 0";
-		doQuery($query, 306);
-		foreach($newusergroups as $id) {
-			$query = "INSERT INTO usergroupmembers "
-			       . "(userid, usergroupid) "
-			       . "VALUES ($userid, $id) "
-			       . "ON DUPLICATE KEY UPDATE "
-			       . "userid = $userid, usergroupid = $id";
-			doQuery($query, 307);
-			checkUpdateServerRequestGroups($id);
-		}
-	}
-	return $newusergroups;
+    $query = "SELECT m.usergroupid "
+        . "FROM usergroupmembers m, "
+        .      "usergroup u "
+        . "WHERE m.userid = $userid AND "
+        .       "m.usergroupid = u.id AND "
+        .       "u.custom = 0 AND "
+        .       "u.courseroll = 0";
+    $qh = doQuery($query, 305);
+    $oldusergroups = array();
+    while($row = mysql_fetch_row($qh)) {
+        array_push($oldusergroups, $row[0]);
+    }
+    if(count(array_diff($oldusergroups, $newusergroups)) ||
+        count(array_diff($newusergroups, $oldusergroups))) {
+        $query = "DELETE m "
+            . "FROM usergroupmembers m, "
+            .             "usergroup u "
+            . "WHERE m.userid = $userid AND "
+            .       "m.usergroupid = u.id AND "
+            .       "u.custom = 0 AND "
+            .       "u.courseroll = 0";
+        doQuery($query, 306);
+        foreach($newusergroups as $id) {
+            $query = "INSERT INTO usergroupmembers "
+                . "(userid, usergroupid) "
+                . "VALUES ($userid, $id) "
+                . "ON DUPLICATE KEY UPDATE "
+                . "userid = $userid, usergroupid = $id";
+            doQuery($query, 307);
+            checkUpdateServerRequestGroups($id);
+        }
+    }
+    return $newusergroups;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -8487,30 +8501,30 @@ function updateGroups($newusergroups, $userid) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getUserGroupID($name, $affilid=DEFAULT_AFFILID) {
-	$query = "SELECT id "
-	       . "FROM usergroup "
-	       . "WHERE name = '$name' AND "
-	       .       "affiliationid = $affilid";
-	$qh = doQuery($query, 300);
-	if($row = mysql_fetch_row($qh)) {
-		return $row[0];
-	}
-	$query = "INSERT INTO usergroup "
-	       .        "(name, "
-	       .        "affiliationid, "
-	       .        "custom, "
-	       .        "courseroll) "
-	       . "VALUES "
-	       .        "('$name', "
-	       .        "$affilid, "
-	       .        "0, "
-	       .        "0)";
-	doQuery($query, 301);
-	$qh = doQuery("SELECT LAST_INSERT_ID() FROM usergroup", 302);
-	if(! $row = mysql_fetch_row($qh)) {
-		abort(303);
-	}
-	return $row[0];
+    $query = "SELECT id "
+        . "FROM usergroup "
+        . "WHERE name = '$name' AND "
+        .       "affiliationid = $affilid";
+    $qh = doQuery($query, 300);
+    if($row = mysql_fetch_row($qh)) {
+        return $row[0];
+    }
+    $query = "INSERT INTO usergroup "
+        .        "(name, "
+        .        "affiliationid, "
+        .        "custom, "
+        .        "courseroll) "
+        . "VALUES "
+        .        "('$name', "
+        .        "$affilid, "
+        .        "0, "
+        .        "0)";
+    doQuery($query, 301);
+    $qh = doQuery("SELECT LAST_INSERT_ID() FROM usergroup", 302);
+    if(! $row = mysql_fetch_row($qh)) {
+        abort(303);
+    }
+    return $row[0];
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -8518,7 +8532,7 @@ function getUserGroupID($name, $affilid=DEFAULT_AFFILID) {
 /// \fn getUserGroupName($id, $incAffil)
 ///
 /// \param $id - id of a user group
-/// \param $incAffil - 0 or 1 (optional, defaults to 0); include @ and 
+/// \param $incAffil - 0 or 1 (optional, defaults to 0); include @ and
 /// affiliation at the end
 ///
 /// \return name for $id from usergroup table or 0 if name not found
@@ -8527,22 +8541,22 @@ function getUserGroupID($name, $affilid=DEFAULT_AFFILID) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getUserGroupName($id, $incAffil=0) {
-	if($incAffil) {
-		$query = "SELECT CONCAT(u.name, '@', a.name) as name "
-		       . "FROM usergroup u, "
-		       .      "affiliation a "
-		       . "WHERE u.id = $id AND "
-		       .       "u.affiliationid = a.id";
-	}
-	else {
-		$query = "SELECT name "
-		       . "FROM usergroup "
-		       . "WHERE id = $id";
-	}
-	$qh = doQuery($query, 101);
-	if($row = mysql_fetch_row($qh))
-		return $row[0];
-	return 0;
+    if($incAffil) {
+        $query = "SELECT CONCAT(u.name, '@', a.name) as name "
+            . "FROM usergroup u, "
+            .      "affiliation a "
+            . "WHERE u.id = $id AND "
+            .       "u.affiliationid = a.id";
+    }
+    else {
+        $query = "SELECT name "
+            . "FROM usergroup "
+            . "WHERE id = $id";
+    }
+    $qh = doQuery($query, 101);
+    if($row = mysql_fetch_row($qh))
+        return $row[0];
+    return 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -8556,15 +8570,15 @@ function getUserGroupName($id, $incAffil=0) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function checkUpdateServerRequestGroups($groupid) {
-	$query = "UPDATE request "
-	       . "SET stateid = 29 "
-	       . "WHERE stateid IN (3, 7, 8, 14, 16, 24, 25, 26, 27, 28) AND "
-	       .       "id IN "
-	       .   "(SELECT requestid "
-	       .   "FROM serverrequest "
-	       .   "WHERE admingroupid = $groupid OR "
-	       .         "logingroupid = $groupid)";
-	doQuery($query, 101);
+    $query = "UPDATE request "
+        . "SET stateid = 29 "
+        . "WHERE stateid IN (3, 7, 8, 14, 16, 24, 25, 26, 27, 28) AND "
+        .       "id IN "
+        .   "(SELECT requestid "
+        .   "FROM serverrequest "
+        .   "WHERE admingroupid = $groupid OR "
+        .         "logingroupid = $groupid)";
+    doQuery($query, 101);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -8593,34 +8607,34 @@ function checkUpdateServerRequestGroups($groupid) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getMaintItems($id=0) {
-	$key = getKey(array('getMaintItems', $id));
-	if(isset($_SESSION) && array_key_exists($key, $_SESSION['usersessiondata']))
-		return $_SESSION['usersessiondata'][$key];
-	$query = "SELECT m.id, "
-	       .        "m.start, "
-	       .        "m.end, "
-	       .        "m.ownerid, "
-	       .        "CONCAT(u.unityid, '@', a.name) AS owner, "
-	       .        "m.created, "
-	       .        "m.reason, "
-	       .        "m.usermessage, "
-	       .        "m.informhoursahead, "
-	       .        "m.allowreservations "
-	       . "FROM sitemaintenance m, "
-	       .      "user u, "
-	       .      "affiliation a "
-	       . "WHERE m.ownerid = u.id AND "
-	       .       "u.affiliationid = a.id AND "
-	       .       "m.end > NOW() ";
-	if($id)
-		$query .= "AND m.id = $id ";
-	$query .= "ORDER BY m.start";
-	$qh = doQuery($query, 101);
-	$data = array();
-	while($row = mysql_fetch_assoc($qh))
-		$data[$row['id']] = $row;
-	$_SESSION['usersessiondata'][$key] = $data;
-	return $data;
+    $key = getKey(array('getMaintItems', $id));
+    if(isset($_SESSION) && array_key_exists($key, $_SESSION['usersessiondata']))
+        return $_SESSION['usersessiondata'][$key];
+    $query = "SELECT m.id, "
+        .        "m.start, "
+        .        "m.end, "
+        .        "m.ownerid, "
+        .        "CONCAT(u.unityid, '@', a.name) AS owner, "
+        .        "m.created, "
+        .        "m.reason, "
+        .        "m.usermessage, "
+        .        "m.informhoursahead, "
+        .        "m.allowreservations "
+        . "FROM sitemaintenance m, "
+        .      "user u, "
+        .      "affiliation a "
+        . "WHERE m.ownerid = u.id AND "
+        .       "u.affiliationid = a.id AND "
+        .       "m.end > NOW() ";
+    if($id)
+        $query .= "AND m.id = $id ";
+    $query .= "ORDER BY m.start";
+    $qh = doQuery($query, 101);
+    $data = array();
+    while($row = mysql_fetch_assoc($qh))
+        $data[$row['id']] = $row;
+    $_SESSION['usersessiondata'][$key] = $data;
+    return $data;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -8639,23 +8653,23 @@ function getMaintItems($id=0) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getMaintItemsForTimeTable($start, $end) {
-	$key = getKey(array('getMaintItemsForTimeTable', $start, $end));
-	if(array_key_exists($key, $_SESSION['usersessiondata']))
-		return $_SESSION['usersessiondata'][$key];
-	$startdt = unixToDatetime($start);
-	$enddt = unixToDatetime($end);
-	$query = "SELECT UNIX_TIMESTAMP(start - INTERVAL 30 MINUTE) AS start, "
-	       .        "UNIX_TIMESTAMP(end) AS end "
-	       . "FROM sitemaintenance "
-	       . "WHERE end > '$startdt' AND "
-	       .       "start < '$enddt' "
-	       . "ORDER BY start";
-	$qh = doQuery($query, 101);
-	$data = array();
-	while($row = mysql_fetch_assoc($qh))
-		$data[] = $row;
-	$_SESSION['usersessiondata'][$key] = $data;
-	return $data;
+    $key = getKey(array('getMaintItemsForTimeTable', $start, $end));
+    if(array_key_exists($key, $_SESSION['usersessiondata']))
+        return $_SESSION['usersessiondata'][$key];
+    $startdt = unixToDatetime($start);
+    $enddt = unixToDatetime($end);
+    $query = "SELECT UNIX_TIMESTAMP(start - INTERVAL 30 MINUTE) AS start, "
+        .        "UNIX_TIMESTAMP(end) AS end "
+        . "FROM sitemaintenance "
+        . "WHERE end > '$startdt' AND "
+        .       "start < '$enddt' "
+        . "ORDER BY start";
+    $qh = doQuery($query, 101);
+    $data = array();
+    while($row = mysql_fetch_assoc($qh))
+        $data[] = $row;
+    $_SESSION['usersessiondata'][$key] = $data;
+    return $data;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -8669,9 +8683,9 @@ function getMaintItemsForTimeTable($start, $end) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function unset_by_val($needle, &$haystack) {
-	while(($gotcha = array_search($needle,$haystack)) > -1) { 
-		unset($haystack[$gotcha]);
-	}
+    while(($gotcha = array_search($needle,$haystack)) > -1) {
+        unset($haystack[$gotcha]);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -8682,90 +8696,90 @@ function unset_by_val($needle, &$haystack) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function sendRDPfile() {
-	global $user;
-	# for more info on this file, see 
-	# http://dev.remotenetworktechnology.com/ts/rdpfile.htm
-	$requestid = getContinuationVar("requestid");
-	$resid = getContinuationVar("resid");
-	$request = getRequestInfo("$requestid");
-	if($request['stateid'] == 11 || $request['stateid'] == 12 ||
-	   ($request['stateid'] == 14 && 
-	   ($request['laststateid'] == 11 || $request['laststateid'] == 12))) {
-		$cont = addContinuationsEntry('viewRequests');
-		header("Location: " . BASEURL . SCRIPT . "?continuation=$cont");
-		return;
-	}
-	foreach($request["reservations"] as $res) {
-		if($res['reservationid'] == $resid) {
-			$ipaddress = $res["reservedIP"];
-			break;
-		}
-	}
-	if(empty($ipaddress))
-		return;
-	$passwd = $request['passwds'][$resid][$user['id']];
+    global $user;
+    # for more info on this file, see
+    # http://dev.remotenetworktechnology.com/ts/rdpfile.htm
+    $requestid = getContinuationVar("requestid");
+    $resid = getContinuationVar("resid");
+    $request = getRequestInfo("$requestid");
+    if($request['stateid'] == 11 || $request['stateid'] == 12 ||
+        ($request['stateid'] == 14 &&
+            ($request['laststateid'] == 11 || $request['laststateid'] == 12))) {
+        $cont = addContinuationsEntry('viewRequests');
+        header("Location: " . BASEURL . SCRIPT . "?continuation=$cont");
+        return;
+    }
+    foreach($request["reservations"] as $res) {
+        if($res['reservationid'] == $resid) {
+            $ipaddress = $res["reservedIP"];
+            break;
+        }
+    }
+    if(empty($ipaddress))
+        return;
+    $passwd = $request['passwds'][$resid][$user['id']];
 
-	$width = $user["width"];
-	$height = $user["height"];
-	if($width == 0) {
-		$screenmode = 2;
-		$width = 1024;
-		$height = 768;
-	}
-	else
-		$screenmode = 1;
-	$bpp = $user["bpp"];
-	if($user["audiomode"] == "none")
-		$audiomode = 2;
-	else
-		$audiomode = 0;
-	$redirectdrives = $user["mapdrives"];
-	$redirectprinters = $user["mapprinters"];
-	$redirectcomports = $user["mapserial"];
+    $width = $user["width"];
+    $height = $user["height"];
+    if($width == 0) {
+        $screenmode = 2;
+        $width = 1024;
+        $height = 768;
+    }
+    else
+        $screenmode = 1;
+    $bpp = $user["bpp"];
+    if($user["audiomode"] == "none")
+        $audiomode = 2;
+    else
+        $audiomode = 0;
+    $redirectdrives = $user["mapdrives"];
+    $redirectprinters = $user["mapprinters"];
+    $redirectcomports = $user["mapserial"];
 
-	header("Content-type: application/rdp");
-	if($request['serverrequest']) {
-		if(count($request['reservations']) == 1)
-			header("Content-Disposition: inline; filename=\"{$request['servername']}.rdp\"");
-		else
-			header("Content-Disposition: inline; filename=\"{$request['servername']}-{$res['prettyimage']}.rdp\"");
-	}
-	else
-		header("Content-Disposition: inline; filename=\"{$res['prettyimage']}.rdp\"");
-	print "screen mode id:i:$screenmode\r\n";
-	print "desktopwidth:i:$width\r\n";
-	print "desktopheight:i:$height\r\n";
-	print "session bpp:i:$bpp\r\n";
-	print "winposstr:s:0,1,382,71,1182,671\r\n";
-	print "full address:s:$ipaddress\r\n";
-	print "compression:i:1\r\n";
-	print "keyboardhook:i:2\r\n";
-	print "audiomode:i:$audiomode\r\n";
-	print "redirectdrives:i:$redirectdrives\r\n";
-	print "redirectprinters:i:$redirectprinters\r\n";
-	print "redirectcomports:i:$redirectcomports\r\n";
-	print "redirectsmartcards:i:1\r\n";
-	print "displayconnectionbar:i:1\r\n";
-	print "autoreconnection enabled:i:1\r\n";
-	if($request["forimaging"])
-		print "username:s:Administrator\r\n";
-	else {
-		if(preg_match('/(.*)@(.*)/', $user['unityid'], $matches))
-			print "username:s:" . $matches[1] . "\r\n";
-		else
-			print "username:s:" . $user["unityid"] . "\r\n";
-	}
-	print "clear password:s:$passwd\r\n";
-	print "domain:s:\r\n";
-	print "alternate shell:s:\r\n";
-	print "shell working directory:s:\r\n";
-	print "disable wallpaper:i:1\r\n";
-	print "disable full window drag:i:1\r\n";
-	print "disable menu anims:i:1\r\n";
-	print "disable themes:i:0\r\n";
-	print "disable cursor setting:i:0\r\n";
-	print "bitmapcachepersistenable:i:1\r\n";
-	//print "connect to console:i:1\r\n";
+    header("Content-type: application/rdp");
+    if($request['serverrequest']) {
+        if(count($request['reservations']) == 1)
+            header("Content-Disposition: inline; filename=\"{$request['servername']}.rdp\"");
+        else
+            header("Content-Disposition: inline; filename=\"{$request['servername']}-{$res['prettyimage']}.rdp\"");
+    }
+    else
+        header("Content-Disposition: inline; filename=\"{$res['prettyimage']}.rdp\"");
+    print "screen mode id:i:$screenmode\r\n";
+    print "desktopwidth:i:$width\r\n";
+    print "desktopheight:i:$height\r\n";
+    print "session bpp:i:$bpp\r\n";
+    print "winposstr:s:0,1,382,71,1182,671\r\n";
+    print "full address:s:$ipaddress\r\n";
+    print "compression:i:1\r\n";
+    print "keyboardhook:i:2\r\n";
+    print "audiomode:i:$audiomode\r\n";
+    print "redirectdrives:i:$redirectdrives\r\n";
+    print "redirectprinters:i:$redirectprinters\r\n";
+    print "redirectcomports:i:$redirectcomports\r\n";
+    print "redirectsmartcards:i:1\r\n";
+    print "displayconnectionbar:i:1\r\n";
+    print "autoreconnection enabled:i:1\r\n";
+    if($request["forimaging"])
+        print "username:s:Administrator\r\n";
+    else {
+        if(preg_match('/(.*)@(.*)/', $user['unityid'], $matches))
+            print "username:s:" . $matches[1] . "\r\n";
+        else
+            print "username:s:" . $user["unityid"] . "\r\n";
+    }
+    print "clear password:s:$passwd\r\n";
+    print "domain:s:\r\n";
+    print "alternate shell:s:\r\n";
+    print "shell working directory:s:\r\n";
+    print "disable wallpaper:i:1\r\n";
+    print "disable full window drag:i:1\r\n";
+    print "disable menu anims:i:1\r\n";
+    print "disable themes:i:0\r\n";
+    print "disable cursor setting:i:0\r\n";
+    print "bitmapcachepersistenable:i:1\r\n";
+    //print "connect to console:i:1\r\n";
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -8783,26 +8797,26 @@ function sendRDPfile() {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function addLogEntry($nowfuture, $start, $end, $wasavailable, $imageid) {
-	global $user;
-	$query = "INSERT INTO log "
-	       .        "(userid, "
-	       .        "nowfuture, "
-	       .        "start, "
-	       .        "initialend, "
-	       .        "finalend, "
-	       .        "wasavailable, "
-	       .        "ending, "
-	       .        "imageid) "
-	       . "VALUES "
-	       .        "({$user['id']}, "
-	       .        "'$nowfuture', "
-	       .        "'$start', "
-	       .        "'$end', "
-	       .        "'$end', "
-	       .        "$wasavailable, "
-	       .        "'none', "
-	       .        "$imageid)";
-	$qh = doQuery($query, 260);
+    global $user;
+    $query = "INSERT INTO log "
+        .        "(userid, "
+        .        "nowfuture, "
+        .        "start, "
+        .        "initialend, "
+        .        "finalend, "
+        .        "wasavailable, "
+        .        "ending, "
+        .        "imageid) "
+        . "VALUES "
+        .        "({$user['id']}, "
+        .        "'$nowfuture', "
+        .        "'$start', "
+        .        "'$end', "
+        .        "'$end', "
+        .        "$wasavailable, "
+        .        "'none', "
+        .        "$imageid)";
+    $qh = doQuery($query, 260);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -8821,118 +8835,118 @@ function addLogEntry($nowfuture, $start, $end, $wasavailable, $imageid) {
 /// available; \b NOTE: pass -1 instead of NULL if you don't want this field
 /// to be updated
 ///
-/// \brief adds an entry to the changelog table and updates information in 
+/// \brief adds an entry to the changelog table and updates information in
 /// the log table
 ///
 ////////////////////////////////////////////////////////////////////////////////
-function addChangeLogEntry($logid, $remoteIP, $end=NULL, $start=NULL, 
+function addChangeLogEntry($logid, $remoteIP, $end=NULL, $start=NULL,
                            $computerid=NULL, $ending=NULL, $wasavailable=-1) {
-	if($logid == 0) {
-		return;
-	}
-	$query = "SELECT computerid, " 
-	       .        "start, "
-	       .        "initialend, "
-	       .        "remoteIP, "
-	       .        "wasavailable, "
-	       .        "ending "
-	       . "FROM log "
-	       . "WHERE id = $logid";
-	$qh = doQuery($query, 265);
-	if(! $log = mysql_fetch_assoc($qh)) {
-		abort(30);
-	}
-	$log["computerid"] = array();
-	$query = "SELECT computerid FROM sublog WHERE logid = $logid";
-	$qh = doQuery($query, 101);
-	while($row = mysql_fetch_assoc($qh)) {
-		array_push($log["computerid"], $row["computerid"]);
-	}
-	$changed = 0;
+    if($logid == 0) {
+        return;
+    }
+    $query = "SELECT computerid, "
+        .        "start, "
+        .        "initialend, "
+        .        "remoteIP, "
+        .        "wasavailable, "
+        .        "ending "
+        . "FROM log "
+        . "WHERE id = $logid";
+    $qh = doQuery($query, 265);
+    if(! $log = mysql_fetch_assoc($qh)) {
+        abort(30);
+    }
+    $log["computerid"] = array();
+    $query = "SELECT computerid FROM sublog WHERE logid = $logid";
+    $qh = doQuery($query, 101);
+    while($row = mysql_fetch_assoc($qh)) {
+        array_push($log["computerid"], $row["computerid"]);
+    }
+    $changed = 0;
 
-	$query1 = "INSERT INTO changelog "
-	        .        "(logid, "
-	        .        "start, "
-	        .        "end, "
-	        .        "computerid, "
-	        .        "remoteIP, "
-	        .        "wasavailable, "
-	        .        "timestamp) "
-	        . "VALUES "
-	        .        "($logid, ";
+    $query1 = "INSERT INTO changelog "
+        .        "(logid, "
+        .        "start, "
+        .        "end, "
+        .        "computerid, "
+        .        "remoteIP, "
+        .        "wasavailable, "
+        .        "timestamp) "
+        . "VALUES "
+        .        "($logid, ";
 
-	$query2Arr = array();
+    $query2Arr = array();
 
-	# start
-	if($start != NULL && $start != $log["start"]) {
-		$query1 .= "'$start', ";
-		# only update start time in log table if it is in the future
-		if(datetimeToUnix($log['start']) > time())
-			array_push($query2Arr, "start = '$start'");
-		$changed = 1;
-	}
-	else {
-		$query1 .= "NULL, ";
-	}
+    # start
+    if($start != NULL && $start != $log["start"]) {
+        $query1 .= "'$start', ";
+        # only update start time in log table if it is in the future
+        if(datetimeToUnix($log['start']) > time())
+            array_push($query2Arr, "start = '$start'");
+        $changed = 1;
+    }
+    else {
+        $query1 .= "NULL, ";
+    }
 
-	# end
-	if($end != NULL && $end != $log["initialend"]) {
-		$query1 .= "'$end', ";
-		if(datetimeToUnix($log["start"]) > time()) {
-			array_push($query2Arr, "initialend = '$end'");
-		}
-		array_push($query2Arr, "finalend = '$end'");
-		$changed = 1;
-	}
-	else {
-		$query1 .= "NULL, ";
-	}
+    # end
+    if($end != NULL && $end != $log["initialend"]) {
+        $query1 .= "'$end', ";
+        if(datetimeToUnix($log["start"]) > time()) {
+            array_push($query2Arr, "initialend = '$end'");
+        }
+        array_push($query2Arr, "finalend = '$end'");
+        $changed = 1;
+    }
+    else {
+        $query1 .= "NULL, ";
+    }
 
-	# computerid
-	if($computerid != NULL &&
-	   ! in_array($computerid, $log["computerid"])) {
-		$query1 .= "$computerid, ";
-		$changed = 1;
-	}
-	else {
-		$query1 .= "NULL, ";
-	}
+    # computerid
+    if($computerid != NULL &&
+        ! in_array($computerid, $log["computerid"])) {
+        $query1 .= "$computerid, ";
+        $changed = 1;
+    }
+    else {
+        $query1 .= "NULL, ";
+    }
 
-	# remoteIP
-	if($remoteIP != NULL && $remoteIP != $log["remoteIP"]) {
-		$query1 .= "'$remoteIP', ";
-		array_push($query2Arr, "remoteIP = '$remoteIP'");
-		$changed = 1;
-	}
-	else {
-		$query1 .= "NULL, ";
-	}
+    # remoteIP
+    if($remoteIP != NULL && $remoteIP != $log["remoteIP"]) {
+        $query1 .= "'$remoteIP', ";
+        array_push($query2Arr, "remoteIP = '$remoteIP'");
+        $changed = 1;
+    }
+    else {
+        $query1 .= "NULL, ";
+    }
 
-	# wasavailable
-	if($wasavailable != -1 && $wasavailable != $log["wasavailable"]) {
-		$query1 .= "$wasavailable, ";
-		array_push($query2Arr, "wasavailable = $wasavailable");
-		$changed = 1;
-	}
-	else {
-		$query1 .= "NULL, ";
-	}
+    # wasavailable
+    if($wasavailable != -1 && $wasavailable != $log["wasavailable"]) {
+        $query1 .= "$wasavailable, ";
+        array_push($query2Arr, "wasavailable = $wasavailable");
+        $changed = 1;
+    }
+    else {
+        $query1 .= "NULL, ";
+    }
 
-	# ending
-	if($ending != NULL && $ending != $log["ending"]) {
-		array_push($query2Arr, "ending = '$ending'");
-		$changed = 1;
-	}
-	$query1 .= "NOW())";
+    # ending
+    if($ending != NULL && $ending != $log["ending"]) {
+        array_push($query2Arr, "ending = '$ending'");
+        $changed = 1;
+    }
+    $query1 .= "NOW())";
 
-	if($changed) {
-		doQuery($query1, 266);
-		if(! empty($query2Arr)) {
-			$query2 = "UPDATE log SET " . implode(', ', $query2Arr)
-			        . " WHERE id = $logid";
-			doQuery($query2, 267);
-		}
-	}
+    if($changed) {
+        doQuery($query1, 266);
+        if(! empty($query2Arr)) {
+            $query2 = "UPDATE log SET " . implode(', ', $query2Arr)
+                . " WHERE id = $logid";
+            doQuery($query2, 267);
+        }
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -8946,16 +8960,16 @@ function addChangeLogEntry($logid, $remoteIP, $end=NULL, $start=NULL,
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function addChangeLogEntryOther($logid, $data) {
-	$data = mysql_real_escape_string($data);
-	$query = "INSERT INTO changelog "
-	       .        "(logid, "
-	       .        "timestamp, "
-	       .        "other) "
-	       . "VALUES "
-	       .        "($logid, "
-	       .        "NOW(), "
-	       .        "'$data')";
-	doQuery($query);
+    $data = mysql_real_escape_string($data);
+    $query = "INSERT INTO changelog "
+        .        "(logid, "
+        .        "timestamp, "
+        .        "other) "
+        . "VALUES "
+        .        "($logid, "
+        .        "NOW(), "
+        .        "'$data')";
+    doQuery($query);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -8978,50 +8992,50 @@ function addChangeLogEntryOther($logid, $data) {
 ////////////////////////////////////////////////////////////////////////////////
 function addSublogEntry($logid, $imageid, $imagerevisionid, $computerid,
                         $mgmtnodeid, $fromblock, $blockdata) {
-	$query = "SELECT predictivemoduleid "
-	       . "FROM managementnode "
-	       . "WHERE id = $mgmtnodeid";
-	$qh = doQuery($query, 101);
-	$row = mysql_fetch_assoc($qh);
-	$predictiveid = $row['predictivemoduleid'];
-	$query = "SELECT c.type, "
-	       .        "v.computerid AS hostid "
-	       . "FROM computer c "
-	       . "LEFT JOIN vmhost v ON (c.vmhostid = v.id) "
-	       . "WHERE c.id = $computerid";
-	$qh = doQuery($query, 101);
-	$row = mysql_fetch_assoc($qh);
-	if($row['type'] == 'virtualmachine')
-		$hostcomputerid = $row['hostid'];
-	else
-		$hostcomputerid = 'NULL';
-	$query = "INSERT INTO sublog "
-	       .        "(logid, "
-	       .        "imageid, "
-	       .        "imagerevisionid, "
-	       .        "computerid, "
-	       .        "managementnodeid, "
-			 .        "predictivemoduleid, ";
-	if($fromblock) {
-		$query .=    "blockRequestid, "
-		       .     "blockStart, "
-		       .     "blockEnd, ";
-	}
-	$query .=       "hostcomputerid) "
-	       . "VALUES "
-	       .        "($logid, "
-	       .        "$imageid, "
-	       .        "$imagerevisionid, "
-	       .        "$computerid, "
-	       .        "$mgmtnodeid, "
-	       .        "$predictiveid, ";
-	if($fromblock) {
-		$query .=    "{$blockdata['blockid']}, "
-		       .     "'{$blockdata['start']}', "
-		       .     "'{$blockdata['end']}', ";
-	}
-	$query .=       "$hostcomputerid)";
-	doQuery($query, 101);
+    $query = "SELECT predictivemoduleid "
+        . "FROM managementnode "
+        . "WHERE id = $mgmtnodeid";
+    $qh = doQuery($query, 101);
+    $row = mysql_fetch_assoc($qh);
+    $predictiveid = $row['predictivemoduleid'];
+    $query = "SELECT c.type, "
+        .        "v.computerid AS hostid "
+        . "FROM computer c "
+        . "LEFT JOIN vmhost v ON (c.vmhostid = v.id) "
+        . "WHERE c.id = $computerid";
+    $qh = doQuery($query, 101);
+    $row = mysql_fetch_assoc($qh);
+    if($row['type'] == 'virtualmachine')
+        $hostcomputerid = $row['hostid'];
+    else
+        $hostcomputerid = 'NULL';
+    $query = "INSERT INTO sublog "
+        .        "(logid, "
+        .        "imageid, "
+        .        "imagerevisionid, "
+        .        "computerid, "
+        .        "managementnodeid, "
+        .        "predictivemoduleid, ";
+    if($fromblock) {
+        $query .=    "blockRequestid, "
+            .     "blockStart, "
+            .     "blockEnd, ";
+    }
+    $query .=       "hostcomputerid) "
+        . "VALUES "
+        .        "($logid, "
+        .        "$imageid, "
+        .        "$imagerevisionid, "
+        .        "$computerid, "
+        .        "$mgmtnodeid, "
+        .        "$predictiveid, ";
+    if($fromblock) {
+        $query .=    "{$blockdata['blockid']}, "
+            .     "'{$blockdata['start']}', "
+            .     "'{$blockdata['end']}', ";
+    }
+    $query .=       "$hostcomputerid)";
+    doQuery($query, 101);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -9037,27 +9051,27 @@ function addSublogEntry($logid, $imageid, $imagerevisionid, $computerid,
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getTypes($subtype="both") {
-	$types = array("users" => array(),
-	               "resources" => array());
-	if($subtype == "users" || $subtype == "both") {
-		$query = "SELECT id, name FROM userprivtype";
-		$qh = doQuery($query, 365);
-		while($row = mysql_fetch_assoc($qh)) {
-			if($row["name"] == "block" || $row["name"] == "cascade")
-				continue;
-			$types["users"][$row["id"]] = $row["name"];
-		}
-	}
-	if($subtype == "resources" || $subtype == "both") {
-		$query = "SELECT id, name FROM resourcetype";
-		$qh = doQuery($query, 366);
-		while($row = mysql_fetch_assoc($qh)) {
-			if($row["name"] == "block" || $row["name"] == "cascade")
-				continue;
-			$types["resources"][$row["id"]] = $row["name"];
-		}
-	}
-	return $types;
+    $types = array("users" => array(),
+        "resources" => array());
+    if($subtype == "users" || $subtype == "both") {
+        $query = "SELECT id, name FROM userprivtype";
+        $qh = doQuery($query, 365);
+        while($row = mysql_fetch_assoc($qh)) {
+            if($row["name"] == "block" || $row["name"] == "cascade")
+                continue;
+            $types["users"][$row["id"]] = $row["name"];
+        }
+    }
+    if($subtype == "resources" || $subtype == "both") {
+        $query = "SELECT id, name FROM resourcetype";
+        $qh = doQuery($query, 366);
+        while($row = mysql_fetch_assoc($qh)) {
+            if($row["name"] == "block" || $row["name"] == "cascade")
+                continue;
+            $types["resources"][$row["id"]] = $row["name"];
+        }
+    }
+    return $types;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -9072,12 +9086,12 @@ function getTypes($subtype="both") {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getUserPrivTypeID($type) {
-	$query = "SELECT id FROM userprivtype WHERE name = '$type'";
-	$qh = doQuery($query, 370);
-	if($row = mysql_fetch_row($qh))
-		return $row[0];
-	else
-		return NULL;
+    $query = "SELECT id FROM userprivtype WHERE name = '$type'";
+    $qh = doQuery($query, 370);
+    if($row = mysql_fetch_row($qh))
+        return $row[0];
+    else
+        return NULL;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -9092,29 +9106,29 @@ function getUserPrivTypeID($type) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getUserMaxTimes($uid=0) {
-	global $user;
-	$return = array("initial" => 0,
-	                "total" => 0,
-	                "extend" => 0);
-	if($uid == 0)
-		$groupids = array_keys($user["groups"]);
-	else {
-		$groupids = array_keys(getUsersGroups($uid, 1));
-	}
-	if(! count($groupids))
-		array_push($groupids, getUserGroupID(DEFAULTGROUP));
+    global $user;
+    $return = array("initial" => 0,
+        "total" => 0,
+        "extend" => 0);
+    if($uid == 0)
+        $groupids = array_keys($user["groups"]);
+    else {
+        $groupids = array_keys(getUsersGroups($uid, 1));
+    }
+    if(! count($groupids))
+        array_push($groupids, getUserGroupID(DEFAULTGROUP));
 
 
-	$allgroups = getUserGroups();
-	foreach($groupids as $id) {
-		if($return["initial"] < $allgroups[$id]["initialmaxtime"])
-			$return["initial"] = $allgroups[$id]["initialmaxtime"];
-		if($return["total"] < $allgroups[$id]["totalmaxtime"])
-			$return["total"] = $allgroups[$id]["totalmaxtime"];
-		if($return["extend"] < $allgroups[$id]["maxextendtime"])
-			$return["extend"] = $allgroups[$id]["maxextendtime"];
-	}
-	return $return;
+    $allgroups = getUserGroups();
+    foreach($groupids as $id) {
+        if($return["initial"] < $allgroups[$id]["initialmaxtime"])
+            $return["initial"] = $allgroups[$id]["initialmaxtime"];
+        if($return["total"] < $allgroups[$id]["totalmaxtime"])
+            $return["total"] = $allgroups[$id]["totalmaxtime"];
+        if($return["extend"] < $allgroups[$id]["maxextendtime"])
+            $return["extend"] = $allgroups[$id]["maxextendtime"];
+    }
+    return $return;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -9123,26 +9137,26 @@ function getUserMaxTimes($uid=0) {
 ///
 /// \param $max - max allowed length in seconds
 ///
-/// \return array of lengths up to $max starting with 30 minutes, 1 hour, 
-/// 2 hours, then increasing by 2 hours up to 47 hours, then 2 days, then 
+/// \return array of lengths up to $max starting with 30 minutes, 1 hour,
+/// 2 hours, then increasing by 2 hours up to 47 hours, then 2 days, then
 /// increasing by 1 day; indexes are the duration in minutes
 ///
 /// \brief generates an array of reservation lengths
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getReservationLengths($max) {
-	$lengths = array();
-	if($max >= 30)
-		$lengths["30"] = "30 " . _("minutes");
-	if($max >= 45)
-		$lengths["45"] = "45 " . _("minutes");
-	if($max >= 60)
-		$lengths["60"] = _("1 hour");
-	for($i = 120; $i <= $max && $i < 2880; $i += 120)
-		$lengths[$i] = $i / 60 . _(" hours");
-	for($i = 2880; $i <= $max; $i += 1440)
-		$lengths[$i] = $i / 1440 . _(" days");
-	return $lengths;
+    $lengths = array();
+    if($max >= 30)
+        $lengths["30"] = "30 " . _("minutes");
+    if($max >= 45)
+        $lengths["45"] = "45 " . _("minutes");
+    if($max >= 60)
+        $lengths["60"] = _("1 hour");
+    for($i = 120; $i <= $max && $i < 2880; $i += 120)
+        $lengths[$i] = $i / 60 . _(" hours");
+    for($i = 2880; $i <= $max; $i += 1440)
+        $lengths[$i] = $i / 1440 . _(" days");
+    return $lengths;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -9157,13 +9171,13 @@ function getReservationLengths($max) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getReservationLength($length) {
-	if($length < 60)
-		return ($length % 60) - ($length % 60 % 15) . " minutes";
-	if($length < 120)
-		return _("1 hour");
-	if($length < 2880)
-		return intval($length / 60) . _(" hours");
-	return intval($length / 1440) . _(" days");
+    if($length < 60)
+        return ($length % 60) - ($length % 60 % 15) . " minutes";
+    if($length < 120)
+        return _("1 hour");
+    if($length < 2880)
+        return intval($length / 60) . _(" hours");
+    return intval($length / 1440) . _(" days");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -9178,17 +9192,17 @@ function getReservationLength($length) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getReservationExtenstion($length) {
-	if($length < 60)
-		return ($length % 60) - ($length % 60 % 15) . _(" minutes");
-	if($length < 75)
-		return _("1 hour");
-	if($length < 120) {
-		$min = ($length % 60) - ($length % 60 % 15);
-		return sprintf('%d:%02d ' . _('hours'), intval($length / 60), $min);
-	}
-	if($length < 2880)
-		return intval($length / 60) . _(" hours");
-	return intval($length / 1440) . _(" days");
+    if($length < 60)
+        return ($length % 60) - ($length % 60 % 15) . _(" minutes");
+    if($length < 75)
+        return _("1 hour");
+    if($length < 120) {
+        $min = ($length % 60) - ($length % 60 % 15);
+        return sprintf('%d:%02d ' . _('hours'), intval($length / 60), $min);
+    }
+    if($length < 2880)
+        return intval($length / 60) . _(" hours");
+    return intval($length / 1440) . _(" days");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -9204,23 +9218,23 @@ function getReservationExtenstion($length) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getReservationLengthCeiling($length) {
-	if($length < 30)
-		return 30;
-	if($length < 45)
-		return 45;
-	if($length < 60)
-		return 60;
-	if($length < 2880) {
-		for($i = 120; $i < 2880; $i += 120) {
-			if($length < $i)
-				return $i;
-		}
-	}
-	for($i = 2880; $i <= 64800; $i += 1440) {
-		if($length < $i)
-			return $i;
-	}
-	return 64800;
+    if($length < 30)
+        return 30;
+    if($length < 45)
+        return 45;
+    if($length < 60)
+        return 60;
+    if($length < 2880) {
+        for($i = 120; $i < 2880; $i += 120) {
+            if($length < $i)
+                return $i;
+        }
+    }
+    for($i = 2880; $i <= 64800; $i += 1440) {
+        if($length < $i)
+            return $i;
+    }
+    return 64800;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -9235,18 +9249,18 @@ function getReservationLengthCeiling($length) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getResourceGroupID($groupdname) {
-	list($type, $name) = explode('/', $groupdname);
-	$query = "SELECT g.id "
-	       . "FROM resourcegroup g, "
-	       .      "resourcetype t "
-	       . "WHERE g.name = '$name' AND "
-	       .       "t.name = '$type' AND "
-	       .       "g.resourcetypeid = t.id";
-	$qh = doQuery($query, 371);
-	if($row = mysql_fetch_row($qh))
-		return $row[0];
-	else
-		return NULL;
+    list($type, $name) = explode('/', $groupdname);
+    $query = "SELECT g.id "
+        . "FROM resourcegroup g, "
+        .      "resourcetype t "
+        . "WHERE g.name = '$name' AND "
+        .       "t.name = '$type' AND "
+        .       "g.resourcetypeid = t.id";
+    $qh = doQuery($query, 371);
+    if($row = mysql_fetch_row($qh))
+        return $row[0];
+    else
+        return NULL;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -9261,14 +9275,14 @@ function getResourceGroupID($groupdname) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getResourceTypeID($name) {
-	$query = "SELECT id "
-	       . "FROM resourcetype "
-	       . "WHERE name = '$name'";
-	$qh = doQuery($query, 101);
-	if($row = mysql_fetch_row($qh))
-		return $row[0];
-	else
-		return NULL;
+    $query = "SELECT id "
+        . "FROM resourcetype "
+        . "WHERE name = '$name'";
+    $qh = doQuery($query, 101);
+    if($row = mysql_fetch_row($qh))
+        return $row[0];
+    else
+        return NULL;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -9282,12 +9296,12 @@ function getResourceTypeID($name) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getResourcePrivs() {
-	$query = "show columns from resourcepriv where field = 'type'";
-	$qh = doQuery($query, 101);
-	$row = mysql_fetch_assoc($qh);
-	preg_match("/^enum\(([a-zA-Z0-9,']+)\)$/", $row['Type'], $matches);
-	$tmp = str_replace("'", '', $matches[1]);
-	return explode(',', $tmp);
+    $query = "show columns from resourcepriv where field = 'type'";
+    $qh = doQuery($query, 101);
+    $row = mysql_fetch_assoc($qh);
+    preg_match("/^enum\(([a-zA-Z0-9,']+)\)$/", $row['Type'], $matches);
+    $tmp = str_replace("'", '', $matches[1]);
+    return explode(',', $tmp);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -9302,18 +9316,18 @@ function getResourcePrivs() {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getNodeInfo($nodeid) {
-	global $cache;
-	if(! array_key_exists('nodes', $cache))
-		$cache['nodes'] = array();
-	if(array_key_exists($nodeid, $cache['nodes']))
-		return $cache['nodes'][$nodeid];
-	$qh = doQuery("SELECT id, parent, name FROM privnode", 330);
-	while($row = mysql_fetch_assoc($qh))
-		$cache['nodes'][$row['id']] = $row;
-	if(array_key_exists($nodeid, $cache['nodes']))
-		return $cache['nodes'][$nodeid];
-	else
-		return NULL;
+    global $cache;
+    if(! array_key_exists('nodes', $cache))
+        $cache['nodes'] = array();
+    if(array_key_exists($nodeid, $cache['nodes']))
+        return $cache['nodes'][$nodeid];
+    $qh = doQuery("SELECT id, parent, name FROM privnode", 330);
+    while($row = mysql_fetch_assoc($qh))
+        $cache['nodes'][$row['id']] = $row;
+    if(array_key_exists($nodeid, $cache['nodes']))
+        return $cache['nodes'][$nodeid];
+    else
+        return NULL;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -9330,33 +9344,33 @@ function getNodeInfo($nodeid) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function sortKeepIndex($a, $b) {
-	if(is_array($a)) {
-		if(array_key_exists("prettyname", $a)) {
-			if(preg_match('/[0-9]-[0-9]/', $a['prettyname']) ||
-			   preg_match('/\.edu$|\.com$|\.net$|\.org$/', $a['prettyname']) ||
-			   preg_match('/[0-9]-[0-9]/', $b['prettyname']) ||
-			   preg_match('/\.edu$|\.com$|\.net$|\.org$/', $b['prettyname']))
-				return compareDashedNumbers($a["prettyname"], $b["prettyname"]);
-			return strcasecmp($a["prettyname"], $b["prettyname"]);
-		}
-		elseif(array_key_exists("name", $a)) {
-			if(preg_match('/[0-9]-[0-9]/', $a['name']) ||
-			   preg_match('/\.edu$|\.com$|\.net$|\.org$/', $a['name']) ||
-			   preg_match('/[0-9]-[0-9]/', $b['name']) ||
-			   preg_match('/\.edu$|\.com$|\.net$|\.org$/', $b['name']))
-				return compareDashedNumbers($a["name"], $b["name"]);
-			return strcasecmp($a["name"], $b["name"]);
-		}
-		else
-			return 0;
-	}
-	elseif(preg_match('/[0-9]-[0-9]/', $a) ||
-	       preg_match('/\.edu$|\.com$|\.net$|\.org$/', $a) ||
-	       preg_match('/[0-9]-[0-9]/', $b) ||
-	       preg_match('/\.edu$|\.com$|\.net$|\.org$/', $b))
-		return compareDashedNumbers($a, $b);
+    if(is_array($a)) {
+        if(array_key_exists("prettyname", $a)) {
+            if(preg_match('/[0-9]-[0-9]/', $a['prettyname']) ||
+                preg_match('/\.edu$|\.com$|\.net$|\.org$/', $a['prettyname']) ||
+                preg_match('/[0-9]-[0-9]/', $b['prettyname']) ||
+                preg_match('/\.edu$|\.com$|\.net$|\.org$/', $b['prettyname']))
+                return compareDashedNumbers($a["prettyname"], $b["prettyname"]);
+            return strcasecmp($a["prettyname"], $b["prettyname"]);
+        }
+        elseif(array_key_exists("name", $a)) {
+            if(preg_match('/[0-9]-[0-9]/', $a['name']) ||
+                preg_match('/\.edu$|\.com$|\.net$|\.org$/', $a['name']) ||
+                preg_match('/[0-9]-[0-9]/', $b['name']) ||
+                preg_match('/\.edu$|\.com$|\.net$|\.org$/', $b['name']))
+                return compareDashedNumbers($a["name"], $b["name"]);
+            return strcasecmp($a["name"], $b["name"]);
+        }
+        else
+            return 0;
+    }
+    elseif(preg_match('/[0-9]-[0-9]/', $a) ||
+        preg_match('/\.edu$|\.com$|\.net$|\.org$/', $a) ||
+        preg_match('/[0-9]-[0-9]/', $b) ||
+        preg_match('/\.edu$|\.com$|\.net$|\.org$/', $b))
+        return compareDashedNumbers($a, $b);
 
-	return strcasecmp($a, $b);
+    return strcasecmp($a, $b);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -9368,52 +9382,52 @@ function sortKeepIndex($a, $b) {
 ///
 /// \return -1, 0, 1 if numerical parts of $a <, =, or > $b
 ///
-/// \brief compares $a and $b to determine which one should be ordered first; 
+/// \brief compares $a and $b to determine which one should be ordered first;
 /// has some understand of numerical order in strings
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function compareDashedNumbers($a, $b) {
-	# get hostname and first part of domain name
-	$tmp = explode('.', $a);
-	$h1 = array_shift($tmp);
-	$domain1 = implode('.', $tmp);
-	$letters1 = preg_replace('([^a-zA-Z])', '', $h1);
+    # get hostname and first part of domain name
+    $tmp = explode('.', $a);
+    $h1 = array_shift($tmp);
+    $domain1 = implode('.', $tmp);
+    $letters1 = preg_replace('([^a-zA-Z])', '', $h1);
 
-	$tmp = explode('.', $b);
-	$h2 = array_shift($tmp);
-	$domain2 = implode('.', $tmp);
-	$letters2 = preg_replace('([^a-zA-Z])', '', $h2);
+    $tmp = explode('.', $b);
+    $h2 = array_shift($tmp);
+    $domain2 = implode('.', $tmp);
+    $letters2 = preg_replace('([^a-zA-Z])', '', $h2);
 
-	// if different domain names, return based on that
-	$cmp = strcasecmp($domain1, $domain2);
-	if($cmp) {
-		return $cmp;
-	}
+    // if different domain names, return based on that
+    $cmp = strcasecmp($domain1, $domain2);
+    if($cmp) {
+        return $cmp;
+    }
 
-	// if non-numeric part is different, return based on that
-	$cmp = strcasecmp($letters1, $letters2);
-	if($cmp) {
-		return $cmp;
-	}
+    // if non-numeric part is different, return based on that
+    $cmp = strcasecmp($letters1, $letters2);
+    if($cmp) {
+        return $cmp;
+    }
 
-	// at this point, the only difference is in the numbers
-	$digits1 = preg_replace('([^\d-])', '', $h1);
-	$digits1Arr = explode('-', $digits1);
-	$digits2 = preg_replace('([^\d-])', '', $h2);
-	$digits2Arr = explode('-', $digits2);
+    // at this point, the only difference is in the numbers
+    $digits1 = preg_replace('([^\d-])', '', $h1);
+    $digits1Arr = explode('-', $digits1);
+    $digits2 = preg_replace('([^\d-])', '', $h2);
+    $digits2Arr = explode('-', $digits2);
 
-	$len1 = count($digits1Arr);
-	$len2 = count($digits2Arr);
-	for($i = 0; $i < $len1 && $i < $len2; $i++) {
-		if($digits1Arr[$i] < $digits2Arr[$i]) {
-			return -1;
-		}
-		elseif($digits1Arr[$i] > $digits2Arr[$i]) {
-			return 1;
-		}
-	}
+    $len1 = count($digits1Arr);
+    $len2 = count($digits2Arr);
+    for($i = 0; $i < $len1 && $i < $len2; $i++) {
+        if($digits1Arr[$i] < $digits2Arr[$i]) {
+            return -1;
+        }
+        elseif($digits1Arr[$i] > $digits2Arr[$i]) {
+            return 1;
+        }
+    }
 
-	return 0;
+    return 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -9428,8 +9442,8 @@ function compareDashedNumbers($a, $b) {
 /// \param $resource2inlist - (optional) comma delimited list of resource groups
 /// to limit query to
 ///
-/// \return an array of $resourcetype1 group to $resourcetype2 group mappings 
-/// where each index is a group id from $resourcetype1 and each value is an 
+/// \return an array of $resourcetype1 group to $resourcetype2 group mappings
+/// where each index is a group id from $resourcetype1 and each value is an
 /// array of $resourcetype2 group ids
 ///
 /// \brief builds an array of $resourcetype2 group ids for each $resourcetype1
@@ -9438,41 +9452,41 @@ function compareDashedNumbers($a, $b) {
 ////////////////////////////////////////////////////////////////////////////////
 function getResourceMapping($resourcetype1, $resourcetype2,
                             $resource1inlist="", $resource2inlist="") {
-	if(! is_numeric($resourcetype1))
-		$resourcetype1 = getResourceTypeID($resourcetype1);
-	if(! is_numeric($resourcetype2))
-		$resourcetype2 = getResourceTypeID($resourcetype2);
+    if(! is_numeric($resourcetype1))
+        $resourcetype1 = getResourceTypeID($resourcetype1);
+    if(! is_numeric($resourcetype2))
+        $resourcetype2 = getResourceTypeID($resourcetype2);
 
-	$return = array();
-	$query = "SELECT resourcegroupid1, "
-	       .        "resourcetypeid1, "
-	       .        "resourcegroupid2, "
-	       .        "resourcetypeid2 "
-	       . "FROM resourcemap "
-	       . "WHERE ((resourcetypeid1 = $resourcetype1 AND "
-	       .       "resourcetypeid2 = $resourcetype2) OR "
-	       .       "(resourcetypeid1 = $resourcetype2 AND "
-	       .       "resourcetypeid2 = $resourcetype1)) ";
-	if(! empty($resource1inlist))
-		$query .= "AND resourcegroupid1 IN ($resource1inlist) ";
-	if(! empty($resource2inlist))
-		$query .= "AND resourcegroupid2 IN ($resource2inlist) ";
-	$qh = doQuery($query, 101);
-	while($row = mysql_fetch_assoc($qh)) {
-		if($resourcetype1 == $row['resourcetypeid1']) {
-			if(array_key_exists($row["resourcegroupid1"], $return))
-				array_push($return[$row["resourcegroupid1"]], $row["resourcegroupid2"]);
-			else
-				$return[$row["resourcegroupid1"]] = array($row["resourcegroupid2"]);
-		}
-		else {
-			if(array_key_exists($row["resourcegroupid2"], $return))
-				array_push($return[$row["resourcegroupid2"]], $row["resourcegroupid1"]);
-			else
-				$return[$row["resourcegroupid2"]] = array($row["resourcegroupid1"]);
-		}
-	}
-	return $return;
+    $return = array();
+    $query = "SELECT resourcegroupid1, "
+        .        "resourcetypeid1, "
+        .        "resourcegroupid2, "
+        .        "resourcetypeid2 "
+        . "FROM resourcemap "
+        . "WHERE ((resourcetypeid1 = $resourcetype1 AND "
+        .       "resourcetypeid2 = $resourcetype2) OR "
+        .       "(resourcetypeid1 = $resourcetype2 AND "
+        .       "resourcetypeid2 = $resourcetype1)) ";
+    if(! empty($resource1inlist))
+        $query .= "AND resourcegroupid1 IN ($resource1inlist) ";
+    if(! empty($resource2inlist))
+        $query .= "AND resourcegroupid2 IN ($resource2inlist) ";
+    $qh = doQuery($query, 101);
+    while($row = mysql_fetch_assoc($qh)) {
+        if($resourcetype1 == $row['resourcetypeid1']) {
+            if(array_key_exists($row["resourcegroupid1"], $return))
+                array_push($return[$row["resourcegroupid1"]], $row["resourcegroupid2"]);
+            else
+                $return[$row["resourcegroupid1"]] = array($row["resourcegroupid2"]);
+        }
+        else {
+            if(array_key_exists($row["resourcegroupid2"], $return))
+                array_push($return[$row["resourcegroupid2"]], $row["resourcegroupid1"]);
+            else
+                $return[$row["resourcegroupid2"]] = array($row["resourcegroupid1"]);
+        }
+    }
+    return $return;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -9491,29 +9505,29 @@ function getResourceMapping($resourcetype1, $resourcetype2,
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getConnectMethods($imageid) {
-	$key = getKey(array('getConnectMethods', $imageid));
-	if(array_key_exists($key, $_SESSION['usersessiondata']))
-		return $_SESSION['usersessiondata'][$key];
-	$query = "SELECT DISTINCT c.id, "
-	       .        "c.description, "
-	       .        "cm.autoprovisioned "
-	       . "FROM connectmethod c, "
-	       .      "connectmethodmap cm, "
-	       .      "image i "
-	       . "LEFT JOIN OS o ON (o.id = i.OSid) "
-	       . "LEFT JOIN OStype ot ON (ot.name = o.type) "
-	       . "WHERE i.id = $imageid AND "
-	       .       "cm.connectmethodid = c.id AND "
-	       .       "cm.autoprovisioned IS NOT NULL AND "
-	       .       "(cm.OStypeid = ot.id OR "
-	       .        "cm.OSid = o.id) "
-	       . "ORDER BY c.description";
-	$methods = array();
-	$qh = doQuery($query, 101);
-	while($row = mysql_fetch_assoc($qh))
-		$methods[$row['id']] = $row;
-	$_SESSION['usersessiondata'][$key] = $methods;
-	return $methods;
+    $key = getKey(array('getConnectMethods', $imageid));
+    if(array_key_exists($key, $_SESSION['usersessiondata']))
+        return $_SESSION['usersessiondata'][$key];
+    $query = "SELECT DISTINCT c.id, "
+        .        "c.description, "
+        .        "cm.autoprovisioned "
+        . "FROM connectmethod c, "
+        .      "connectmethodmap cm, "
+        .      "image i "
+        . "LEFT JOIN OS o ON (o.id = i.OSid) "
+        . "LEFT JOIN OStype ot ON (ot.name = o.type) "
+        . "WHERE i.id = $imageid AND "
+        .       "cm.connectmethodid = c.id AND "
+        .       "cm.autoprovisioned IS NOT NULL AND "
+        .       "(cm.OStypeid = ot.id OR "
+        .        "cm.OSid = o.id) "
+        . "ORDER BY c.description";
+    $methods = array();
+    $qh = doQuery($query, 101);
+    while($row = mysql_fetch_assoc($qh))
+        $methods[$row['id']] = $row;
+    $_SESSION['usersessiondata'][$key] = $methods;
+    return $methods;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -9532,25 +9546,25 @@ function getConnectMethods($imageid) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function timeToNextReservation($request) {
-	if(! is_array($request))
-		$request = getRequestInfo($request);
-	$res = array_shift($request["reservations"]);
-	$query = "SELECT rq.start "
-	       . "FROM reservation rs, "
-	       .      "request rq "
-	       . "WHERE rs.computerid = {$res['computerid']} AND "
-	       .       "rq.start >= '{$request['end']}' AND "
-	       .       "rs.requestid = rq.id "
-	       . "ORDER BY start "
-	       . "LIMIT 1";
-	$qh = doQuery($query, 101);
-	if($row = mysql_fetch_assoc($qh)) {
-		$end = datetimeToUnix($request["end"]);
-		$start = datetimeToUnix($row["start"]);
-		return ($start - $end) / 60;
-	}
-	else
-		return -1;
+    if(! is_array($request))
+        $request = getRequestInfo($request);
+    $res = array_shift($request["reservations"]);
+    $query = "SELECT rq.start "
+        . "FROM reservation rs, "
+        .      "request rq "
+        . "WHERE rs.computerid = {$res['computerid']} AND "
+        .       "rq.start >= '{$request['end']}' AND "
+        .       "rs.requestid = rq.id "
+        . "ORDER BY start "
+        . "LIMIT 1";
+    $qh = doQuery($query, 101);
+    if($row = mysql_fetch_assoc($qh)) {
+        $end = datetimeToUnix($request["end"]);
+        $start = datetimeToUnix($row["start"]);
+        return ($start - $end) / 60;
+    }
+    else
+        return -1;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -9566,7 +9580,7 @@ function timeToNextReservation($request) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getImageText($text) {
-	return "<img alt=\"$text\" src=\"" . BASEURL . "/images/textimage.php?text=$text\">";
+    return "<img alt=\"$text\" src=\"" . BASEURL . "/images/textimage.php?text=$text\">";
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -9582,18 +9596,18 @@ function getImageText($text) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function weekOfYear($ts) {
-	$year = date('Y', time());
-	for($i = 0; $i < 7; $i++) {
-		$time = mktime(1, 0, 0, 1, $i + 1, $year);
-		if(date('l', $time) == "Sunday") {
-			if($i)
-				$add = 7 - $i;
-			else
-				$add = 0;
-			break;
-		}
-	}
-	return (int)((date('z', $ts) + $add) / 7);
+    $year = date('Y', time());
+    for($i = 0; $i < 7; $i++) {
+        $time = mktime(1, 0, 0, 1, $i + 1, $year);
+        if(date('l', $time) == "Sunday") {
+            if($i)
+                $add = 7 - $i;
+            else
+                $add = 0;
+            break;
+        }
+    }
+    return (int)((date('z', $ts) + $add) / 7);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -9607,16 +9621,16 @@ function weekOfYear($ts) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function semLock() {
-	global $semid, $semislocked;
-	if($semislocked)
-		return TRUE;
+    global $semid, $semislocked;
+    if($semislocked)
+        return TRUE;
 
-	if(sem_acquire($semid)) {
-		$semislocked = 1;
-		return TRUE;
-	}
-	else
-		return FALSE;
+    if(sem_acquire($semid)) {
+        $semislocked = 1;
+        return TRUE;
+    }
+    else
+        return FALSE;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -9629,16 +9643,16 @@ function semLock() {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function semUnlock() {
-	global $semid, $semislocked;
-	if($semislocked) {
-		if(sem_release($semid)) {
-			$semislocked = 0;
-			return TRUE;
-		}
-		else
-			return FALSE;
-	}
-	return TRUE;
+    global $semid, $semislocked;
+    if($semislocked) {
+        if(sem_release($semid)) {
+            $semislocked = 0;
+            return TRUE;
+        }
+        else
+            return FALSE;
+    }
+    return TRUE;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -9655,7 +9669,7 @@ function semUnlock() {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function setAttribute($objid, $attrib, $data) {
-	return "if(dojo.byId('$objid')) {dojo.byId('$objid').$attrib = '$data';}; ";
+    return "if(dojo.byId('$objid')) {dojo.byId('$objid').$attrib = '$data';}; ";
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -9670,10 +9684,10 @@ function setAttribute($objid, $attrib, $data) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function generateString($length=8) {
-   global $passwdArray;
-   $tmp = array_flip($passwdArray);
-   $tmp = array_rand($tmp, $length);
-   return implode('', $tmp);
+    global $passwdArray;
+    $tmp = array_flip($passwdArray);
+    $tmp = array_rand($tmp, $length);
+    return implode('', $tmp);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -9683,7 +9697,7 @@ function generateString($length=8) {
 /// \param $id (optional) - a profile id; if specified, only data about this
 /// profile will be returned
 ///
-/// \return an array of profiles where each key is the profile id and each 
+/// \return an array of profiles where each key is the profile id and each
 /// element is an array with these keys:\n
 /// \b profilename - name of profile\n
 /// \b name - name of profile (so array can be passed to printSelectInput)\n
@@ -9707,39 +9721,39 @@ function generateString($length=8) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getVMProfiles($id="") {
-	$query = "SELECT vp.id, "
-	       .        "vp.profilename, "
-	       .        "vp.profilename AS name, "
-	       .        "i.prettyname AS image, "
-	       .        "vp.imageid, "
-	       .        "vp.resourcepath, "
-	       .        "vp.repositorypath, "
-	       .        "vp.repositoryimagetypeid, "
-	       .        "t1.name AS repositoryimagetype, "
-	       .        "vp.datastorepath, "
-	       .        "vp.datastoreimagetypeid, "
-	       .        "t2.name AS datastoreimagetype, "
-	       .        "vp.vmpath, "
-	       .        "vp.virtualswitch0, "
-	       .        "vp.virtualswitch1, "
-	       .        "vp.virtualswitch2, "
-	       .        "vp.virtualswitch3, "
-	       .        "vp.vmdisk, "
-	       .        "vp.username, "
-	       .        "vp.password, "
-	       .        "vp.eth0generated, "
-	       .        "vp.eth1generated "
-	       . "FROM vmprofile vp "
-	       . "LEFT JOIN image i ON (vp.imageid = i.id) "
-	       . "LEFT JOIN imagetype t1 ON (vp.repositoryimagetypeid = t1.id) "
-	       . "LEFT JOIN imagetype t2 ON (vp.datastoreimagetypeid = t2.id)";
-	if(! empty($id))
-		$query .= " AND vp.id = $id";
-	$qh = doQuery($query, 101);
-	$ret = array();
-	while($row = mysql_fetch_assoc($qh))
-		$ret[$row['id']] = $row;
-	return $ret;
+    $query = "SELECT vp.id, "
+        .        "vp.profilename, "
+        .        "vp.profilename AS name, "
+        .        "i.prettyname AS image, "
+        .        "vp.imageid, "
+        .        "vp.resourcepath, "
+        .        "vp.repositorypath, "
+        .        "vp.repositoryimagetypeid, "
+        .        "t1.name AS repositoryimagetype, "
+        .        "vp.datastorepath, "
+        .        "vp.datastoreimagetypeid, "
+        .        "t2.name AS datastoreimagetype, "
+        .        "vp.vmpath, "
+        .        "vp.virtualswitch0, "
+        .        "vp.virtualswitch1, "
+        .        "vp.virtualswitch2, "
+        .        "vp.virtualswitch3, "
+        .        "vp.vmdisk, "
+        .        "vp.username, "
+        .        "vp.password, "
+        .        "vp.eth0generated, "
+        .        "vp.eth1generated "
+        . "FROM vmprofile vp "
+        . "LEFT JOIN image i ON (vp.imageid = i.id) "
+        . "LEFT JOIN imagetype t1 ON (vp.repositoryimagetypeid = t1.id) "
+        . "LEFT JOIN imagetype t2 ON (vp.datastoreimagetypeid = t2.id)";
+    if(! empty($id))
+        $query .= " AND vp.id = $id";
+    $qh = doQuery($query, 101);
+    $ret = array();
+    while($row = mysql_fetch_assoc($qh))
+        $ret[$row['id']] = $row;
+    return $ret;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -9755,15 +9769,15 @@ function getVMProfiles($id="") {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getENUMvalues($table, $field) {
-	$query = "DESC $table";
-	$qh = doQuery($query);
-	while($row = mysql_fetch_assoc($qh)) {
-		if($row['Field'] == "$field") {
-			$data = preg_replace(array('/^enum\(/', "/'/", '/\)$/'), array('', '', ''), $row['Type']);
-			$types = explode(',', $data);
-			return $types;
-		}
-	}
+    $query = "DESC $table";
+    $qh = doQuery($query);
+    while($row = mysql_fetch_assoc($qh)) {
+        if($row['Field'] == "$field") {
+            $data = preg_replace(array('/^enum\(/', "/'/", '/\)$/'), array('', '', ''), $row['Type']);
+            $types = explode(',', $data);
+            return $types;
+        }
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -9771,7 +9785,7 @@ function getENUMvalues($table, $field) {
 /// \fn addContinuationsEntry($nextmode, $data, $duration, $deleteFromSelf,
 ///                           $multicall, $repeatProtect)
 ///
-/// \param $nextmode - next mode to go in to 
+/// \param $nextmode - next mode to go in to
 /// \param $data (optional, default=array())- array of data to make available
 /// in $nextmode
 /// \param $duration (optional, default=SECINWEEK)- how long this continuation
@@ -9798,74 +9812,74 @@ function getENUMvalues($table, $field) {
 function addContinuationsEntry($nextmode, $data=array(), $duration=SECINWEEK,
                                $deleteFromSelf=1, $multicall=1,
                                $repeatProtect=0) {
-	global $user, $mode, $inContinuation, $continuationid;
-	if($repeatProtect)
-		$data['______parent'] = $continuationid;
-	$serdata = serialize($data);
-	$contid = md5($mode . $nextmode . $serdata . $user['id']);
-	$serdata = mysql_real_escape_string($serdata);
-	$expiretime = unixToDatetime(time() + $duration);
-	$query = "SELECT id, "
-	       .        "parentid "
-	       . "FROM continuations "
-	       . "WHERE id = '$contid' AND "
-	       .       "userid = {$user['id']}";
-	$qh = doQuery($query, 101);
-	if($row = mysql_fetch_assoc($qh)) {
-		# update expiretime
-		$query = "UPDATE continuations "
-		       . "SET expiretime = '$expiretime' "
-		       . "WHERE id = '$contid' AND "
-		       .       "userid = {$user['id']}";
-		doQuery($query, 101);
-	}
-	else {
-		if(! $inContinuation)
-			$parent = 'NULL';
-		else
-			$parent = "'$continuationid'";
-		if($deleteFromSelf || ! $inContinuation) {
-			$deletefromid = $contid;
-			$parent = 'NULL';
-		}
-		else {
-			$query = "SELECT deletefromid "
-			       . "FROM continuations "
-			       . "WHERE id = '$continuationid' AND "
-			       .       "userid = {$user['id']}";
-			$qh = doQuery($query, 101);
-			if(! $row = mysql_fetch_assoc($qh))
-				abort(108);
-			$deletefromid = $row['deletefromid'];
-		}
-		$query = "INSERT INTO continuations "
-		       .        "(id, "
-		       .        "userid, "
-		       .        "expiretime, "
-		       .        "frommode, "
-		       .        "tomode, "
-		       .        "data, "
-		       .        "multicall, "
-		       .        "parentid, "
-		       .        "deletefromid) "
-		       . "VALUES "
-		       .        "('$contid', "
-		       .        "{$user['id']}, "
-		       .        "'$expiretime', "
-		       .        "'$mode', "
-		       .        "'$nextmode', "
-		       .        "'$serdata', "
-		       .        "$multicall, "
-		       .        "$parent, "
-		       .        "'$deletefromid')";
-		doQuery($query, 101);
-	}
-	$salt = generateString(8);
-	$now = time();
-	$data = "$salt:$contid:{$user['id']}:$now";
-	$edata = encryptData($data);
-	$udata = urlencode($edata);
-	return $udata;
+    global $user, $mode, $inContinuation, $continuationid;
+    if($repeatProtect)
+        $data['______parent'] = $continuationid;
+    $serdata = serialize($data);
+    $contid = md5($mode . $nextmode . $serdata . $user['id']);
+    $serdata = mysql_real_escape_string($serdata);
+    $expiretime = unixToDatetime(time() + $duration);
+    $query = "SELECT id, "
+        .        "parentid "
+        . "FROM continuations "
+        . "WHERE id = '$contid' AND "
+        .       "userid = {$user['id']}";
+    $qh = doQuery($query, 101);
+    if($row = mysql_fetch_assoc($qh)) {
+        # update expiretime
+        $query = "UPDATE continuations "
+            . "SET expiretime = '$expiretime' "
+            . "WHERE id = '$contid' AND "
+            .       "userid = {$user['id']}";
+        doQuery($query, 101);
+    }
+    else {
+        if(! $inContinuation)
+            $parent = 'NULL';
+        else
+            $parent = "'$continuationid'";
+        if($deleteFromSelf || ! $inContinuation) {
+            $deletefromid = $contid;
+            $parent = 'NULL';
+        }
+        else {
+            $query = "SELECT deletefromid "
+                . "FROM continuations "
+                . "WHERE id = '$continuationid' AND "
+                .       "userid = {$user['id']}";
+            $qh = doQuery($query, 101);
+            if(! $row = mysql_fetch_assoc($qh))
+                abort(108);
+            $deletefromid = $row['deletefromid'];
+        }
+        $query = "INSERT INTO continuations "
+            .        "(id, "
+            .        "userid, "
+            .        "expiretime, "
+            .        "frommode, "
+            .        "tomode, "
+            .        "data, "
+            .        "multicall, "
+            .        "parentid, "
+            .        "deletefromid) "
+            . "VALUES "
+            .        "('$contid', "
+            .        "{$user['id']}, "
+            .        "'$expiretime', "
+            .        "'$mode', "
+            .        "'$nextmode', "
+            .        "'$serdata', "
+            .        "$multicall, "
+            .        "$parent, "
+            .        "'$deletefromid')";
+        doQuery($query, 101);
+    }
+    $salt = generateString(8);
+    $now = time();
+    $data = "$salt:$contid:{$user['id']}:$now";
+    $edata = encryptData($data);
+    $udata = urlencode($edata);
+    return $udata;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -9884,68 +9898,68 @@ function addContinuationsEntry($nextmode, $data=array(), $duration=SECINWEEK,
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getContinuationsData($data) {
-	global $user, $continuationid, $noHTMLwrappers;
-	if(array_key_exists('continuation', $_POST))
-		$edata = urldecode($data);
-	else
-		$edata = $data;
-	if(! ($ddata = decryptData($edata)))
-		return array('error' => 'invalid input');
-	$items = explode(':', $ddata);
-	$now = time();
-	$continuationid = $items[1];
+    global $user, $continuationid, $noHTMLwrappers;
+    if(array_key_exists('continuation', $_POST))
+        $edata = urldecode($data);
+    else
+        $edata = $data;
+    if(! ($ddata = decryptData($edata)))
+        return array('error' => 'invalid input');
+    $items = explode(':', $ddata);
+    $now = time();
+    $continuationid = $items[1];
 
-	# validate input
-	if((count($items) != 4) ||
-	   (! preg_match('/^[0-9a-fA-F]+$/', $continuationid)) ||
-	   (! is_numeric($items[2])) ||
-	   /*($items[1] != $user['id']) ||*/
-	   (! is_numeric($items[3])) ||
-	   ($items[3] > $now)) {
-		return array('error' => 'invalid input');
-	}
+    # validate input
+    if((count($items) != 4) ||
+        (! preg_match('/^[0-9a-fA-F]+$/', $continuationid)) ||
+        (! is_numeric($items[2])) ||
+        /*($items[1] != $user['id']) ||*/
+        (! is_numeric($items[3])) ||
+        ($items[3] > $now)) {
+        return array('error' => 'invalid input');
+    }
 
-	# get continuation
-	$query = "SELECT UNIX_TIMESTAMP(expiretime) AS expiretime, "
-	       .        "frommode, "
-	       .        "tomode, "
-	       .        "data, "
-	       .        "multicall, "
-	       .        "deletefromid "
-	       . "FROM continuations "
-	       . "WHERE id = '$continuationid' AND "
-	       .       "userid = {$items[2]}";
-	$qh = doQuery($query, 101);
+    # get continuation
+    $query = "SELECT UNIX_TIMESTAMP(expiretime) AS expiretime, "
+        .        "frommode, "
+        .        "tomode, "
+        .        "data, "
+        .        "multicall, "
+        .        "deletefromid "
+        . "FROM continuations "
+        . "WHERE id = '$continuationid' AND "
+        .       "userid = {$items[2]}";
+    $qh = doQuery($query, 101);
 
-	# return error if it is not there
-	if(! ($row = mysql_fetch_assoc($qh)))
-		return array('error' => 'continuation does not exist');
+    # return error if it is not there
+    if(! ($row = mysql_fetch_assoc($qh)))
+        return array('error' => 'continuation does not exist');
 
-	# return error if it is expired
-	if($row['expiretime'] < $now) {
-		$query = "DELETE FROM continuations "
-		       . "WHERE id = '{$row['deletefromid']}' AND "
-		       .       "userid = {$items[2]}";
-		doQuery($query, 101, 'vcl', 1);
-		$rt = array('error' => 'expired');
-		if(in_array($row['tomode'], $noHTMLwrappers))
-			$rt['noHTMLwrappers'] = 1;
-		else
-			$rt['noHTMLwrappers'] = 0;
-		return $rt;
-	}
+    # return error if it is expired
+    if($row['expiretime'] < $now) {
+        $query = "DELETE FROM continuations "
+            . "WHERE id = '{$row['deletefromid']}' AND "
+            .       "userid = {$items[2]}";
+        doQuery($query, 101, 'vcl', 1);
+        $rt = array('error' => 'expired');
+        if(in_array($row['tomode'], $noHTMLwrappers))
+            $rt['noHTMLwrappers'] = 1;
+        else
+            $rt['noHTMLwrappers'] = 0;
+        return $rt;
+    }
 
-	# remove if multicall is 0
-	if($row['multicall'] == 0) {
-		$query = "DELETE FROM continuations "
-		       . "WHERE id = '{$row['deletefromid']}' AND "
-		       .       "userid = {$items[2]}";
-		doQuery($query, 101, 'vcl', 1);
-	}
-	return array('frommode' => $row['frommode'],
-	             'nextmode' => $row['tomode'],
-	             'userid' => $items[2],
-	             'data' => unserialize($row['data']));
+    # remove if multicall is 0
+    if($row['multicall'] == 0) {
+        $query = "DELETE FROM continuations "
+            . "WHERE id = '{$row['deletefromid']}' AND "
+            .       "userid = {$items[2]}";
+        doQuery($query, 101, 'vcl', 1);
+    }
+    return array('frommode' => $row['frommode'],
+        'nextmode' => $row['tomode'],
+        'userid' => $items[2],
+        'data' => unserialize($row['data']));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -9956,46 +9970,46 @@ function getContinuationsData($data) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function continuationsError() {
-	global $contdata, $printedHTMLheader, $HTMLheader;
-	if(! array_key_exists('noHTMLwrappers', $contdata) ||
-		$contdata['noHTMLwrappers'] == 0) {
-		if(empty($HTMLheader))
-			printHTMLHeader();
-		if(! $printedHTMLheader) {
-			$printedHTMLheader = 1;
-			print $HTMLheader;
-		}
-	}
-	if(array_key_exists('error', $contdata)) {
-		switch($contdata['error']) {
-		case 'invalid input':
-			print _("<h2>Error: Invalid Input</h2><br>\n");
-			print _("You submitted input invalid for this web site. If you have no ");
-			print _("idea why this happened and the problem persists, please email ");
-			print "<a href=\"mailto:" . HELPEMAIL . "?Subject=" . _("Problem%20With%20VCL\">");
-			print HELPEMAIL . "</a> " . _("for further assistance.  Please include the ");
-			print _("steps you took that led up to this problem in your email message.");
-			break;
-		case 'continuation does not exist':
-		case 'expired':
-			print _("<h2>Error: Invalid Input</h2><br>\n");
-			print _("You submitted expired data to this web site. Please restart the ");
-			print _("steps you were following without using your browser's <strong>");
-			print _("Back</strong> button.");
-			break;
-		default:
-			print _("<h2>Error: Invalid Input</h2><br>\n");
-			print _("An error has occurred.  If this problem persists, please email ");
-			print "<a href=\"mailto:" . HELPEMAIL . "?Subject=" . _("Problem%20With%20VCL\">");
-			print HELPEMAIL . "</a> " . _("for further assistance.  Please include the ");
-			print _("steps you took that led up to this problem in your email message.");
-		}
-	}
-	if(! array_key_exists('noHTMLwrappers', $contdata) ||
-		$contdata['noHTMLwrappers'] == 0)
-		printHTMLFooter();
-	dbDisconnect();
-	exit;
+    global $contdata, $printedHTMLheader, $HTMLheader;
+    if(! array_key_exists('noHTMLwrappers', $contdata) ||
+        $contdata['noHTMLwrappers'] == 0) {
+        if(empty($HTMLheader))
+            printHTMLHeader();
+        if(! $printedHTMLheader) {
+            $printedHTMLheader = 1;
+            print $HTMLheader;
+        }
+    }
+    if(array_key_exists('error', $contdata)) {
+        switch($contdata['error']) {
+            case 'invalid input':
+                print _("<h2>Error: Invalid Input</h2><br>\n");
+                print _("You submitted input invalid for this web site. If you have no ");
+                print _("idea why this happened and the problem persists, please email ");
+                print "<a href=\"mailto:" . HELPEMAIL . "?Subject=" . _("Problem%20With%20VCL\">");
+                print HELPEMAIL . "</a> " . _("for further assistance.  Please include the ");
+                print _("steps you took that led up to this problem in your email message.");
+                break;
+            case 'continuation does not exist':
+            case 'expired':
+                print _("<h2>Error: Invalid Input</h2><br>\n");
+                print _("You submitted expired data to this web site. Please restart the ");
+                print _("steps you were following without using your browser's <strong>");
+                print _("Back</strong> button.");
+                break;
+            default:
+                print _("<h2>Error: Invalid Input</h2><br>\n");
+                print _("An error has occurred.  If this problem persists, please email ");
+                print "<a href=\"mailto:" . HELPEMAIL . "?Subject=" . _("Problem%20With%20VCL\">");
+                print HELPEMAIL . "</a> " . _("for further assistance.  Please include the ");
+                print _("steps you took that led up to this problem in your email message.");
+        }
+    }
+    if(! array_key_exists('noHTMLwrappers', $contdata) ||
+        $contdata['noHTMLwrappers'] == 0)
+        printHTMLFooter();
+    dbDisconnect();
+    exit;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -10020,21 +10034,21 @@ function continuationsError() {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getShibauthData($id) {
-	$query = "SELECT id, "
-	       .        "userid, "
-	       .        "ts, "
-	       .        "sessid, "
-	       .        "data "
-	       . "FROM shibauth "
-	       . "WHERE id = $id";
-	$qh = doQuery($query, 101);
-	if($row = mysql_fetch_assoc($qh)) {
-		$data = unserialize($row['data']);
-		unset($row['data']);
-		$data2 = array_merge($row, $data);
-		return $data2;
-	}
-	return NULL;
+    $query = "SELECT id, "
+        .        "userid, "
+        .        "ts, "
+        .        "sessid, "
+        .        "data "
+        . "FROM shibauth "
+        . "WHERE id = $id";
+    $qh = doQuery($query, 101);
+    if($row = mysql_fetch_assoc($qh)) {
+        $data = unserialize($row['data']);
+        unset($row['data']);
+        $data2 = array_merge($row, $data);
+        return $data2;
+    }
+    return NULL;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -10046,33 +10060,33 @@ function getShibauthData($id) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function xmlrpccall() {
-	global $xmlrpc_handle, $HTTP_RAW_POST_DATA, $user;
-	# create xmlrpc handle
-	$xmlrpc_handle = xmlrpc_server_create();
-	# register functions available via rpc calls
-	xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCtest", "xmlRPChandler");
-	xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCgetImages", "xmlRPChandler");
-	xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCaddRequest", "xmlRPChandler");
-	xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCaddRequestWithEnding", "xmlRPChandler");
-	xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCgetRequestStatus", "xmlRPChandler");
-	xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCgetRequestConnectData", "xmlRPChandler");
-	xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCextendRequest", "xmlRPChandler");
-	xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCsetRequestEnding", "xmlRPChandler");
-	xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCendRequest", "xmlRPChandler");
-	xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCgetRequestIds", "xmlRPChandler");
-	xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCblockAllocation", "xmlRPChandler");
-	xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCprocessBlockTime", "xmlRPChandler");
-	xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCaddUserGroup", "xmlRPChandler");
-	xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCgetUserGroupAttributes", "xmlRPChandler");
-	xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCdeleteUserGroup", "xmlRPChandler");
-	xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCeditUserGroup", "xmlRPChandler");
-	xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCgetUserGroupMembers", "xmlRPChandler");
-	xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCaddUsersToGroup", "xmlRPChandler");
-	xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCremoveUsersFromGroup", "xmlRPChandler");
-	xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCautoCapture", "xmlRPChandler");
-	xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCdeployServer", "xmlRPChandler");
-	xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCgetNodes", "xmlRPChandler");
-	xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCaddNode", "xmlRPChandler");
+    global $xmlrpc_handle, $HTTP_RAW_POST_DATA, $user;
+    # create xmlrpc handle
+    $xmlrpc_handle = xmlrpc_server_create();
+    # register functions available via rpc calls
+    xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCtest", "xmlRPChandler");
+    xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCgetImages", "xmlRPChandler");
+    xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCaddRequest", "xmlRPChandler");
+    xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCaddRequestWithEnding", "xmlRPChandler");
+    xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCgetRequestStatus", "xmlRPChandler");
+    xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCgetRequestConnectData", "xmlRPChandler");
+    xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCextendRequest", "xmlRPChandler");
+    xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCsetRequestEnding", "xmlRPChandler");
+    xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCendRequest", "xmlRPChandler");
+    xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCgetRequestIds", "xmlRPChandler");
+    xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCblockAllocation", "xmlRPChandler");
+    xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCprocessBlockTime", "xmlRPChandler");
+    xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCaddUserGroup", "xmlRPChandler");
+    xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCgetUserGroupAttributes", "xmlRPChandler");
+    xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCdeleteUserGroup", "xmlRPChandler");
+    xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCeditUserGroup", "xmlRPChandler");
+    xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCgetUserGroupMembers", "xmlRPChandler");
+    xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCaddUsersToGroup", "xmlRPChandler");
+    xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCremoveUsersFromGroup", "xmlRPChandler");
+    xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCautoCapture", "xmlRPChandler");
+    xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCdeployServer", "xmlRPChandler");
+    xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCgetNodes", "xmlRPChandler");
+    xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCaddNode", "xmlRPChandler");
     xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCremoveNode", "xmlRPChandler");
     xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCnodeExists", "xmlRPChandler");
     xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCaddResourceGroupPriv", "xmlRPChandler");
@@ -10084,25 +10098,25 @@ function xmlrpccall() {
     xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCaddResourceGroup", "xmlRPChandler");
     xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCgetResourceGroups", "xmlRPChandler");
     xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCremoveResourceGroup", "xmlRPChandler");
-	xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCgetUserGroups", "xmlRPChandler");
+    xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCgetUserGroups", "xmlRPChandler");
     xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCremoveUserGroup", "xmlRPChandler");
-	xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCaddImageToGroup", "xmlRPChandler");
+    xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCaddImageToGroup", "xmlRPChandler");
     xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCremoveImageFromGroup", "xmlRPChandler");
     xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCgetGroupImages", "xmlRPChandler");
     xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCaddImageGroupToComputerGroup", "xmlRPChandler");
     xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCremoveImageGroupFromComputerGroup", "xmlRPChandler");
-	xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCgetOneClickParams", "xmlRPChandler");//ignacioxd
-	xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCgetOneClicks", "xmlRPChandler");//ignacioxd
-	xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCaddOneClick", "xmlRPChandler");//ignacioxd
-	xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCeditOneClick", "xmlRPChandler");//ignacioxd
-	xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCdeleteOneClick", "xmlRPChandler");//ignacioxd
-	xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCgetIP", "xmlRPChandler");//ignacioxd
+    xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCgetOneClickParams", "xmlRPChandler");//ignacioxd
+    xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCgetOneClicks", "xmlRPChandler");//ignacioxd
+    xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCaddOneClick", "xmlRPChandler");//ignacioxd
+    xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCeditOneClick", "xmlRPChandler");//ignacioxd
+    xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCdeleteOneClick", "xmlRPChandler");//ignacioxd
+    xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCgetIP", "xmlRPChandler");//ignacioxd
 
-	print xmlrpc_server_call_method($xmlrpc_handle, $HTTP_RAW_POST_DATA, '');
-	xmlrpc_server_destroy($xmlrpc_handle);
-	semUnlock();
-	dbDisconnect();
-	exit;
+    print xmlrpc_server_call_method($xmlrpc_handle, $HTTP_RAW_POST_DATA, '');
+    xmlrpc_server_destroy($xmlrpc_handle);
+    semUnlock();
+    dbDisconnect();
+    exit;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -10113,17 +10127,17 @@ function xmlrpccall() {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function xmlrpcgetaffiliations() {
-	global $xmlrpc_handle, $HTTP_RAW_POST_DATA;
-	# create xmlrpc handle
-	$xmlrpc_handle = xmlrpc_server_create();
-	# register functions available via rpc calls
-	xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCaffiliations", "xmlRPChandler");
+    global $xmlrpc_handle, $HTTP_RAW_POST_DATA;
+    # create xmlrpc handle
+    $xmlrpc_handle = xmlrpc_server_create();
+    # register functions available via rpc calls
+    xmlrpc_server_register_method($xmlrpc_handle, "XMLRPCaffiliations", "xmlRPChandler");
 
-	print xmlrpc_server_call_method($xmlrpc_handle, $HTTP_RAW_POST_DATA, '');
-	xmlrpc_server_destroy($xmlrpc_handle);
-	semUnlock();
-	dbDisconnect();
-	exit;
+    print xmlrpc_server_call_method($xmlrpc_handle, $HTTP_RAW_POST_DATA, '');
+    xmlrpc_server_destroy($xmlrpc_handle);
+    semUnlock();
+    dbDisconnect();
+    exit;
 }
 ////////////////////////////////////////////////////////////////////////////////
 ///
@@ -10141,42 +10155,42 @@ function xmlrpcgetaffiliations() {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function xmlRPChandler($function, $args, $blah) {
-	global $user, $remoteIP;
-	header("Content-type: text/xml");
-	$apiversion = processInputData($_SERVER['HTTP_X_APIVERSION'], ARG_NUMERIC);
-	if($function == 'XMLRPCaffiliations')
-		$keyid = 0;
-	else
-		$keyid = $user['id'];
-	if(function_exists($function)) {
-		$saveargs = mysql_real_escape_string(serialize($args));
-		$query = "INSERT INTO xmlrpcLog "
-		       .        "(xmlrpcKeyid, " 
-		       .        "timestamp, "
-		       .        "IPaddress, "
-		       .        "method, "
-		       .        "apiversion, "
-		       .        "comments) "
-		       . "VALUES " 
-		       .        "($keyid, "
-		       .        "NOW(), "
-		       .        "'$remoteIP', "
-		       .        "'$function', "
-		       .        "$apiversion, "
-		       .        "'$saveargs')";
-		doQuery($query, 101);
-	}
-	else {
-		printXMLRPCerror(2);
-		dbDisconnect();
-		semUnlock();
-		exit;
-	}
+    global $user, $remoteIP;
+    header("Content-type: text/xml");
+    $apiversion = processInputData($_SERVER['HTTP_X_APIVERSION'], ARG_NUMERIC);
+    if($function == 'XMLRPCaffiliations')
+        $keyid = 0;
+    else
+        $keyid = $user['id'];
+    if(function_exists($function)) {
+        $saveargs = mysql_real_escape_string(serialize($args));
+        $query = "INSERT INTO xmlrpcLog "
+            .        "(xmlrpcKeyid, "
+            .        "timestamp, "
+            .        "IPaddress, "
+            .        "method, "
+            .        "apiversion, "
+            .        "comments) "
+            . "VALUES "
+            .        "($keyid, "
+            .        "NOW(), "
+            .        "'$remoteIP', "
+            .        "'$function', "
+            .        "$apiversion, "
+            .        "'$saveargs')";
+        doQuery($query, 101);
+    }
+    else {
+        printXMLRPCerror(2);
+        dbDisconnect();
+        semUnlock();
+        exit;
+    }
 
-	if(count($args))
-		return call_user_func_array($function, $args);
-	else
-		return $function();
+    if(count($args))
+        return call_user_func_array($function, $args);
+    else
+        return $function();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -10190,41 +10204,41 @@ function xmlRPChandler($function, $args, $blah) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function xmlRPCabort($errcode, $query='') {
-	global $mysql_link_vcl, $mysql_link_acct, $ERRORS, $user, $mode;
-	global $XMLRPCERRORS;
-	if(ONLINEDEBUG && checkUserHasPerm('View Debug Information')) {
-		$msg = '';
-		if($errcode >= 100 && $errcode < 400) {
-			$msg .= mysql_error($mysql_link_vcl) . " $query ";
-		}
-		$msg .= $ERRORS["$errcode"];
-		$XMLRPCERRORS[100] = $msg;
-		$faultcode = 100;
-	}
-	else {
-		$message = "";
-		if($errcode >= 100 && $errcode < 400) {
-			$message .= mysql_error($mysql_link_vcl) . "\n";
-			$message .= mysql_error($mysql_link_acct) . "\n";
-			$message .= $query . "\n";
-		}
-		$message .= "ERROR($errcode): " . $ERRORS["$errcode"] . "\n";
-		$message .= "Logged in user was " . $user["unityid"] . "\n";
-		$message .= "Mode was $mode\n\n";
-		if($errcode == 20) {
-			$urlArray = explode('?', $_SERVER["HTTP_REFERER"]);
-			$message .= "HTTP_REFERER URL - " . $urlArray[0] . "\n";
-			$message .= "correct URL - " . BASEURL . SCRIPT . "\n";
-		}
-		$message .= getBacktraceString(FALSE);
-		$mailParams = "-f" . ENVELOPESENDER;
-		mail(ERROREMAIL, "Error with VCL XMLRPC call", $message, '', $mailParams);
-		$faultcode = 1;
-	}
-	printXMLRPCerror($faultcode);
-	dbDisconnect();
-	semUnlock();
-	exit;
+    global $mysql_link_vcl, $mysql_link_acct, $ERRORS, $user, $mode;
+    global $XMLRPCERRORS;
+    if(ONLINEDEBUG && checkUserHasPerm('View Debug Information')) {
+        $msg = '';
+        if($errcode >= 100 && $errcode < 400) {
+            $msg .= mysql_error($mysql_link_vcl) . " $query ";
+        }
+        $msg .= $ERRORS["$errcode"];
+        $XMLRPCERRORS[100] = $msg;
+        $faultcode = 100;
+    }
+    else {
+        $message = "";
+        if($errcode >= 100 && $errcode < 400) {
+            $message .= mysql_error($mysql_link_vcl) . "\n";
+            $message .= mysql_error($mysql_link_acct) . "\n";
+            $message .= $query . "\n";
+        }
+        $message .= "ERROR($errcode): " . $ERRORS["$errcode"] . "\n";
+        $message .= "Logged in user was " . $user["unityid"] . "\n";
+        $message .= "Mode was $mode\n\n";
+        if($errcode == 20) {
+            $urlArray = explode('?', $_SERVER["HTTP_REFERER"]);
+            $message .= "HTTP_REFERER URL - " . $urlArray[0] . "\n";
+            $message .= "correct URL - " . BASEURL . SCRIPT . "\n";
+        }
+        $message .= getBacktraceString(FALSE);
+        $mailParams = "-f" . ENVELOPESENDER;
+        mail(ERROREMAIL, "Error with VCL XMLRPC call", $message, '', $mailParams);
+        $faultcode = 1;
+    }
+    printXMLRPCerror($faultcode);
+    dbDisconnect();
+    semUnlock();
+    exit;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -10237,28 +10251,28 @@ function xmlRPCabort($errcode, $query='') {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function printXMLRPCerror($errcode) {
-	global $XMLRPCERRORS;
-	print "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>\n";
-	print "<methodResponse>\n";
-	print "<fault>\n";
-	print " <value>\n";
-	print "  <struct>\n";
-	print "   <member>\n";
-	print "    <name>faultString</name>\n";
-	print "    <value>\n";
-	print "     <string>{$XMLRPCERRORS[$errcode]}</string>\n";
-	print "    </value>\n";
-	print "   </member>\n";
-	print "   <member>\n";
-	print "    <name>faultCode</name>\n";
-	print "    <value>\n";
-	print "     <int>$errcode</int>\n";
-	print "    </value>\n";
-	print "   </member>\n";
-	print "  </struct>\n";
-	print " </value>\n";
-	print "</fault>\n";
-	print "</methodResponse>\n";
+    global $XMLRPCERRORS;
+    print "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>\n";
+    print "<methodResponse>\n";
+    print "<fault>\n";
+    print " <value>\n";
+    print "  <struct>\n";
+    print "   <member>\n";
+    print "    <name>faultString</name>\n";
+    print "    <value>\n";
+    print "     <string>{$XMLRPCERRORS[$errcode]}</string>\n";
+    print "    </value>\n";
+    print "   </member>\n";
+    print "   <member>\n";
+    print "    <name>faultCode</name>\n";
+    print "    <value>\n";
+    print "     <int>$errcode</int>\n";
+    print "    </value>\n";
+    print "   </member>\n";
+    print "  </struct>\n";
+    print " </value>\n";
+    print "</fault>\n";
+    print "</methodResponse>\n";
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -10291,105 +10305,105 @@ function printXMLRPCerror($errcode) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function validateAPIgroupInput($items, $exists) {
-	$custom = 1;
-	if(array_key_exists('custom', $items))
-		$custom = $items['custom'];
-	# initialMaxTime
-	if(array_key_exists('initialMaxTime', $items)) {
-		if(! is_numeric($items['initialMaxTime']) ||
-		   $items['initialMaxTime'] < 1 ||
-		   $items['initialMaxTime'] > 65535) {
-			return array('status' => 'error',
-			             'errorcode' => 21,
-			             'errormsg' => 'submitted initialMaxTime is invalid');
-		}
-	}
-	# totalMaxTime
-	if(array_key_exists('totalMaxTime', $items)) {
-		if(! is_numeric($items['totalMaxTime']) ||
-		   $items['totalMaxTime'] < 1 ||
-		   $items['totalMaxTime'] > 65535) {
-			return array('status' => 'error',
-			             'errorcode' => 22,
-			             'errormsg' => 'submitted totalMaxTime is invalid');
-		}
-	}
-	# maxExtendTime
-	if(array_key_exists('maxExtendTime', $items)) {
-		if(! is_numeric($items['maxExtendTime']) ||
-		   $items['maxExtendTime'] < 1 ||
-		   $items['maxExtendTime'] > 65535) {
-			return array('status' => 'error',
-			             'errorcode' => 23,
-			             'errormsg' => 'submitted maxExtendTime is invalid');
-		}
-	}
-	# affiliation
-	if(array_key_exists('affiliation', $items)) {
-		$esc_affiliation = mysql_real_escape_string($items['affiliation']);
-		$affilid = getAffiliationID($esc_affiliation);
-		if(is_null($affilid)) {
-			return array('status' => 'error',
-			             'errorcode' => 17,
-			             'errormsg' => 'unknown affiliation');
-		}
-		$items['affiliationid'] = $affilid;
-	}
-	# name
-	if(array_key_exists('name', $items)) {
-		if(! preg_match('/^[-a-zA-Z0-9_\.: ]{3,30}$/', $items['name'])) {
-			return array('status' => 'error',
-			             'errorcode' => 19,
-			             'errormsg' => 'Name must be between 3 and 30 characters '
-			                         . 'and can only contain letters, numbers, and '
-			                         . 'these characters: - _ . :');
-		}
-		$esc_name = mysql_real_escape_string($items['name']);
-		$doesexist = checkForGroupName($esc_name, 'user', '', $affilid);
-		if($exists && ! $doesexist) {
-			return array('status' => 'error',
-			             'errorcode' => 18,
-			             'errormsg' => 'user group with submitted name and affiliation does not exist');
-		}
-		elseif(! $exists && $doesexist) {
-			return array('status' => 'error',
-			             'errorcode' => 27,
-			             'errormsg' => 'existing user group with submitted name and affiliation');
-		}
-		elseif($exists && $doesexist) {
-			$items['id'] = getUserGroupID($esc_name, $affilid);
-		}
-	}
-	# owner
-	if($custom && array_key_exists('owner', $items)) {
-		if(! validateUserid(mysql_real_escape_string($items['owner']))) {
-			return array('status' => 'error',
-			             'errorcode' => 20,
-			             'errormsg' => 'submitted owner is invalid');
-		}
-	}
-	# managingGroup
-	if($custom && array_key_exists('managingGroup', $items)) {
-		$parts = explode('@', $items['managingGroup']);
-		if(count($parts) != 2) {
-			return array('status' => 'error',
-			             'errorcode' => 24,
-			             'errormsg' => 'submitted managingGroup is invalid');
-		}
-		$esc_mgName = mysql_real_escape_string($parts[0]);
-		$esc_mgAffil = mysql_real_escape_string($parts[1]);
-		$mgaffilid = getAffiliationID($esc_mgAffil);
-		if(! checkForGroupName($esc_mgName, 'user', '', $mgaffilid)) {
-			return array('status' => 'error',
-			             'errorcode' => 25,
-			             'errormsg' => 'submitted managingGroup does not exist');
-		}
-		$items['managingGroupID'] = getUserGroupID($esc_mgName, $mgaffilid);
-		$items['managingGroupName'] = $parts[0];
-		$items['managingGroupAffilid'] = $mgaffilid;
-	}
-	$items['status'] = 'success';
-	return $items;
+    $custom = 1;
+    if(array_key_exists('custom', $items))
+        $custom = $items['custom'];
+    # initialMaxTime
+    if(array_key_exists('initialMaxTime', $items)) {
+        if(! is_numeric($items['initialMaxTime']) ||
+            $items['initialMaxTime'] < 1 ||
+            $items['initialMaxTime'] > 65535) {
+            return array('status' => 'error',
+                'errorcode' => 21,
+                'errormsg' => 'submitted initialMaxTime is invalid');
+        }
+    }
+    # totalMaxTime
+    if(array_key_exists('totalMaxTime', $items)) {
+        if(! is_numeric($items['totalMaxTime']) ||
+            $items['totalMaxTime'] < 1 ||
+            $items['totalMaxTime'] > 65535) {
+            return array('status' => 'error',
+                'errorcode' => 22,
+                'errormsg' => 'submitted totalMaxTime is invalid');
+        }
+    }
+    # maxExtendTime
+    if(array_key_exists('maxExtendTime', $items)) {
+        if(! is_numeric($items['maxExtendTime']) ||
+            $items['maxExtendTime'] < 1 ||
+            $items['maxExtendTime'] > 65535) {
+            return array('status' => 'error',
+                'errorcode' => 23,
+                'errormsg' => 'submitted maxExtendTime is invalid');
+        }
+    }
+    # affiliation
+    if(array_key_exists('affiliation', $items)) {
+        $esc_affiliation = mysql_real_escape_string($items['affiliation']);
+        $affilid = getAffiliationID($esc_affiliation);
+        if(is_null($affilid)) {
+            return array('status' => 'error',
+                'errorcode' => 17,
+                'errormsg' => 'unknown affiliation');
+        }
+        $items['affiliationid'] = $affilid;
+    }
+    # name
+    if(array_key_exists('name', $items)) {
+        if(! preg_match('/^[-a-zA-Z0-9_\.: ]{3,30}$/', $items['name'])) {
+            return array('status' => 'error',
+                'errorcode' => 19,
+                'errormsg' => 'Name must be between 3 and 30 characters '
+                    . 'and can only contain letters, numbers, and '
+                    . 'these characters: - _ . :');
+        }
+        $esc_name = mysql_real_escape_string($items['name']);
+        $doesexist = checkForGroupName($esc_name, 'user', '', $affilid);
+        if($exists && ! $doesexist) {
+            return array('status' => 'error',
+                'errorcode' => 18,
+                'errormsg' => 'user group with submitted name and affiliation does not exist');
+        }
+        elseif(! $exists && $doesexist) {
+            return array('status' => 'error',
+                'errorcode' => 27,
+                'errormsg' => 'existing user group with submitted name and affiliation');
+        }
+        elseif($exists && $doesexist) {
+            $items['id'] = getUserGroupID($esc_name, $affilid);
+        }
+    }
+    # owner
+    if($custom && array_key_exists('owner', $items)) {
+        if(! validateUserid(mysql_real_escape_string($items['owner']))) {
+            return array('status' => 'error',
+                'errorcode' => 20,
+                'errormsg' => 'submitted owner is invalid');
+        }
+    }
+    # managingGroup
+    if($custom && array_key_exists('managingGroup', $items)) {
+        $parts = explode('@', $items['managingGroup']);
+        if(count($parts) != 2) {
+            return array('status' => 'error',
+                'errorcode' => 24,
+                'errormsg' => 'submitted managingGroup is invalid');
+        }
+        $esc_mgName = mysql_real_escape_string($parts[0]);
+        $esc_mgAffil = mysql_real_escape_string($parts[1]);
+        $mgaffilid = getAffiliationID($esc_mgAffil);
+        if(! checkForGroupName($esc_mgName, 'user', '', $mgaffilid)) {
+            return array('status' => 'error',
+                'errorcode' => 25,
+                'errormsg' => 'submitted managingGroup does not exist');
+        }
+        $items['managingGroupID'] = getUserGroupID($esc_mgName, $mgaffilid);
+        $items['managingGroupName'] = $parts[0];
+        $items['managingGroupAffilid'] = $mgaffilid;
+    }
+    $items['status'] = 'success';
+    return $items;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -10401,44 +10415,44 @@ function validateAPIgroupInput($items, $exists) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 if(! function_exists('json_encode')) {
-function json_encode($a=false) {
-	if(is_null($a))
-		return 'null';
-	if($a === false)
-		return 'false';
-	if($a === true)
-		return 'true';
-	if(is_scalar($a)) {
-		if (is_float($a)) {
-			 // Always use "." for floats.
-			 return floatval(str_replace(",", ".", strval($a)));
-		}
- 
-		if (is_string($a)) {
-			 static $jsonReplaces = array(array("\\", "/", "\n", "\t", "\r", "\b", "\f", '"'), array('\\\\', '\\/', '\\n', '\\t', '\\r', '\\b', '\\f', '\"'));
-			return '"' . str_replace($jsonReplaces[0], $jsonReplaces[1], $a) . '"';
-		}
-		else
-			return $a;
-	}
-	$isList = true;
-	for ($i = 0, reset($a); $i < count($a); $i++, next($a)) {
-		if (key($a) !== $i) {
-			$isList = false;
-			break;
-		}
-	}
-	$result = array();
-	if ($isList) {
-		foreach ($a as $v) $result[] = json_encode($v);
-		return '[' . join(',', $result) . ']';
-	}
-	else {
-		foreach($a as $k => $v)
-			$result[] = json_encode($k).':'.json_encode($v);
-		return '{' . join(',', $result) . '}';
-	}
-}
+    function json_encode($a=false) {
+        if(is_null($a))
+            return 'null';
+        if($a === false)
+            return 'false';
+        if($a === true)
+            return 'true';
+        if(is_scalar($a)) {
+            if (is_float($a)) {
+                // Always use "." for floats.
+                return floatval(str_replace(",", ".", strval($a)));
+            }
+
+            if (is_string($a)) {
+                static $jsonReplaces = array(array("\\", "/", "\n", "\t", "\r", "\b", "\f", '"'), array('\\\\', '\\/', '\\n', '\\t', '\\r', '\\b', '\\f', '\"'));
+                return '"' . str_replace($jsonReplaces[0], $jsonReplaces[1], $a) . '"';
+            }
+            else
+                return $a;
+        }
+        $isList = true;
+        for ($i = 0, reset($a); $i < count($a); $i++, next($a)) {
+            if (key($a) !== $i) {
+                $isList = false;
+                break;
+            }
+        }
+        $result = array();
+        if ($isList) {
+            foreach ($a as $v) $result[] = json_encode($v);
+            return '[' . join(',', $result) . ']';
+        }
+        else {
+            foreach($a as $k => $v)
+                $result[] = json_encode($k).':'.json_encode($v);
+            return '{' . join(',', $result) . '}';
+        }
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -10453,11 +10467,11 @@ function json_encode($a=false) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function sendJSON($arr, $identifier='') {
-	header('Content-Type: text/json; charset=utf-8');
-	if(empty($identifier))
-		print '{} && {"items":' . json_encode($arr) . '}';
-	else
-		print "{} && {identifier: '$identifier', 'items':" . json_encode($arr) . '}';
+    header('Content-Type: text/json; charset=utf-8');
+    if(empty($identifier))
+        print '{} && {"items":' . json_encode($arr) . '}';
+    else
+        print "{} && {identifier: '$identifier', 'items':" . json_encode($arr) . '}';
 }
 
 
@@ -10475,14 +10489,14 @@ function sendJSON($arr, $identifier='') {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function menulistLI($page) {
-	global $mode, $actions;
-	$mymode = $mode;
-	if(empty($mymode))
-		$mymode = "home";
-	if($actions['pages'][$mymode] == $page)
-		return "<li class=selected>";
-	else
-		return "<li>";
+    global $mode, $actions;
+    $mymode = $mode;
+    if(empty($mymode))
+        $mymode = "home";
+    if($actions['pages'][$mymode] == $page)
+        return "<li class=selected>";
+    else
+        return "<li>";
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -10493,124 +10507,124 @@ function menulistLI($page) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function sendHeaders() {
-	global $mode, $user, $authed, $oldmode, $actionFunction;
-	global $shibauthed;
-	if(! $authed && $mode == "auth") {
-		header("Location: " . BASEURL . SCRIPT . "?mode=selectauth");
-		dbDisconnect();
-		exit;
-	}
-	switch($mode) {
-		case 'logout':
-			if($shibauthed) {
-				$shibdata = getShibauthData($shibauthed);
-				if(array_key_exists('Shib-logouturl', $shibdata) &&
-				   ! empty($shibdata['Shib-logouturl'])) {
-					dbDisconnect();
-					header("Location: {$shibdata['Shib-logouturl']}");
-					exit;
-				}
-			}
-		case 'shiblogout':
-			setcookie("ITECSAUTH", "", time() - 10, "/", COOKIEDOMAIN);
-			setcookie("VCLAUTH", "", time() - 10, "/", COOKIEDOMAIN);
-			if($shibauthed) {
-				$msg = '';
-				$shibdata = getShibauthData($shibauthed);
-				# find and clear shib cookies
-				/*foreach(array_keys($_COOKIE) as $key) {
-					if(preg_match('/^_shibsession[_0-9a-fA-F]+$/', $key))
-						setcookie($key, "", time() - 10, "/", $_SERVER['SERVER_NAME']);
-					elseif(preg_match('/^_shibstate_/', $key))
-						setcookie($key, "", time() - 10, "/", $_SERVER['SERVER_NAME']);
-				}*/
-				doQuery("DELETE FROM shibauth WHERE id = $shibauthed", 101);
-				stopSession();
-				dbDisconnect();
-				if(array_key_exists('Shib-logouturl', $shibdata) &&
-				   ! empty($shibdata['Shib-logouturl'])) {
-					print "<html>\n";
-					print "   <head>\n";
-					print "      <style type=\"text/css\">\n";
-					print "         .red {\n";
-					print "            color: red;\n";
-					print "         }\n";
-					print "         body{\n";
-					print "            margin:0px; color: red;\n";
-					print "         }\n";
-					print "      </style>\n";
-					print "   </head>\n";
-					print "   <body>\n";
-					print "      <span class=red>Done.</span>&nbsp;&nbsp;&nbsp;<a target=\"_top\" href=\"" . BASEURL . "/\">Return to VCL</a>\n";
-					print "   </body>\n";
-					print "</html>\n";
-				}
-				else {
-					print "<html>\n";
-					print "<head>\n";
-					print "<META HTTP-EQUIV=REFRESH CONTENT=\"5;url=" . BASEURL . "\">\n";
-					print "<style type=\"text/css\">\n";
-					print "  .hidden {\n";
-					print "    display: none;\n";
-					print "  }\n";
-					print "</style>\n";
-					print "</head>\n";
-					print "<body>\n";
-					print "Logging out of VCL...";
-					print "<iframe src=\"https://{$_SERVER['SERVER_NAME']}/Shibboleth.sso/Logout\" class=hidden>\n";
-					print "</iframe>\n";
-					if(array_key_exists('Shib-Identity-Provider', $shibdata) &&
-					   ! empty($shibdata['Shib-Identity-Provider'])) {
-						$tmp = explode('/', $shibdata['Shib-Identity-Provider']);
-						$idp = "{$tmp[0]}//{$tmp[2]}";
-						print "<iframe src=\"$idp/idp/logout.jsp\" class=hidden>\n";
-						print "</iframe>\n";
-					}
-					print "</body>\n";
-					print "</html>\n";
-				}
-				exit;
-			}
-			header("Location: " . HOMEURL);
-			stopSession();
-			dbDisconnect();
-			exit;
-	}
-	if($mode == "statgraphday" ||
-	   $mode == "statgraphdayconcuruser" ||
-	   $mode == "statgraphdayconcurblade" ||
-	   $mode == "statgraphhour") {
-		$actionFunction();
-		dbDisconnect();
-		exit;
-	}
-	if($mode == "viewNodes") {
-		$openNodes = processInputVar("openNodes", ARG_STRING);
-		$activeNode = processInputVar("activeNode", ARG_NUMERIC);
-		if(! empty($openNodes)) {
-			$expire = time() + 31536000; //expire in 1 year
-			setcookie("VCLNODES", $openNodes, $expire, "/", COOKIEDOMAIN);
-		}
-		if(! empty($activeNode)) {
-			$expire = time() + 31536000; //expire in 1 year
-			setcookie("VCLACTIVENODE", $activeNode, $expire, "/", COOKIEDOMAIN);
-		}
-		return;
-	}
-	if($mode == "submitDeleteNode") {
-		$activeNode = processInputVar("activeNode", ARG_NUMERIC);
-		$nodeinfo = getNodeInfo($activeNode);
-		$expire = time() + 31536000; //expire in 1 year
-		setcookie("VCLACTIVENODE", $nodeinfo["parent"], $expire, "/", COOKIEDOMAIN);
+    global $mode, $user, $authed, $oldmode, $actionFunction;
+    global $shibauthed;
+    if(! $authed && $mode == "auth") {
+        header("Location: " . BASEURL . SCRIPT . "?mode=selectauth");
+        dbDisconnect();
+        exit;
+    }
+    switch($mode) {
+        case 'logout':
+            if($shibauthed) {
+                $shibdata = getShibauthData($shibauthed);
+                if(array_key_exists('Shib-logouturl', $shibdata) &&
+                    ! empty($shibdata['Shib-logouturl'])) {
+                    dbDisconnect();
+                    header("Location: {$shibdata['Shib-logouturl']}");
+                    exit;
+                }
+            }
+        case 'shiblogout':
+            setcookie("ITECSAUTH", "", time() - 10, "/", COOKIEDOMAIN);
+            setcookie("VCLAUTH", "", time() - 10, "/", COOKIEDOMAIN);
+            if($shibauthed) {
+                $msg = '';
+                $shibdata = getShibauthData($shibauthed);
+                # find and clear shib cookies
+                /*foreach(array_keys($_COOKIE) as $key) {
+                    if(preg_match('/^_shibsession[_0-9a-fA-F]+$/', $key))
+                        setcookie($key, "", time() - 10, "/", $_SERVER['SERVER_NAME']);
+                    elseif(preg_match('/^_shibstate_/', $key))
+                        setcookie($key, "", time() - 10, "/", $_SERVER['SERVER_NAME']);
+                }*/
+                doQuery("DELETE FROM shibauth WHERE id = $shibauthed", 101);
+                stopSession();
+                dbDisconnect();
+                if(array_key_exists('Shib-logouturl', $shibdata) &&
+                    ! empty($shibdata['Shib-logouturl'])) {
+                    print "<html>\n";
+                    print "   <head>\n";
+                    print "      <style type=\"text/css\">\n";
+                    print "         .red {\n";
+                    print "            color: red;\n";
+                    print "         }\n";
+                    print "         body{\n";
+                    print "            margin:0px; color: red;\n";
+                    print "         }\n";
+                    print "      </style>\n";
+                    print "   </head>\n";
+                    print "   <body>\n";
+                    print "      <span class=red>Done.</span>&nbsp;&nbsp;&nbsp;<a target=\"_top\" href=\"" . BASEURL . "/\">Return to VCL</a>\n";
+                    print "   </body>\n";
+                    print "</html>\n";
+                }
+                else {
+                    print "<html>\n";
+                    print "<head>\n";
+                    print "<META HTTP-EQUIV=REFRESH CONTENT=\"5;url=" . BASEURL . "\">\n";
+                    print "<style type=\"text/css\">\n";
+                    print "  .hidden {\n";
+                    print "    display: none;\n";
+                    print "  }\n";
+                    print "</style>\n";
+                    print "</head>\n";
+                    print "<body>\n";
+                    print "Logging out of VCL...";
+                    print "<iframe src=\"https://{$_SERVER['SERVER_NAME']}/Shibboleth.sso/Logout\" class=hidden>\n";
+                    print "</iframe>\n";
+                    if(array_key_exists('Shib-Identity-Provider', $shibdata) &&
+                        ! empty($shibdata['Shib-Identity-Provider'])) {
+                        $tmp = explode('/', $shibdata['Shib-Identity-Provider']);
+                        $idp = "{$tmp[0]}//{$tmp[2]}";
+                        print "<iframe src=\"$idp/idp/logout.jsp\" class=hidden>\n";
+                        print "</iframe>\n";
+                    }
+                    print "</body>\n";
+                    print "</html>\n";
+                }
+                exit;
+            }
+            header("Location: " . HOMEURL);
+            stopSession();
+            dbDisconnect();
+            exit;
+    }
+    if($mode == "statgraphday" ||
+        $mode == "statgraphdayconcuruser" ||
+        $mode == "statgraphdayconcurblade" ||
+        $mode == "statgraphhour") {
+        $actionFunction();
+        dbDisconnect();
+        exit;
+    }
+    if($mode == "viewNodes") {
+        $openNodes = processInputVar("openNodes", ARG_STRING);
+        $activeNode = processInputVar("activeNode", ARG_NUMERIC);
+        if(! empty($openNodes)) {
+            $expire = time() + 31536000; //expire in 1 year
+            setcookie("VCLNODES", $openNodes, $expire, "/", COOKIEDOMAIN);
+        }
+        if(! empty($activeNode)) {
+            $expire = time() + 31536000; //expire in 1 year
+            setcookie("VCLACTIVENODE", $activeNode, $expire, "/", COOKIEDOMAIN);
+        }
+        return;
+    }
+    if($mode == "submitDeleteNode") {
+        $activeNode = processInputVar("activeNode", ARG_NUMERIC);
+        $nodeinfo = getNodeInfo($activeNode);
+        $expire = time() + 31536000; //expire in 1 year
+        setcookie("VCLACTIVENODE", $nodeinfo["parent"], $expire, "/", COOKIEDOMAIN);
 
-	}
-	if($mode == "sendRDPfile") {
-		header("Cache-Control: max-age=5, must-revalidate");
-		header('Pragma: cache');
-	}
-	else
-		header("Cache-Control: no-cache, must-revalidate");
-	header("Expires: Sat, 1 Jan 2000 00:00:00 GMT");
+    }
+    if($mode == "sendRDPfile") {
+        header("Cache-Control: max-age=5, must-revalidate");
+        header('Pragma: cache');
+    }
+    else
+        header("Cache-Control: no-cache, must-revalidate");
+    header("Expires: Sat, 1 Jan 2000 00:00:00 GMT");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -10621,41 +10635,41 @@ function sendHeaders() {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function printHTMLHeader() {
-	global $mode, $user, $authed, $oldmode, $HTMLheader, $contdata;
-	global $printedHTMLheader, $docreaders, $noHTMLwrappers, $actions;
-	if($printedHTMLheader)
-		return;
-	$refresh = 0;
-	if($authed && $mode == "viewRequests") {
-		$requests = getUserRequests("all", $user["id"]);
-		if($count = count($requests)) {
-			$now = time() + (15 * 60);
-			for($i = 0; $i < $count; $i++) {
-				if(datetimeToUnix($requests[$i]["start"]) < $now &&
-				   ($requests[$i]["currstateid"] == 13 ||
-				   ($requests[$i]["currstateid"] == 14 &&
-				   $requests[$i]["laststateid"] == 13) ||
-				   $requests[$i]["currstateid"] == 3 ||
-				   ($requests[$i]["currstateid"] == 8 &&
-				   ! $requests[$i]["useraccountready"]))) {
-					$refresh = 1;
-				}
-			}
-		}
-	}
+    global $mode, $user, $authed, $oldmode, $HTMLheader, $contdata;
+    global $printedHTMLheader, $docreaders, $noHTMLwrappers, $actions;
+    if($printedHTMLheader)
+        return;
+    $refresh = 0;
+    if($authed && $mode == "viewRequests") {
+        $requests = getUserRequests("all", $user["id"]);
+        if($count = count($requests)) {
+            $now = time() + (15 * 60);
+            for($i = 0; $i < $count; $i++) {
+                if(datetimeToUnix($requests[$i]["start"]) < $now &&
+                    ($requests[$i]["currstateid"] == 13 ||
+                        ($requests[$i]["currstateid"] == 14 &&
+                            $requests[$i]["laststateid"] == 13) ||
+                        $requests[$i]["currstateid"] == 3 ||
+                        ($requests[$i]["currstateid"] == 8 &&
+                            ! $requests[$i]["useraccountready"]))) {
+                    $refresh = 1;
+                }
+            }
+        }
+    }
 
-	if($mode != 'selectauth' && $mode != 'submitLogin')
-		$HTMLheader .= getHeader($refresh);
+    if($mode != 'selectauth' && $mode != 'submitLogin')
+        $HTMLheader .= getHeader($refresh);
 
-	if(! in_array($mode, $noHTMLwrappers) &&
-		(! is_array($contdata) ||
-	    ! array_key_exists('noHTMLwrappers', $contdata) ||
-	    $contdata['noHTMLwrappers'] == 0)) {
-		print $HTMLheader;
-		if($mode != 'inmaintenance')
-			print maintenanceNotice();
-		$printedHTMLheader = 1;
-	}
+    if(! in_array($mode, $noHTMLwrappers) &&
+        (! is_array($contdata) ||
+            ! array_key_exists('noHTMLwrappers', $contdata) ||
+            $contdata['noHTMLwrappers'] == 0)) {
+        print $HTMLheader;
+        if($mode != 'inmaintenance')
+            print maintenanceNotice();
+        $printedHTMLheader = 1;
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -10673,126 +10687,126 @@ function printHTMLHeader() {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getNavMenu($inclogout, $inchome, $homeurl=HOMEURL) {
-	global $user, $docreaders, $authed;
-	global $mode;
-	if($authed && $mode != 'expiredemouser') {
-		$computermetadata = getUserComputerMetaData();
-		$requests = getUserRequests("all", $user["id"]);
-	}
-	else
-		$computermetadata = array("platforms" => array(),
-		                          "schedules" => array());
-	$rt = '';
-	if($inchome) {
-		$rt .= menulistLI('home');
-		$rt .= "<a href=\"$homeurl\">" . _("HOME") . "</a></li>\n";
-	}
-	$rt .= menulistLI('newReservations');
-	$rt .= "<a href=\"" . BASEURL . SCRIPT . "?mode=newRequest\">";
-	$rt .= _("New Reservation</a></li>\n");
-	if(in_array("imageCheckOut", $user["privileges"]) ||
-		in_array("imageAdmin", $user["privileges"]) ||
-	   count($requests)) {
-		$rt .= menulistLI('currentReservations');
-		$rt .= "<a href=\"" . BASEURL . SCRIPT . "?mode=viewRequests\">";
-		$rt .= _("Current Reservations</a></li>\n");
-	}
+    global $user, $docreaders, $authed;
+    global $mode;
+    if($authed && $mode != 'expiredemouser') {
+        $computermetadata = getUserComputerMetaData();
+        $requests = getUserRequests("all", $user["id"]);
+    }
+    else
+        $computermetadata = array("platforms" => array(),
+            "schedules" => array());
+    $rt = '';
+    if($inchome) {
+        $rt .= menulistLI('home');
+        $rt .= "<a href=\"$homeurl\">" . _("HOME") . "</a></li>\n";
+    }
+    $rt .= menulistLI('newReservations');
+    $rt .= "<a href=\"" . BASEURL . SCRIPT . "?mode=newRequest\">";
+    $rt .= _("New Reservation</a></li>\n");
+    if(in_array("imageCheckOut", $user["privileges"]) ||
+        in_array("imageAdmin", $user["privileges"]) ||
+        count($requests)) {
+        $rt .= menulistLI('currentReservations');
+        $rt .= "<a href=\"" . BASEURL . SCRIPT . "?mode=viewRequests\">";
+        $rt .= _("Current Reservations</a></li>\n");
+    }
 
-	//*************************************************************************
-	// One Button Group
-	// add the one button choice in the NavMenu
-	if(in_array("oneClick", $user["privileges"]) ) {
-		$rt .= menulistLI('oneClick');
-		$rt .= "<a href=\"" . BASEURL . SCRIPT . "?mode=newOneClick\">";
-		$rt .= "OneClicks</a></li>\n";
-	}
-	// end of One Button Group
-	//*************************************************************************
-		
-	$rt .= menulistLI('blockAllocations');
-	$rt .= "<a href=\"" . BASEURL . SCRIPT . "?mode=blockAllocations\">";
-	$rt .= _("Block Allocations</a></li>\n");
-	$rt .= menulistLI('userPreferences');
-	$rt .= "<a href=\"" . BASEURL . SCRIPT . "?mode=userpreferences\">";
-	$rt .= _("User Preferences</a></li>\n");
-	if(in_array("groupAdmin", $user["privileges"])) {
-		$rt .= menulistLI('manageGroups');
-		$rt .= "<a href=\"" . BASEURL . SCRIPT . "?mode=viewGroups\">";
-		$rt .= _("Manage Groups</a></li>\n");
-	}
-	if(in_array("imageAdmin", $user["privileges"])) {
-		$rt .= menulistLI('manageImages');
-		$rt .= "<a href=\"" . BASEURL . SCRIPT . "?mode=selectImageOption\">";
-		$rt .= _("Manage Images</a></li>\n");
-	}
-	if(in_array("scheduleAdmin", $user["privileges"])) {
-		$rt .= menulistLI('manageSchedules');
-		$rt .= "<a href=\"" . BASEURL . SCRIPT . "?mode=viewSchedules\">";
-		$rt .= _("Manage Schedules</a></li>\n");
-	}
-	if(in_array("computerAdmin", $user["privileges"])) {
-		$rt .= menulistLI('manageComputers');
-		$rt .= "<a href=\"" . BASEURL . SCRIPT . "?mode=selectComputers\">";
-		$rt .= _("Manage Computers</a></li>\n");
-	}
-	if(in_array("mgmtNodeAdmin", $user["privileges"])) {
-		$rt .= menulistLI('managementNodes');
-		$rt .= "<a href=\"" . BASEURL . SCRIPT;
-		$rt .= _("?mode=selectMgmtnodeOption\">Management Nodes</a></li>\n");
-	}
-	if(in_array("serverProfileAdmin", $user["privileges"]) ||
-	   in_array("serverCheckOut", $user["privileges"])) {
-		$rt .= menulistLI('serverProfiles');
-		$rt .= "<a href=\"" . BASEURL . SCRIPT;
-		$rt .= "?mode=serverProfiles\">" . _("Server Profiles") . "</a></li>\n";
-	}
-	if(count($computermetadata["platforms"]) &&
-		count($computermetadata["schedules"])) {
-		$rt .= menulistLI('timeTable');
-		$rt .= "<a href=\"" . BASEURL . SCRIPT . "?mode=pickTimeTable\">";
-		$rt .= _("View Time Table</a></li>\n");
-	}
-	if(in_array("userGrant", $user["privileges"]) ||
-		in_array("resourceGrant", $user["privileges"]) ||
-		in_array("nodeAdmin", $user["privileges"])) {
-		$rt .= menulistLI('privileges');
-		$rt .= "<a href=\"" . BASEURL . SCRIPT . "?mode=viewNodes\">";
-		$rt .= _("Privileges</a></li>\n");
-	}
-	if(checkUserHasPerm('User Lookup (global)') ||
-	   checkUserHasPerm('User Lookup (affiliation only)')) {
-		$rt .= menulistLI('userLookup');
-		$rt .= "<a href=\"" . BASEURL . SCRIPT . "?mode=userLookup\">";
-		$rt .= _("User Lookup</a></li>\n");
-	}
-	if(in_array("computerAdmin", $user["privileges"])) {
-		$rt .= menulistLI('vm');
-		$rt .= "<a href=\"" . BASEURL . SCRIPT . "?mode=editVMInfo\">";
-		$rt .= _("Virtual Hosts</a></li>\n");
-	}
-	if(checkUserHasPerm('Schedule Site Maintenance')) {
-		$rt .= menulistLI('sitemaintenance');
-		$rt .= "<a href=\"" . BASEURL . SCRIPT . "?mode=siteMaintenance\">";
-		$rt .= _("Site Maintenance</a></li>\n");
-	}
-	$rt .= menulistLI('statistics');
-	$rt .= "<a href=\"" . BASEURL . SCRIPT . "?mode=selectstats\">";
-	$rt .= _("Statistics</a></li>\n");
-	if(checkUserHasPerm('View Dashboard (global)') ||
-	   checkUserHasPerm('View Dashboard (affiliation only)')) {
-		$rt .= menulistLI('dashboard');
-		$rt .= "<a href=\"" . BASEURL . SCRIPT . "?mode=dashboard\">";
-		$rt .= _("Dashboard") . "</a></li>\n";
-	}
-	$rt .= menulistLI('codeDocumentation');
-	$rt .= "<a href=\"" . DOCUMENTATIONURL . "\">";
-	$rt .= _("Documentation</a></li>\n");
-	if($inclogout) {
-		$rt .= menulistLI('authentication');
-		$rt .= "<a href=\"" . BASEURL . SCRIPT . "?mode=logout\">";
-		$rt .= _("Logout</a></li>\n");
-	}
-	return $rt;
+    //*************************************************************************
+    // One Button Group
+    // add the one button choice in the NavMenu
+    if(in_array("oneClick", $user["privileges"]) ) {
+        $rt .= menulistLI('oneClick');
+        $rt .= "<a href=\"" . BASEURL . SCRIPT . "?mode=newOneClick\">";
+        $rt .= "OneClicks</a></li>\n";
+    }
+    // end of One Button Group
+    //*************************************************************************
+
+    $rt .= menulistLI('blockAllocations');
+    $rt .= "<a href=\"" . BASEURL . SCRIPT . "?mode=blockAllocations\">";
+    $rt .= _("Block Allocations</a></li>\n");
+    $rt .= menulistLI('userPreferences');
+    $rt .= "<a href=\"" . BASEURL . SCRIPT . "?mode=userpreferences\">";
+    $rt .= _("User Preferences</a></li>\n");
+    if(in_array("groupAdmin", $user["privileges"])) {
+        $rt .= menulistLI('manageGroups');
+        $rt .= "<a href=\"" . BASEURL . SCRIPT . "?mode=viewGroups\">";
+        $rt .= _("Manage Groups</a></li>\n");
+    }
+    if(in_array("imageAdmin", $user["privileges"])) {
+        $rt .= menulistLI('manageImages');
+        $rt .= "<a href=\"" . BASEURL . SCRIPT . "?mode=selectImageOption\">";
+        $rt .= _("Manage Images</a></li>\n");
+    }
+    if(in_array("scheduleAdmin", $user["privileges"])) {
+        $rt .= menulistLI('manageSchedules');
+        $rt .= "<a href=\"" . BASEURL . SCRIPT . "?mode=viewSchedules\">";
+        $rt .= _("Manage Schedules</a></li>\n");
+    }
+    if(in_array("computerAdmin", $user["privileges"])) {
+        $rt .= menulistLI('manageComputers');
+        $rt .= "<a href=\"" . BASEURL . SCRIPT . "?mode=selectComputers\">";
+        $rt .= _("Manage Computers</a></li>\n");
+    }
+    if(in_array("mgmtNodeAdmin", $user["privileges"])) {
+        $rt .= menulistLI('managementNodes');
+        $rt .= "<a href=\"" . BASEURL . SCRIPT;
+        $rt .= _("?mode=selectMgmtnodeOption\">Management Nodes</a></li>\n");
+    }
+    if(in_array("serverProfileAdmin", $user["privileges"]) ||
+        in_array("serverCheckOut", $user["privileges"])) {
+        $rt .= menulistLI('serverProfiles');
+        $rt .= "<a href=\"" . BASEURL . SCRIPT;
+        $rt .= "?mode=serverProfiles\">" . _("Server Profiles") . "</a></li>\n";
+    }
+    if(count($computermetadata["platforms"]) &&
+        count($computermetadata["schedules"])) {
+        $rt .= menulistLI('timeTable');
+        $rt .= "<a href=\"" . BASEURL . SCRIPT . "?mode=pickTimeTable\">";
+        $rt .= _("View Time Table</a></li>\n");
+    }
+    if(in_array("userGrant", $user["privileges"]) ||
+        in_array("resourceGrant", $user["privileges"]) ||
+        in_array("nodeAdmin", $user["privileges"])) {
+        $rt .= menulistLI('privileges');
+        $rt .= "<a href=\"" . BASEURL . SCRIPT . "?mode=viewNodes\">";
+        $rt .= _("Privileges</a></li>\n");
+    }
+    if(checkUserHasPerm('User Lookup (global)') ||
+        checkUserHasPerm('User Lookup (affiliation only)')) {
+        $rt .= menulistLI('userLookup');
+        $rt .= "<a href=\"" . BASEURL . SCRIPT . "?mode=userLookup\">";
+        $rt .= _("User Lookup</a></li>\n");
+    }
+    if(in_array("computerAdmin", $user["privileges"])) {
+        $rt .= menulistLI('vm');
+        $rt .= "<a href=\"" . BASEURL . SCRIPT . "?mode=editVMInfo\">";
+        $rt .= _("Virtual Hosts</a></li>\n");
+    }
+    if(checkUserHasPerm('Schedule Site Maintenance')) {
+        $rt .= menulistLI('sitemaintenance');
+        $rt .= "<a href=\"" . BASEURL . SCRIPT . "?mode=siteMaintenance\">";
+        $rt .= _("Site Maintenance</a></li>\n");
+    }
+    $rt .= menulistLI('statistics');
+    $rt .= "<a href=\"" . BASEURL . SCRIPT . "?mode=selectstats\">";
+    $rt .= _("Statistics</a></li>\n");
+    if(checkUserHasPerm('View Dashboard (global)') ||
+        checkUserHasPerm('View Dashboard (affiliation only)')) {
+        $rt .= menulistLI('dashboard');
+        $rt .= "<a href=\"" . BASEURL . SCRIPT . "?mode=dashboard\">";
+        $rt .= _("Dashboard") . "</a></li>\n";
+    }
+    $rt .= menulistLI('codeDocumentation');
+    $rt .= "<a href=\"" . DOCUMENTATIONURL . "\">";
+    $rt .= _("Documentation</a></li>\n");
+    if($inclogout) {
+        $rt .= menulistLI('authentication');
+        $rt .= "<a href=\"" . BASEURL . SCRIPT . "?mode=logout\">";
+        $rt .= _("Logout</a></li>\n");
+    }
+    return $rt;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -10806,17 +10820,17 @@ function getNavMenu($inclogout, $inchome, $homeurl=HOMEURL) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getExtraCSS() {
-	global $mode;
-	switch($mode) {
-		case 'viewNodes':
-		case 'changeUserPrivs':
-		case 'submitAddResourcePriv':
-		case 'changeResourcePrivs':
-			return array('privileges.css');
-		case 'viewdocs':
-			return array('doxygen.css');
-	}
-	return array();
+    global $mode;
+    switch($mode) {
+        case 'viewNodes':
+        case 'changeUserPrivs':
+        case 'submitAddResourcePriv':
+        case 'changeResourcePrivs':
+            return array('privileges.css');
+        case 'viewdocs':
+            return array('doxygen.css');
+    }
+    return array();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -10829,770 +10843,770 @@ function getExtraCSS() {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getDojoHTML($refresh) {
-	global $mode, $actions, $skin, $locale, $VCLversion;
-	$filename = '';
-	$dojoRequires = array();
+    global $mode, $actions, $skin, $locale, $VCLversion;
+    $filename = '';
+    $dojoRequires = array();
 
-	# Below are START and END comments for parsing the content between the tags
-	# to generate a dojo profile.js file for custom dojo layers for each section
-	# of the site. The parser script is generateDojoProfile.js and can be found
-	# in the vcl/sandbox/useful_scripts part of the ASF VCL subversion repo.
-	# To run without the custom layer files, simply comment out the line after
-	# the first switch statement below that sets $customfile to something other
-	# than an empty string.
+    # Below are START and END comments for parsing the content between the tags
+    # to generate a dojo profile.js file for custom dojo layers for each section
+    # of the site. The parser script is generateDojoProfile.js and can be found
+    # in the vcl/sandbox/useful_scripts part of the ASF VCL subversion repo.
+    # To run without the custom layer files, simply comment out the line after
+    # the first switch statement below that sets $customfile to something other
+    # than an empty string.
 
-	# START DOJO PARSING
-	switch($mode) {
-		case 'viewNodes':
-		case 'changeUserPrivs':
-		case 'submitAddResourcePriv':
-		case 'changeResourcePrivs':
-			$filename = 'vclPrivs.js';
-			$dojoRequires = array('dojo.parser',
-			                      'dojo.data.ItemFileWriteStore',
-			                      'dijit.Tree',
-			                      'dijit.form.Button',
-			                      'dijit.form.CheckBox',
-			                      'dijit.form.TextBox',
-			                      'dijit.Tooltip',
-			                      'dijit.Dialog',
-			                      'dijit.layout.ContentPane',
-			                      'dijit.layout.TabContainer');
-			break;
-		case 'newRequest':
-		case 'submitRequest':
-		case 'createSelectImage':
-		case 'submitCreateImage':
-			$filename = 'vclNewRequest.js';
-			$dojoRequires = array('dojo.parser',
-			                      'dijit.form.DateTextBox',
-			                      'dijit.form.TimeTextBox',
-			                      'dijit.Dialog',
-			                      'dijit.form.Button',
-			                      'dojox.string.sprintf',
-			                      'dijit.form.FilteringSelect');
-			break;
-		case 'viewRequests':
-			$filename = 'vclViewRequests.js';
-			$dojoRequires = array('dojo.parser',
-			                      'dijit.form.DateTextBox',
-			                      'dijit.form.TimeTextBox',
-			                      'dijit.form.Select',
-			                      'dojox.string.sprintf',
-			                      'dijit.Dialog',
-			                      'dijit.Menu',
-			                      'dijit.form.Button',
-			                      'dijit.form.DropDownButton',
-			                      'dijit.Tooltip',
-			                      'vcldojo.HoverTooltip',
-			                      'dojox.layout.FloatingPane',
-			                      'dijit.form.FilteringSelect');
-			break;
-		case 'connectRequest':
-		case 'viewRequestInfo':
-			$filename = 'vclConnectRequest.js';
-			$dojoRequires = array('dojo.parser',
-			                      'dijit.form.Button',
-			                      'dijit.Dialog');
-			break;
-		case 'blockAllocations':
-			$filename = 'vclViewBlockAllocations.js';
-			$dojoRequires = array('dojo.parser',
-			                      'dijit.form.Button',
-			                      'dijit.form.ValidationTextBox',
-			                      'dijit.form.FilteringSelect',
-			                      'dijit.form.Textarea',
-			                      'dojox.grid.DataGrid',
-			                      'dijit.Dialog',
-			                      'dojox.string.sprintf',
-			                      'dojo.data.ItemFileWriteStore');
-			break;
-		case 'requestBlockAllocation':
-		case 'newBlockAllocation':
-		case 'editBlockAllocation':
-			$filename = 'vclEditBlockAllocation.js';
-			$dojoRequires = array('dojo.parser',
-			                      'dijit.layout.StackContainer',
-			                      'dijit.layout.ContentPane',
-			                      'dijit.form.DateTextBox',
-			                      'dijit.form.TimeTextBox',
-			                      'vcldojo.TimeTextBoxEnd',
-			                      'dijit.form.Textarea',
-			                      'dijit.form.FilteringSelect',
-			                      'dijit.form.NumberSpinner',
-			                      'dojox.grid.DataGrid',
-			                      'dojox.string.sprintf',
-			                      'dijit.Tooltip',
-			                      'dijit.Dialog',
-			                      'dojo.data.ItemFileWriteStore');
-			break;
-		case 'viewBlockStatus':
-		case 'selectauth':
-			$filename = 'vclBasic.js';
-			$dojoRequires = array('dojo.parser');
-			break;
-		case 'viewBlockAllocatedMachines':
-			$filename = 'vclBlockMachines.js';
-			$dojoRequires = array('dojo.parser',
-			                      'dojox.string.sprintf',
-			                      'dijit.form.Button',
-			                      'dijit.form.DateTextBox',
-			                      'dijit.form.TimeTextBox',
-			                      'dojox.charting.widget.Chart2D',
-			                      'dojox.charting.action2d.Tooltip',
-			                      'dojox.charting.action2d.Magnify',
-			                      'dojox.charting.themes.ThreeD');
-			break;
-		case 'editSchedule':
-		case 'submitAddSchedule':
-			$filename = 'vclSchedule.js';
-			$dojoRequires = array('dojo.parser',
-			                      'dijit.form.TimeTextBox',
-			                      'dojox.grid.DataGrid',
-			                      'dojox.string.sprintf',
-			                      'dijit.form.Button',
-			                      'dojo.data.ItemFileWriteStore');
-			break;
-		case 'viewImageGrouping':
-		case 'submitImageGroups':
-		case 'viewImageMapping':
-		case 'submitImageMapping':
-			$filename = 'vclImageGroupingMapping.js';
-			$dojoRequires = array('dojo.parser',
-			                      'dijit.layout.LinkPane',
-			                      'dijit.layout.ContentPane',
-			                      'dijit.layout.TabContainer',
-			                      'dijit.form.Button');
-			break;
-		case 'newImage':
-		case 'submitImageButton':
-		case 'confirmEditOrAddImage':
-		case 'submitEditImageButtons':
-		case 'submitAddSubimage':
-		case 'updateExistingImageComments':
-		case 'updateExistingImage':
-			$filename = 'vclImageProfiles.js';
-			$dojoRequires = array('dojo.parser',
-			                      'dijit.InlineEditBox',
-			                      'dijit.form.Textarea',
-			                      'dijit.form.DropDownButton',
-			                      'dijit.form.FilteringSelect',
-			                      'dijit.form.Select',
-			                      'dijit.form.Button',
-			                      'dijit.Dialog',
-			                      'dijit.TitlePane',
-			                      'dojo.data.ItemFileWriteStore');
-			break;
-		case 'startCheckpoint':
-			$filename = 'vclCheckpoint.js';
-			$dojoRequires = array('dojo.parser',
-			                      'dijit.form.Textarea');
-			break;
-		case 'selectComputers':
-		case 'viewComputerGroups':
-		case 'submitComputerGroups':
-			$filename = 'vclComputerGroups.js';
-			$dojoRequires = array('dojo.parser',
-			                      'dijit.layout.LinkPane',
-			                      'dijit.layout.ContentPane',
-			                      'dijit.layout.TabContainer',
-			                      'dijit.form.Button');
-			break;
-		case 'editComputer':
-		case 'addComputer':
-		case 'confirmEditComputer':
-		case 'confirmAddComputer':
-		case 'bulkAddComputer':
-		case 'confirmAddBulkComputers':
-			$filename = 'vclComputerProfiles.js';
-			$dojoRequires = array('dojo.parser',
-			                      'dijit.form.Select',
-			                      'dijit.form.Button',
-			                      'dijit.Dialog',
-			                      'dijit.form.NumberSpinner');
-			break;
-		case 'computerUtilities':
-			$filename = 'vclComputerUtilities.js';
-			$dojoRequires = array('dojo.parser',
-			                      'dijit.form.Button',
-			                      'dijit.form.Form',
-			                      'dijit.Dialog');
-			break;
-		case 'viewGroups':
-		case 'submitEditGroup':
-		case 'submitAddGroup':
-		case 'submitDeleteGroup':
-			$filename = 'vclManageGroups.js';
-			$dojoRequires = array('dojo.parser',
-			                      'dojo.data.ItemFileReadStore',
-			                      'dojo.data.ItemFileWriteStore',
-			                      'dijit.form.Select',
-			                      'dijit.form.Button',
-			                      'dijit.form.CheckBox',
-			                      'dijit.form.TextBox',
-			                      'dojox.grid.DataGrid',
-			                      'dijit.TitlePane',
-			                      'dijit.Tooltip');
-			break;
-		case 'editMgmtNode':
-		case 'addMgmtNode':
-		case 'confirmEditMgmtnode':
-		case 'confirmAddMgmtnode':
-			$filename = 'vclManagementNodes.js';
-			$dojoRequires = array('dojo.parser',
-			                      'dijit.Tooltip',
-			                      'dijit.form.NumberSpinner');
-			break;
-		case 'serverProfiles':
-			$filename = 'vclServerProfiles.js';
-			$dojoRequires = array('dojo.parser',
-			                      'dijit.Dialog',
-			                      'dijit.form.DateTextBox',
-			                      'dijit.form.TimeTextBox',
-			                      'dijit.form.Button',
-			                      'dijit.form.FilteringSelect',
-			                      'dijit.form.Select',
-			                      'dijit.layout.LinkPane',
-			                      'dijit.form.TextBox',
-			                      'dijit.form.ValidationTextBox',
-			                      'dijit.form.CheckBox',
-			                      'dijit.form.Textarea',
-			                      'dijit.layout.ContentPane',
-			                      'dijit.layout.TabContainer',
-			                      'dojox.string.sprintf',
-			                      'dojo.data.ItemFileWriteStore');
-			break;
-		case 'editVMInfo':
-			$filename = 'vclVirtualHosts.js';
-			$dojoRequires = array('dojo.parser',
-			                      'dijit.InlineEditBox',
-			                      'dijit.form.NumberSpinner',
-			                      'dijit.form.Button',
-			                      'dijit.form.TextBox',
-			                      'dijit.form.FilteringSelect',
-			                      'dijit.form.Select',
-			                      'dijit.TitlePane',
-			                      'dijit.layout.ContentPane',
-			                      'dijit.layout.TabContainer',
-			                      'dojo.data.ItemFileReadStore',
-			                      'dijit.Tooltip',
-			                      'dijit.Dialog');
-			break;
-		case 'siteMaintenance':
-			$filename = 'vclMaintenance.js';
-			$dojoRequires = array('dojo.parser',
-			                      'dijit.form.Button',
-			                      'dijit.form.NumberSpinner',
-			                      'dijit.form.DateTextBox',
-			                      'dijit.form.TimeTextBox',
-			                      'dijit.form.TextBox',
-			                      'dijit.form.Select',
-			                      'dijit.form.Textarea',
-			                      'dojox.string.sprintf',
-			                      'dijit.Tooltip',
-			                      'dijit.Dialog');
-			break;
-		case 'viewstats':
-			$filename = 'vclStats.js';
-			$dojoRequires = array('dojo.parser',
-			                      'dojox.charting.Chart2D',
-			                      'dojox.charting.action2d.Tooltip',
-			                      'dojox.charting.action2d.Magnify',
-			                      'dojox.charting.themes.ThreeD');
-			break;
-		case 'dashboard':
-			$filename = 'vclDashboard.js';
-			$dojoRequires = array('dojo.parser',
-			                      'dijit.Tooltip',
-			                      'dojox.charting.widget.Chart2D',
-			                      'dojox.charting.action2d.Tooltip',
-			                      'dojox.charting.action2d.Magnify',
-			                      'dojox.charting.themes.ThreeD');
-			break;
+    # START DOJO PARSING
+    switch($mode) {
+        case 'viewNodes':
+        case 'changeUserPrivs':
+        case 'submitAddResourcePriv':
+        case 'changeResourcePrivs':
+            $filename = 'vclPrivs.js';
+            $dojoRequires = array('dojo.parser',
+                'dojo.data.ItemFileWriteStore',
+                'dijit.Tree',
+                'dijit.form.Button',
+                'dijit.form.CheckBox',
+                'dijit.form.TextBox',
+                'dijit.Tooltip',
+                'dijit.Dialog',
+                'dijit.layout.ContentPane',
+                'dijit.layout.TabContainer');
+            break;
+        case 'newRequest':
+        case 'submitRequest':
+        case 'createSelectImage':
+        case 'submitCreateImage':
+            $filename = 'vclNewRequest.js';
+            $dojoRequires = array('dojo.parser',
+                'dijit.form.DateTextBox',
+                'dijit.form.TimeTextBox',
+                'dijit.Dialog',
+                'dijit.form.Button',
+                'dojox.string.sprintf',
+                'dijit.form.FilteringSelect');
+            break;
+        case 'viewRequests':
+            $filename = 'vclViewRequests.js';
+            $dojoRequires = array('dojo.parser',
+                'dijit.form.DateTextBox',
+                'dijit.form.TimeTextBox',
+                'dijit.form.Select',
+                'dojox.string.sprintf',
+                'dijit.Dialog',
+                'dijit.Menu',
+                'dijit.form.Button',
+                'dijit.form.DropDownButton',
+                'dijit.Tooltip',
+                'vcldojo.HoverTooltip',
+                'dojox.layout.FloatingPane',
+                'dijit.form.FilteringSelect');
+            break;
+        case 'connectRequest':
+        case 'viewRequestInfo':
+            $filename = 'vclConnectRequest.js';
+            $dojoRequires = array('dojo.parser',
+                'dijit.form.Button',
+                'dijit.Dialog');
+            break;
+        case 'blockAllocations':
+            $filename = 'vclViewBlockAllocations.js';
+            $dojoRequires = array('dojo.parser',
+                'dijit.form.Button',
+                'dijit.form.ValidationTextBox',
+                'dijit.form.FilteringSelect',
+                'dijit.form.Textarea',
+                'dojox.grid.DataGrid',
+                'dijit.Dialog',
+                'dojox.string.sprintf',
+                'dojo.data.ItemFileWriteStore');
+            break;
+        case 'requestBlockAllocation':
+        case 'newBlockAllocation':
+        case 'editBlockAllocation':
+            $filename = 'vclEditBlockAllocation.js';
+            $dojoRequires = array('dojo.parser',
+                'dijit.layout.StackContainer',
+                'dijit.layout.ContentPane',
+                'dijit.form.DateTextBox',
+                'dijit.form.TimeTextBox',
+                'vcldojo.TimeTextBoxEnd',
+                'dijit.form.Textarea',
+                'dijit.form.FilteringSelect',
+                'dijit.form.NumberSpinner',
+                'dojox.grid.DataGrid',
+                'dojox.string.sprintf',
+                'dijit.Tooltip',
+                'dijit.Dialog',
+                'dojo.data.ItemFileWriteStore');
+            break;
+        case 'viewBlockStatus':
+        case 'selectauth':
+            $filename = 'vclBasic.js';
+            $dojoRequires = array('dojo.parser');
+            break;
+        case 'viewBlockAllocatedMachines':
+            $filename = 'vclBlockMachines.js';
+            $dojoRequires = array('dojo.parser',
+                'dojox.string.sprintf',
+                'dijit.form.Button',
+                'dijit.form.DateTextBox',
+                'dijit.form.TimeTextBox',
+                'dojox.charting.widget.Chart2D',
+                'dojox.charting.action2d.Tooltip',
+                'dojox.charting.action2d.Magnify',
+                'dojox.charting.themes.ThreeD');
+            break;
+        case 'editSchedule':
+        case 'submitAddSchedule':
+            $filename = 'vclSchedule.js';
+            $dojoRequires = array('dojo.parser',
+                'dijit.form.TimeTextBox',
+                'dojox.grid.DataGrid',
+                'dojox.string.sprintf',
+                'dijit.form.Button',
+                'dojo.data.ItemFileWriteStore');
+            break;
+        case 'viewImageGrouping':
+        case 'submitImageGroups':
+        case 'viewImageMapping':
+        case 'submitImageMapping':
+            $filename = 'vclImageGroupingMapping.js';
+            $dojoRequires = array('dojo.parser',
+                'dijit.layout.LinkPane',
+                'dijit.layout.ContentPane',
+                'dijit.layout.TabContainer',
+                'dijit.form.Button');
+            break;
+        case 'newImage':
+        case 'submitImageButton':
+        case 'confirmEditOrAddImage':
+        case 'submitEditImageButtons':
+        case 'submitAddSubimage':
+        case 'updateExistingImageComments':
+        case 'updateExistingImage':
+            $filename = 'vclImageProfiles.js';
+            $dojoRequires = array('dojo.parser',
+                'dijit.InlineEditBox',
+                'dijit.form.Textarea',
+                'dijit.form.DropDownButton',
+                'dijit.form.FilteringSelect',
+                'dijit.form.Select',
+                'dijit.form.Button',
+                'dijit.Dialog',
+                'dijit.TitlePane',
+                'dojo.data.ItemFileWriteStore');
+            break;
+        case 'startCheckpoint':
+            $filename = 'vclCheckpoint.js';
+            $dojoRequires = array('dojo.parser',
+                'dijit.form.Textarea');
+            break;
+        case 'selectComputers':
+        case 'viewComputerGroups':
+        case 'submitComputerGroups':
+            $filename = 'vclComputerGroups.js';
+            $dojoRequires = array('dojo.parser',
+                'dijit.layout.LinkPane',
+                'dijit.layout.ContentPane',
+                'dijit.layout.TabContainer',
+                'dijit.form.Button');
+            break;
+        case 'editComputer':
+        case 'addComputer':
+        case 'confirmEditComputer':
+        case 'confirmAddComputer':
+        case 'bulkAddComputer':
+        case 'confirmAddBulkComputers':
+            $filename = 'vclComputerProfiles.js';
+            $dojoRequires = array('dojo.parser',
+                'dijit.form.Select',
+                'dijit.form.Button',
+                'dijit.Dialog',
+                'dijit.form.NumberSpinner');
+            break;
+        case 'computerUtilities':
+            $filename = 'vclComputerUtilities.js';
+            $dojoRequires = array('dojo.parser',
+                'dijit.form.Button',
+                'dijit.form.Form',
+                'dijit.Dialog');
+            break;
+        case 'viewGroups':
+        case 'submitEditGroup':
+        case 'submitAddGroup':
+        case 'submitDeleteGroup':
+            $filename = 'vclManageGroups.js';
+            $dojoRequires = array('dojo.parser',
+                'dojo.data.ItemFileReadStore',
+                'dojo.data.ItemFileWriteStore',
+                'dijit.form.Select',
+                'dijit.form.Button',
+                'dijit.form.CheckBox',
+                'dijit.form.TextBox',
+                'dojox.grid.DataGrid',
+                'dijit.TitlePane',
+                'dijit.Tooltip');
+            break;
+        case 'editMgmtNode':
+        case 'addMgmtNode':
+        case 'confirmEditMgmtnode':
+        case 'confirmAddMgmtnode':
+            $filename = 'vclManagementNodes.js';
+            $dojoRequires = array('dojo.parser',
+                'dijit.Tooltip',
+                'dijit.form.NumberSpinner');
+            break;
+        case 'serverProfiles':
+            $filename = 'vclServerProfiles.js';
+            $dojoRequires = array('dojo.parser',
+                'dijit.Dialog',
+                'dijit.form.DateTextBox',
+                'dijit.form.TimeTextBox',
+                'dijit.form.Button',
+                'dijit.form.FilteringSelect',
+                'dijit.form.Select',
+                'dijit.layout.LinkPane',
+                'dijit.form.TextBox',
+                'dijit.form.ValidationTextBox',
+                'dijit.form.CheckBox',
+                'dijit.form.Textarea',
+                'dijit.layout.ContentPane',
+                'dijit.layout.TabContainer',
+                'dojox.string.sprintf',
+                'dojo.data.ItemFileWriteStore');
+            break;
+        case 'editVMInfo':
+            $filename = 'vclVirtualHosts.js';
+            $dojoRequires = array('dojo.parser',
+                'dijit.InlineEditBox',
+                'dijit.form.NumberSpinner',
+                'dijit.form.Button',
+                'dijit.form.TextBox',
+                'dijit.form.FilteringSelect',
+                'dijit.form.Select',
+                'dijit.TitlePane',
+                'dijit.layout.ContentPane',
+                'dijit.layout.TabContainer',
+                'dojo.data.ItemFileReadStore',
+                'dijit.Tooltip',
+                'dijit.Dialog');
+            break;
+        case 'siteMaintenance':
+            $filename = 'vclMaintenance.js';
+            $dojoRequires = array('dojo.parser',
+                'dijit.form.Button',
+                'dijit.form.NumberSpinner',
+                'dijit.form.DateTextBox',
+                'dijit.form.TimeTextBox',
+                'dijit.form.TextBox',
+                'dijit.form.Select',
+                'dijit.form.Textarea',
+                'dojox.string.sprintf',
+                'dijit.Tooltip',
+                'dijit.Dialog');
+            break;
+        case 'viewstats':
+            $filename = 'vclStats.js';
+            $dojoRequires = array('dojo.parser',
+                'dojox.charting.Chart2D',
+                'dojox.charting.action2d.Tooltip',
+                'dojox.charting.action2d.Magnify',
+                'dojox.charting.themes.ThreeD');
+            break;
+        case 'dashboard':
+            $filename = 'vclDashboard.js';
+            $dojoRequires = array('dojo.parser',
+                'dijit.Tooltip',
+                'dojox.charting.widget.Chart2D',
+                'dojox.charting.action2d.Tooltip',
+                'dojox.charting.action2d.Magnify',
+                'dojox.charting.themes.ThreeD');
+            break;
 
         //********************************************
         // OneClick group
         case 'newOneClick':
-                $dojoRequires = array('dojo.parser',
-	                      'dijit.InlineEditBox',
-	                      'dijit.form.NumberSpinner',
-	                      'dijit.form.Button',
-	                      'dijit.form.TextBox',
-	                      'dijit.form.FilteringSelect',
-	                      'dijit.form.Select',
-	                      'dijit.TitlePane',
-	                      'dijit.layout.ContentPane',
-	                      'dijit.layout.TabContainer',
-	                      'dojo.data.ItemFileReadStore',
-	                      'dijit.Dialog');
-			break;
-                //**********************
-	}
-	# END DOJO PARSING
-	if(empty($dojoRequires))
-		return '';
-	$customfile = '';
-	if(! empty($filename))
-		$customfile = sprintf("<script type=\"text/javascript\" src=\"dojo/dojo/%s\"></script>\n", $filename);
-	$rt = '';
-	$jslocale = strtolower(str_replace('_', '-', $locale));
-	$v = $VCLversion;
-	switch($mode) {
-		case "connectRequest":
-			$rt .= "<style type=\"text/css\">\n";
-			$rt .= "   @import \"themes/$skin/css/dojo/$skin.css\";\n";
-			$rt .= "</style>\n";
-			$rt .= "<script type=\"text/javascript\" src=\"dojo/dojo/dojo.js\"\n";
-			$rt .= "   djConfig=\"parseOnLoad: true, locale: '$jslocale'\">\n";
-			$rt .= "</script>\n";
-			$rt .= "<script type=\"text/javascript\" src=\"js/requests.js?v=$v\"></script>\n";
-			$rt .= $customfile;
-			$rt .= "<script type=\"text/javascript\">\n";
-			$rt .= "   dojo.addOnLoad(function() {\n";
-			foreach($dojoRequires as $req)
-				$rt .= "   dojo.require(\"$req\");\n";
-			$rt .= "   showRDPbutton();\n";
-			$rt .= "   setTimeout(checkConnectTimeout, 15000);\n";
-			$rt .= "   });\n";
-			$rt .= "</script>\n";
-			return $rt;
+            $dojoRequires = array('dojo.parser',
+                'dijit.InlineEditBox',
+                'dijit.form.NumberSpinner',
+                'dijit.form.Button',
+                'dijit.form.TextBox',
+                'dijit.form.FilteringSelect',
+                'dijit.form.Select',
+                'dijit.TitlePane',
+                'dijit.layout.ContentPane',
+                'dijit.layout.TabContainer',
+                'dojo.data.ItemFileReadStore',
+                'dijit.Dialog');
+            break;
+        //**********************
+    }
+    # END DOJO PARSING
+    if(empty($dojoRequires))
+        return '';
+    $customfile = '';
+    if(! empty($filename))
+        $customfile = sprintf("<script type=\"text/javascript\" src=\"dojo/dojo/%s\"></script>\n", $filename);
+    $rt = '';
+    $jslocale = strtolower(str_replace('_', '-', $locale));
+    $v = $VCLversion;
+    switch($mode) {
+        case "connectRequest":
+            $rt .= "<style type=\"text/css\">\n";
+            $rt .= "   @import \"themes/$skin/css/dojo/$skin.css\";\n";
+            $rt .= "</style>\n";
+            $rt .= "<script type=\"text/javascript\" src=\"dojo/dojo/dojo.js\"\n";
+            $rt .= "   djConfig=\"parseOnLoad: true, locale: '$jslocale'\">\n";
+            $rt .= "</script>\n";
+            $rt .= "<script type=\"text/javascript\" src=\"js/requests.js?v=$v\"></script>\n";
+            $rt .= $customfile;
+            $rt .= "<script type=\"text/javascript\">\n";
+            $rt .= "   dojo.addOnLoad(function() {\n";
+            foreach($dojoRequires as $req)
+                $rt .= "   dojo.require(\"$req\");\n";
+            $rt .= "   showRDPbutton();\n";
+            $rt .= "   setTimeout(checkConnectTimeout, 15000);\n";
+            $rt .= "   });\n";
+            $rt .= "</script>\n";
+            return $rt;
 
-		case "viewRequests":
-			$rt .= "<style type=\"text/css\">\n";
-			$rt .= "   @import \"themes/$skin/css/dojo/$skin.css\";\n";
-			$rt .= "   @import \"dojo/dojox/layout/resources/FloatingPane.css\";\n";
-			$rt .= "   @import \"dojo/dojox/layout/resources/ResizeHandle.css\";\n";
-			$rt .= "</style>\n";
-			$rt .= "<script type=\"text/javascript\" src=\"js/requests.js?v=$v\"></script>\n";
-			$rt .= "<script type=\"text/javascript\" src=\"dojo/dojo/dojo.js\"\n";
-			$rt .= "   djConfig=\"parseOnLoad: true, locale: '$jslocale'\">\n";
-			$rt .= "</script>\n";
-			$rt .= $customfile;
-			$rt .= "<script type=\"text/javascript\">\n";
-			$rt .= "   dojo.addOnLoad(function() {\n";
-			$rt .= "   dojo.registerModulePath(\"vcldojo\", \"../../js/vcldojo\");\n";
-			foreach($dojoRequires as $req)
-				$rt .= "   dojo.require(\"$req\");\n";
-			$rt .= "      testJS();\n";
-			$rt .= "      document.onmousemove = updateMouseXY;\n";
-			$rt .= "      showScriptOnly();\n";
-			$rt .= "   });\n";
-			if($refresh)
-				$rt .= "   refresh_timer = setTimeout(resRefresh, 12000);\n";
-			$rt .= "   check_timeout_timer = setTimeout(checkTimeouts, 15000);\n";
-			$rt .= "</script>\n";
-			return $rt;
+        case "viewRequests":
+            $rt .= "<style type=\"text/css\">\n";
+            $rt .= "   @import \"themes/$skin/css/dojo/$skin.css\";\n";
+            $rt .= "   @import \"dojo/dojox/layout/resources/FloatingPane.css\";\n";
+            $rt .= "   @import \"dojo/dojox/layout/resources/ResizeHandle.css\";\n";
+            $rt .= "</style>\n";
+            $rt .= "<script type=\"text/javascript\" src=\"js/requests.js?v=$v\"></script>\n";
+            $rt .= "<script type=\"text/javascript\" src=\"dojo/dojo/dojo.js\"\n";
+            $rt .= "   djConfig=\"parseOnLoad: true, locale: '$jslocale'\">\n";
+            $rt .= "</script>\n";
+            $rt .= $customfile;
+            $rt .= "<script type=\"text/javascript\">\n";
+            $rt .= "   dojo.addOnLoad(function() {\n";
+            $rt .= "   dojo.registerModulePath(\"vcldojo\", \"../../js/vcldojo\");\n";
+            foreach($dojoRequires as $req)
+                $rt .= "   dojo.require(\"$req\");\n";
+            $rt .= "      testJS();\n";
+            $rt .= "      document.onmousemove = updateMouseXY;\n";
+            $rt .= "      showScriptOnly();\n";
+            $rt .= "   });\n";
+            if($refresh)
+                $rt .= "   refresh_timer = setTimeout(resRefresh, 12000);\n";
+            $rt .= "   check_timeout_timer = setTimeout(checkTimeouts, 15000);\n";
+            $rt .= "</script>\n";
+            return $rt;
 
-		case 'newRequest':
-		case 'submitRequest':
-		case 'createSelectImage':
-		case 'submitCreateImage':
-		case 'viewRequestInfo':
-			$rt .= "<style type=\"text/css\">\n";
-			$rt .= "   @import \"themes/$skin/css/dojo/$skin.css\";\n";
-			$rt .= "</style>\n";
-			$rt .= "<script type=\"text/javascript\" src=\"js/requests.js?v=$v\"></script>\n";
-			$rt .= "<script type=\"text/javascript\" src=\"dojo/dojo/dojo.js\"\n";
-			$rt .= "   djConfig=\"parseOnLoad: true, locale: '$jslocale'\">\n";
-			$rt .= "</script>\n";
-			$rt .= $customfile;
-			$rt .= "<script type=\"text/javascript\">\n";
-			$rt .= "   dojo.addOnLoad(function() {\n";
-			foreach($dojoRequires as $req)
-				$rt .= "   dojo.require(\"$req\");\n";
-			# TODO check flow of which modes should call updateWaitTime
-			if($mode == 'newRequest')
-				$rt .= "     setTimeout(function() {updateWaitTime(0);}, 1000);\n";
-			$rt .= "   });\n";
-			$rt .= "</script>\n";
-			return $rt;
+        case 'newRequest':
+        case 'submitRequest':
+        case 'createSelectImage':
+        case 'submitCreateImage':
+        case 'viewRequestInfo':
+            $rt .= "<style type=\"text/css\">\n";
+            $rt .= "   @import \"themes/$skin/css/dojo/$skin.css\";\n";
+            $rt .= "</style>\n";
+            $rt .= "<script type=\"text/javascript\" src=\"js/requests.js?v=$v\"></script>\n";
+            $rt .= "<script type=\"text/javascript\" src=\"dojo/dojo/dojo.js\"\n";
+            $rt .= "   djConfig=\"parseOnLoad: true, locale: '$jslocale'\">\n";
+            $rt .= "</script>\n";
+            $rt .= $customfile;
+            $rt .= "<script type=\"text/javascript\">\n";
+            $rt .= "   dojo.addOnLoad(function() {\n";
+            foreach($dojoRequires as $req)
+                $rt .= "   dojo.require(\"$req\");\n";
+            # TODO check flow of which modes should call updateWaitTime
+            if($mode == 'newRequest')
+                $rt .= "     setTimeout(function() {updateWaitTime(0);}, 1000);\n";
+            $rt .= "   });\n";
+            $rt .= "</script>\n";
+            return $rt;
 
-		case 'requestBlockAllocation':
-		case 'newBlockAllocation':
-		case 'editBlockAllocation':
-		case 'blockAllocations':
-			$rt .= "<style type=\"text/css\">\n";
-			$rt .= "   @import \"themes/$skin/css/dojo/$skin.css\";\n";
-			$rt .= "   @import \"dojo/dojox/grid/resources/Grid.css\";\n";
-			$rt .= "</style>\n";
-			$rt .= "<script type=\"text/javascript\" src=\"js/blockallocations.js?v=$v\"></script>\n";
-			$rt .= "<script type=\"text/javascript\" src=\"dojo/dojo/dojo.js\"\n";
-			$rt .= "   djConfig=\"parseOnLoad: true, locale: '$jslocale'\">\n";
-			$rt .= "</script>\n";
-			$rt .= $customfile;
-			$rt .= "<script type=\"text/javascript\">\n";
-			$rt .= "   dojo.addOnLoad(function() {\n";
-			$rt .= "   dojo.registerModulePath(\"vcldojo\", \"../../js/vcldojo\");\n";
-			foreach($dojoRequires as $req)
-				$rt .= "   dojo.require(\"$req\");\n";
-			if($mode == 'editBlockAllocation') {
-				$blockid = getContinuationVar('blockid');
-				$cont = addContinuationsEntry('AJpopulateBlockStore', array('blockid' => $blockid), SECINDAY, 1, 0);
-				$rt .= "   populateBlockStore('$cont');\n";
-			}
-			$rt .= "   });\n";
-			if($mode == 'editBlockAllocation')
-				$rt .= "   var pagemode = 'edit';\n";
-			else
-				$rt .= "   var pagemode = 'new';\n";
-			$rt .= "</script>\n";
-			return $rt;
+        case 'requestBlockAllocation':
+        case 'newBlockAllocation':
+        case 'editBlockAllocation':
+        case 'blockAllocations':
+            $rt .= "<style type=\"text/css\">\n";
+            $rt .= "   @import \"themes/$skin/css/dojo/$skin.css\";\n";
+            $rt .= "   @import \"dojo/dojox/grid/resources/Grid.css\";\n";
+            $rt .= "</style>\n";
+            $rt .= "<script type=\"text/javascript\" src=\"js/blockallocations.js?v=$v\"></script>\n";
+            $rt .= "<script type=\"text/javascript\" src=\"dojo/dojo/dojo.js\"\n";
+            $rt .= "   djConfig=\"parseOnLoad: true, locale: '$jslocale'\">\n";
+            $rt .= "</script>\n";
+            $rt .= $customfile;
+            $rt .= "<script type=\"text/javascript\">\n";
+            $rt .= "   dojo.addOnLoad(function() {\n";
+            $rt .= "   dojo.registerModulePath(\"vcldojo\", \"../../js/vcldojo\");\n";
+            foreach($dojoRequires as $req)
+                $rt .= "   dojo.require(\"$req\");\n";
+            if($mode == 'editBlockAllocation') {
+                $blockid = getContinuationVar('blockid');
+                $cont = addContinuationsEntry('AJpopulateBlockStore', array('blockid' => $blockid), SECINDAY, 1, 0);
+                $rt .= "   populateBlockStore('$cont');\n";
+            }
+            $rt .= "   });\n";
+            if($mode == 'editBlockAllocation')
+                $rt .= "   var pagemode = 'edit';\n";
+            else
+                $rt .= "   var pagemode = 'new';\n";
+            $rt .= "</script>\n";
+            return $rt;
 
-		case "viewBlockStatus":
-			$rt .= "<style type=\"text/css\">\n";
-			$rt .= "   @import \"themes/$skin/css/dojo/$skin.css\";\n";
-			$rt .= "</style>\n";
-			$rt .= "<script type=\"text/javascript\" src=\"js/blockallocations.js?v=$v\"></script>\n";
-			$rt .= "<script type=\"text/javascript\" src=\"dojo/dojo/dojo.js\"\n";
-			$rt .= "   djConfig=\"parseOnLoad: true, locale: '$jslocale'\">\n";
-			$rt .= "</script>\n";
-			$rt .= $customfile;
-			$rt .= "<script type=\"text/javascript\">\n";
-			$rt .= "   dojo.addOnLoad(function() {\n";
-			foreach($dojoRequires as $req)
-				$rt .= "   dojo.require(\"$req\");\n";
-			$rt .= "   });\n";
-			$rt .= "   setTimeout(updateBlockStatus, 30000);\n";
-			$rt .= "</script>\n";
-			return $rt;
+        case "viewBlockStatus":
+            $rt .= "<style type=\"text/css\">\n";
+            $rt .= "   @import \"themes/$skin/css/dojo/$skin.css\";\n";
+            $rt .= "</style>\n";
+            $rt .= "<script type=\"text/javascript\" src=\"js/blockallocations.js?v=$v\"></script>\n";
+            $rt .= "<script type=\"text/javascript\" src=\"dojo/dojo/dojo.js\"\n";
+            $rt .= "   djConfig=\"parseOnLoad: true, locale: '$jslocale'\">\n";
+            $rt .= "</script>\n";
+            $rt .= $customfile;
+            $rt .= "<script type=\"text/javascript\">\n";
+            $rt .= "   dojo.addOnLoad(function() {\n";
+            foreach($dojoRequires as $req)
+                $rt .= "   dojo.require(\"$req\");\n";
+            $rt .= "   });\n";
+            $rt .= "   setTimeout(updateBlockStatus, 30000);\n";
+            $rt .= "</script>\n";
+            return $rt;
 
-		case 'viewBlockAllocatedMachines':
-			$rt .= "<style type=\"text/css\">\n";
-			$rt .= "   @import \"themes/$skin/css/dojo/$skin.css\";\n";
-			$rt .= "</style>\n";
-			$rt .= "<script type=\"text/javascript\" src=\"js/blockallocations.js?v=$v\"></script>\n";
-			$rt .= "<script type=\"text/javascript\" src=\"dojo/dojo/dojo.js\"\n";
-			$rt .= "   djConfig=\"parseOnLoad: true, locale: '$jslocale'\">\n";
-			$rt .= "</script>\n";
-			$rt .= $customfile;
-			$rt .= "<script type=\"text/javascript\">\n";
-			foreach($dojoRequires as $req)
-				$rt .= "   dojo.require(\"$req\");\n";
-			$rt .= "   dojo.addOnLoad(function() {\n";
-			$rt .= "      updateAllocatedMachines();\n";
-			$rt .= "   });\n";
-			$rt .= "</script>\n";
-			return $rt;
+        case 'viewBlockAllocatedMachines':
+            $rt .= "<style type=\"text/css\">\n";
+            $rt .= "   @import \"themes/$skin/css/dojo/$skin.css\";\n";
+            $rt .= "</style>\n";
+            $rt .= "<script type=\"text/javascript\" src=\"js/blockallocations.js?v=$v\"></script>\n";
+            $rt .= "<script type=\"text/javascript\" src=\"dojo/dojo/dojo.js\"\n";
+            $rt .= "   djConfig=\"parseOnLoad: true, locale: '$jslocale'\">\n";
+            $rt .= "</script>\n";
+            $rt .= $customfile;
+            $rt .= "<script type=\"text/javascript\">\n";
+            foreach($dojoRequires as $req)
+                $rt .= "   dojo.require(\"$req\");\n";
+            $rt .= "   dojo.addOnLoad(function() {\n";
+            $rt .= "      updateAllocatedMachines();\n";
+            $rt .= "   });\n";
+            $rt .= "</script>\n";
+            return $rt;
 
-		case "editSchedule":
-		case "submitAddSchedule":
-			$rt .= "<style type=\"text/css\">\n";
-			$rt .= "   @import \"themes/$skin/css/dojo/$skin.css\";\n";
-			$rt .= "   @import \"dojo/dojox/grid/resources/Grid.css\";\n";
-			$rt .= "</style>\n";
-			$rt .= "<script type=\"text/javascript\" src=\"js/schedules.js?v=$v\"></script>\n";
-			$rt .= "<script type=\"text/javascript\" src=\"dojo/dojo/dojo.js\"\n";
-			$rt .= "   djConfig=\"parseOnLoad: true, locale: '$jslocale'\">\n";
-			$rt .= "</script>\n";
-			$rt .= $customfile;
-			$rt .= "<script type=\"text/javascript\">\n";
-			$rt .= "   dojo.addOnLoad(function() {\n";
-			foreach($dojoRequires as $req)
-				$rt .= "   dojo.require(\"$req\");\n";
-			if($mode != 'submitAddSchedule') {
-				$id = getContinuationVar("scheduleid");
-				$cont = addContinuationsEntry('AJgetScheduleTimesData', array('id' => $id), SECINDAY, 1, 0);
-				$rt .= "   populateTimeStore('$cont');\n";
-			}
-			$rt .= "   });\n";
-			$rt .= "</script>\n";
-			return $rt;
+        case "editSchedule":
+        case "submitAddSchedule":
+            $rt .= "<style type=\"text/css\">\n";
+            $rt .= "   @import \"themes/$skin/css/dojo/$skin.css\";\n";
+            $rt .= "   @import \"dojo/dojox/grid/resources/Grid.css\";\n";
+            $rt .= "</style>\n";
+            $rt .= "<script type=\"text/javascript\" src=\"js/schedules.js?v=$v\"></script>\n";
+            $rt .= "<script type=\"text/javascript\" src=\"dojo/dojo/dojo.js\"\n";
+            $rt .= "   djConfig=\"parseOnLoad: true, locale: '$jslocale'\">\n";
+            $rt .= "</script>\n";
+            $rt .= $customfile;
+            $rt .= "<script type=\"text/javascript\">\n";
+            $rt .= "   dojo.addOnLoad(function() {\n";
+            foreach($dojoRequires as $req)
+                $rt .= "   dojo.require(\"$req\");\n";
+            if($mode != 'submitAddSchedule') {
+                $id = getContinuationVar("scheduleid");
+                $cont = addContinuationsEntry('AJgetScheduleTimesData', array('id' => $id), SECINDAY, 1, 0);
+                $rt .= "   populateTimeStore('$cont');\n";
+            }
+            $rt .= "   });\n";
+            $rt .= "</script>\n";
+            return $rt;
 
-		case "viewImageGrouping":
-		case "submitImageGroups":
-		case "viewImageMapping":
-		case "submitImageMapping":
-			$rt .= "<style type=\"text/css\">\n";
-			$rt .= "   @import \"themes/$skin/css/dojo/$skin.css\";\n";
-			$rt .= "</style>\n";
-			$rt .= "<script type=\"text/javascript\" src=\"js/images.js?v=$v\"></script>\n";
-			$rt .= "<script type=\"text/javascript\" src=\"dojo/dojo/dojo.js\"\n";
-			$rt .= "   djConfig=\"parseOnLoad: true, locale: '$jslocale'\">\n";
-			$rt .= "</script>\n";
-			$rt .= $customfile;
-			$rt .= "<script type=\"text/javascript\">\n";
-			$rt .= "   dojo.addOnLoad(function() {\n";
-			foreach($dojoRequires as $req)
-				$rt .= "   dojo.require(\"$req\");\n";
-			$rt .= "   });\n";
-			if($mode == "viewImageGrouping" ||
-				$mode == "submitImageGroups") {
-				$rt .= "   dojo.addOnLoad(getImagesButton);\n";
-				$rt .= "   dojo.addOnLoad(getGroupsButton);\n";
-			}
-			elseif($mode == "viewImageMapping" ||
-				$mode == "submitImageMapping") {
-				$rt .= "   dojo.addOnLoad(getMapCompGroupsButton);\n";
-				$rt .= "   dojo.addOnLoad(getMapImgGroupsButton);\n";
-			}
-			$rt .= "</script>\n";
-			return $rt;
+        case "viewImageGrouping":
+        case "submitImageGroups":
+        case "viewImageMapping":
+        case "submitImageMapping":
+            $rt .= "<style type=\"text/css\">\n";
+            $rt .= "   @import \"themes/$skin/css/dojo/$skin.css\";\n";
+            $rt .= "</style>\n";
+            $rt .= "<script type=\"text/javascript\" src=\"js/images.js?v=$v\"></script>\n";
+            $rt .= "<script type=\"text/javascript\" src=\"dojo/dojo/dojo.js\"\n";
+            $rt .= "   djConfig=\"parseOnLoad: true, locale: '$jslocale'\">\n";
+            $rt .= "</script>\n";
+            $rt .= $customfile;
+            $rt .= "<script type=\"text/javascript\">\n";
+            $rt .= "   dojo.addOnLoad(function() {\n";
+            foreach($dojoRequires as $req)
+                $rt .= "   dojo.require(\"$req\");\n";
+            $rt .= "   });\n";
+            if($mode == "viewImageGrouping" ||
+                $mode == "submitImageGroups") {
+                $rt .= "   dojo.addOnLoad(getImagesButton);\n";
+                $rt .= "   dojo.addOnLoad(getGroupsButton);\n";
+            }
+            elseif($mode == "viewImageMapping" ||
+                $mode == "submitImageMapping") {
+                $rt .= "   dojo.addOnLoad(getMapCompGroupsButton);\n";
+                $rt .= "   dojo.addOnLoad(getMapImgGroupsButton);\n";
+            }
+            $rt .= "</script>\n";
+            return $rt;
 
-		case 'newImage':
-		case 'submitImageButton':
-		case 'confirmEditOrAddImage':
-		case 'submitEditImageButtons':
-		case 'submitAddSubimage':
-		case 'updateExistingImageComments':
-		case 'updateExistingImage':
-			$rt .= "<style type=\"text/css\">\n";
-			$rt .= "   @import \"themes/$skin/css/dojo/$skin.css\";\n";
-			$rt .= "</style>\n";
-			$rt .= "<script type=\"text/javascript\" src=\"js/images.js?v=$v\"></script>\n";
-			$rt .= "<script type=\"text/javascript\" src=\"dojo/dojo/dojo.js\"\n";
-			$rt .= "   djConfig=\"parseOnLoad: true, locale: '$jslocale'\">\n";
-			$rt .= "</script>\n";
-			$rt .= $customfile;
-			$rt .= "<script type=\"text/javascript\">\n";
-			$rt .= "   dojo.addOnLoad(function() {\n";
-			foreach($dojoRequires as $req)
-				$rt .= "   dojo.require(\"$req\");\n";
-			$rt .= "   });\n";
-			$rt .= "   dojo.addOnLoad(function() {\n";
-			$rt .= "      if(document.getElementById('hide1')) {\n";
-			$rt .= "         document.getElementById('hide1').className = 'hidden';\n";
-			$rt .= "         document.getElementById('hide2').className = 'hidden';\n";
-			$rt .= "         document.getElementById('hide3').className = 'hidden';\n";
-			$rt .= "      }\n";
-			$rt .= "   });\n";
-			$rt .= "</script>\n";
-			return $rt;
+        case 'newImage':
+        case 'submitImageButton':
+        case 'confirmEditOrAddImage':
+        case 'submitEditImageButtons':
+        case 'submitAddSubimage':
+        case 'updateExistingImageComments':
+        case 'updateExistingImage':
+            $rt .= "<style type=\"text/css\">\n";
+            $rt .= "   @import \"themes/$skin/css/dojo/$skin.css\";\n";
+            $rt .= "</style>\n";
+            $rt .= "<script type=\"text/javascript\" src=\"js/images.js?v=$v\"></script>\n";
+            $rt .= "<script type=\"text/javascript\" src=\"dojo/dojo/dojo.js\"\n";
+            $rt .= "   djConfig=\"parseOnLoad: true, locale: '$jslocale'\">\n";
+            $rt .= "</script>\n";
+            $rt .= $customfile;
+            $rt .= "<script type=\"text/javascript\">\n";
+            $rt .= "   dojo.addOnLoad(function() {\n";
+            foreach($dojoRequires as $req)
+                $rt .= "   dojo.require(\"$req\");\n";
+            $rt .= "   });\n";
+            $rt .= "   dojo.addOnLoad(function() {\n";
+            $rt .= "      if(document.getElementById('hide1')) {\n";
+            $rt .= "         document.getElementById('hide1').className = 'hidden';\n";
+            $rt .= "         document.getElementById('hide2').className = 'hidden';\n";
+            $rt .= "         document.getElementById('hide3').className = 'hidden';\n";
+            $rt .= "      }\n";
+            $rt .= "   });\n";
+            $rt .= "</script>\n";
+            return $rt;
 
-		case 'viewGroups':
-		case 'submitEditGroup':
-		case 'submitAddGroup':
-		case 'submitDeleteGroup':
-			$rt .= "<style type=\"text/css\">\n";
-			$rt .= "   @import \"themes/$skin/css/dojo/$skin.css\";\n";
-			$rt .= "   @import \"dojo/dojox/grid/resources/Grid.css\";\n";
-			$rt .= "</style>\n";
-			$rt .= "<script type=\"text/javascript\" src=\"dojo/dojo/dojo.js\"\n";
-			$rt .= "   djConfig=\"parseOnLoad: true, locale: '$jslocale'\">\n";
-			$rt .= "</script>\n";
-			$rt .= $customfile;
-			$rt .= "<script type=\"text/javascript\">\n";
-			$rt .= "   dojo.addOnLoad(function() {\n";
-			foreach($dojoRequires as $req)
-				$rt .= "   dojo.require(\"$req\");\n";
-			$rt .= "   });\n";
-			$rt .= "   dojo.addOnLoad(function() {document.onmousemove = updateMouseXY;});\n";
-			$rt .= "   dojo.ready(function() {\n";
-			$rt .= "     buildUserFilterStores();\n";
-			$rt .= "     buildResourceFilterStores();\n";
-			$rt .= "   });\n";
-			if($mode == 'viewGroups')
-				$rt .= "  var firstscroll = 1;\n";
-			else
-				$rt .= " var firstscroll = 0;\n";
-			$rt .= "</script>\n";
-			$rt .= "<script type=\"text/javascript\" src=\"js/groups.js?v=$v\"></script>\n";
-			return $rt;
+        case 'viewGroups':
+        case 'submitEditGroup':
+        case 'submitAddGroup':
+        case 'submitDeleteGroup':
+            $rt .= "<style type=\"text/css\">\n";
+            $rt .= "   @import \"themes/$skin/css/dojo/$skin.css\";\n";
+            $rt .= "   @import \"dojo/dojox/grid/resources/Grid.css\";\n";
+            $rt .= "</style>\n";
+            $rt .= "<script type=\"text/javascript\" src=\"dojo/dojo/dojo.js\"\n";
+            $rt .= "   djConfig=\"parseOnLoad: true, locale: '$jslocale'\">\n";
+            $rt .= "</script>\n";
+            $rt .= $customfile;
+            $rt .= "<script type=\"text/javascript\">\n";
+            $rt .= "   dojo.addOnLoad(function() {\n";
+            foreach($dojoRequires as $req)
+                $rt .= "   dojo.require(\"$req\");\n";
+            $rt .= "   });\n";
+            $rt .= "   dojo.addOnLoad(function() {document.onmousemove = updateMouseXY;});\n";
+            $rt .= "   dojo.ready(function() {\n";
+            $rt .= "     buildUserFilterStores();\n";
+            $rt .= "     buildResourceFilterStores();\n";
+            $rt .= "   });\n";
+            if($mode == 'viewGroups')
+                $rt .= "  var firstscroll = 1;\n";
+            else
+                $rt .= " var firstscroll = 0;\n";
+            $rt .= "</script>\n";
+            $rt .= "<script type=\"text/javascript\" src=\"js/groups.js?v=$v\"></script>\n";
+            return $rt;
 
-		case 'editMgmtNode':
-		case 'addMgmtNode':
-		case 'confirmEditMgmtnode':
-		case 'confirmAddMgmtnode':
-			$rt .= "<style type=\"text/css\">\n";
-			$rt .= "   @import \"themes/$skin/css/dojo/$skin.css\";\n";
-			$rt .= "</style>\n";
-			$rt .= "<script type=\"text/javascript\" src=\"dojo/dojo/dojo.js\"\n";
-			$rt .= "   djConfig=\"parseOnLoad: true, locale: '$jslocale'\">\n";
-			$rt .= "</script>\n";
-			$rt .= $customfile;
-			$rt .= "<script type=\"text/javascript\">\n";
-			$rt .= "   dojo.addOnLoad(function() {\n";
-			foreach($dojoRequires as $req)
-				$rt .= "   dojo.require(\"$req\");\n";
-			$rt .= "   });\n";
-			$rt .= "   dojo.addOnLoad(function() {document.onmousemove = updateMouseXY;});\n";
-			$rt .= "</script>\n";
-			$rt .= "<script type=\"text/javascript\" src=\"js/managementnodes.js?v=$v\"></script>\n";
-			return $rt;
+        case 'editMgmtNode':
+        case 'addMgmtNode':
+        case 'confirmEditMgmtnode':
+        case 'confirmAddMgmtnode':
+            $rt .= "<style type=\"text/css\">\n";
+            $rt .= "   @import \"themes/$skin/css/dojo/$skin.css\";\n";
+            $rt .= "</style>\n";
+            $rt .= "<script type=\"text/javascript\" src=\"dojo/dojo/dojo.js\"\n";
+            $rt .= "   djConfig=\"parseOnLoad: true, locale: '$jslocale'\">\n";
+            $rt .= "</script>\n";
+            $rt .= $customfile;
+            $rt .= "<script type=\"text/javascript\">\n";
+            $rt .= "   dojo.addOnLoad(function() {\n";
+            foreach($dojoRequires as $req)
+                $rt .= "   dojo.require(\"$req\");\n";
+            $rt .= "   });\n";
+            $rt .= "   dojo.addOnLoad(function() {document.onmousemove = updateMouseXY;});\n";
+            $rt .= "</script>\n";
+            $rt .= "<script type=\"text/javascript\" src=\"js/managementnodes.js?v=$v\"></script>\n";
+            return $rt;
 
-		case "serverProfiles":
-			$rt .= "<style type=\"text/css\">\n";
-			$rt .= "   @import \"themes/$skin/css/dojo/$skin.css\";\n";
-			$rt .= "</style>\n";
-			$rt .= "<script type=\"text/javascript\" src=\"js/serverprofiles.js?v=$v\"></script>\n";
-			$rt .= "<script type=\"text/javascript\" src=\"js/requests.js?v=$v\"></script>\n";
-			$rt .= "<script type=\"text/javascript\" src=\"dojo/dojo/dojo.js\"\n";
-			$rt .= "   djConfig=\"parseOnLoad: true, locale: '$jslocale'\">\n";
-			$rt .= "</script>\n";
-			$rt .= $customfile;
-			$rt .= "<script type=\"text/javascript\">\n";
-			$rt .= "   dojo.addOnLoad(function() {\n";
-			foreach($dojoRequires as $req)
-				$rt .= "   dojo.require(\"$req\");\n";
-			$cont = addContinuationsEntry('AJserverProfileStoreData', array(), 120, 1, 0);
-			$rt .= "   populateProfileStore('$cont');\n";
-			$rt .= "   });\n";
-			$rt .= "   dojo.addOnLoad(getProfiles);\n";
-			$rt .= "</script>\n";
-			return $rt;
+        case "serverProfiles":
+            $rt .= "<style type=\"text/css\">\n";
+            $rt .= "   @import \"themes/$skin/css/dojo/$skin.css\";\n";
+            $rt .= "</style>\n";
+            $rt .= "<script type=\"text/javascript\" src=\"js/serverprofiles.js?v=$v\"></script>\n";
+            $rt .= "<script type=\"text/javascript\" src=\"js/requests.js?v=$v\"></script>\n";
+            $rt .= "<script type=\"text/javascript\" src=\"dojo/dojo/dojo.js\"\n";
+            $rt .= "   djConfig=\"parseOnLoad: true, locale: '$jslocale'\">\n";
+            $rt .= "</script>\n";
+            $rt .= $customfile;
+            $rt .= "<script type=\"text/javascript\">\n";
+            $rt .= "   dojo.addOnLoad(function() {\n";
+            foreach($dojoRequires as $req)
+                $rt .= "   dojo.require(\"$req\");\n";
+            $cont = addContinuationsEntry('AJserverProfileStoreData', array(), 120, 1, 0);
+            $rt .= "   populateProfileStore('$cont');\n";
+            $rt .= "   });\n";
+            $rt .= "   dojo.addOnLoad(getProfiles);\n";
+            $rt .= "</script>\n";
+            return $rt;
 
-		case "selectComputers":
-		case "viewComputerGroups":
-		case "submitComputerGroups":
-			$rt .= "<style type=\"text/css\">\n";
-			$rt .= "   @import \"themes/$skin/css/dojo/$skin.css\";\n";
-			$rt .= "</style>\n";
-			$rt .= "<script type=\"text/javascript\" src=\"js/computers.js?v=$v\"></script>\n";
-			$rt .= "<script type=\"text/javascript\" src=\"dojo/dojo/dojo.js\"\n";
-			$rt .= "   djConfig=\"parseOnLoad: true, locale: '$jslocale'\">\n";
-			$rt .= "</script>\n";
-			$rt .= $customfile;
-			$rt .= "<script type=\"text/javascript\">\n";
-			$rt .= "   dojo.addOnLoad(function() {\n";
-			foreach($dojoRequires as $req)
-				$rt .= "   dojo.require(\"$req\");\n";
-			$rt .= "   });\n";
-			if($mode != 'selectComputers') {
-				$rt .= "   dojo.addOnLoad(getCompsButton);\n";
-				$rt .= "   dojo.addOnLoad(getGroupsButton);\n";
-			}
-			$rt .= "</script>\n";
-			return $rt;
-		case 'editComputer':
-		case 'addComputer':
-		case 'bulkAddComputer':
-		case 'confirmEditComputer':
-		case 'confirmAddComputer':
-		case 'confirmAddBulkComputers':
-		case 'computerUtilities':
-			$rt .= "<style type=\"text/css\">\n";
-			$rt .= "   @import \"themes/$skin/css/dojo/$skin.css\";\n";
-			$rt .= "</style>\n";
-			$rt .= "<script type=\"text/javascript\" src=\"js/computers.js?v=$v\"></script>\n";
-			$rt .= "<script type=\"text/javascript\" src=\"dojo/dojo/dojo.js\"\n";
-			$rt .= "   djConfig=\"parseOnLoad: true, locale: '$jslocale'\">\n";
-			$rt .= "</script>\n";
-			$rt .= $customfile;
-			$rt .= "<script type=\"text/javascript\">\n";
-			$rt .= "   dojo.addOnLoad(function() {\n";
-			foreach($dojoRequires as $req)
-				$rt .= "   dojo.require(\"$req\");\n";
-			$rt .= "   });\n";
-			$rt .= "</script>\n";
-			return $rt;
-		case 'selectauth':
-			$rt .= "<script type=\"text/javascript\" src=\"dojo/dojo/dojo.js\"></script>\n";
-			$rt .= $customfile;
-			$rt .= "<script type=\"text/javascript\">\n";
-			foreach($dojoRequires as $req)
-				$rt .= "   dojo.require(\"$req\");\n";
-			$authtype = processInputVar("authtype", ARG_STRING);
-			$rt .= "   dojo.addOnLoad(function() {document.loginform.userid.focus(); document.loginform.userid.select();});\n";
-			$rt .= "</script>\n";
-			return $rt;
-		case "editVMInfo":
-			$rt .= "<style type=\"text/css\">\n";
-			$rt .= "   @import \"themes/$skin/css/dojo/$skin.css\";\n";
-			$rt .= "</style>\n";
-			$rt .= "<script type=\"text/javascript\" src=\"js/vm.js?v=$v\"></script>\n";
-			$rt .= "<script type=\"text/javascript\" src=\"dojo/dojo/dojo.js\"\n";
-			$rt .= "   djConfig=\"parseOnLoad: true, locale: '$jslocale'\">\n";
-			$rt .= "</script>\n";
-			$rt .= $customfile;
-			$rt .= "<script type=\"text/javascript\">\n";
-			$rt .= "   dojo.addOnLoad(function() {\n";
-			foreach($dojoRequires as $req)
-				$rt .= "   dojo.require(\"$req\");\n";
-			$rt .= "   });\n";
-			$rt .= "dojo.addOnLoad(function() {";
-			$rt .=                   "var dialog = dijit.byId('profileDlg'); ";
-			$rt .=                   "dojo.connect(dialog, 'hide', cancelVMprofileChange);});";
-			/*if($mode != 'selectComputers') {
-				$rt .= "   dojo.addOnLoad(getCompsButton);\n";
-				$rt .= "   dojo.addOnLoad(getGroupsButton);\n";
-			}*/
-			$rt .= "</script>\n";
-			return $rt;
-		case "viewNodes":
-			$rt .= "<style type=\"text/css\">\n";
-			$rt .= "   @import \"themes/$skin/css/dojo/$skin.css\";\n";
-			$rt .= "</style>\n";
-			$rt .= "<script type=\"text/javascript\" src=\"js/privileges.js?v=$v\"></script>\n";
-			$rt .= "<script type=\"text/javascript\" src=\"dojo/dojo/dojo.js\"\n";
-			$rt .= "   djConfig=\"parseOnLoad: true, locale: '$jslocale'\">\n";
-			$rt .= "</script>\n";
-			$rt .= $customfile;
-			$rt .= "<script type=\"text/javascript\">\n";
-			$rt .= "   dojo.addOnLoad(function() {\n";
-			foreach($dojoRequires as $req)
-				$rt .= "   dojo.require(\"$req\");\n";
-			$rt .= "      document.onmousemove = updateMouseXY;\n";
-			$rt .= "   });\n";
-			$rt .= "</script>\n";
-			return $rt;
-		case "siteMaintenance":
-			$rt .= "<style type=\"text/css\">\n";
-			$rt .= "   @import \"themes/$skin/css/dojo/$skin.css\";\n";
-			$rt .= "</style>\n";
-			$rt .= "<script type=\"text/javascript\" src=\"js/sitemaintenance.js?v=$v\"></script>\n";
-			$rt .= "<script type=\"text/javascript\" src=\"dojo/dojo/dojo.js\"\n";
-			$rt .= "   djConfig=\"parseOnLoad: true, locale: '$jslocale'\">\n";
-			$rt .= "</script>\n";
-			$rt .= $customfile;
-			$rt .= "<script type=\"text/javascript\">\n";
-			$rt .= "   dojo.addOnLoad(function() {\n";
-			foreach($dojoRequires as $req)
-				$rt .= "   dojo.require(\"$req\");\n";
-			$rt .= "   });\n";
-			$rt .= "</script>\n";
-			return $rt;
-		case "viewstats":
-			$rt .= "<style type=\"text/css\">\n";
-			$rt .= "   @import \"themes/$skin/css/dojo/$skin.css\";\n";
-			$rt .= "</style>\n";
-			$rt .= "<script type=\"text/javascript\" src=\"js/statistics.js?v=$v\"></script>\n";
-			$rt .= "<script type=\"text/javascript\" src=\"dojo/dojo/dojo.js\"\n";
-			$rt .= "   djConfig=\"parseOnLoad: true, locale: '$jslocale'\">\n";
-			$rt .= "</script>\n";
-			$rt .= $customfile;
-			$rt .= "<script type=\"text/javascript\">\n";
-			$rt .= "   dojo.addOnLoad(function() {\n";
-			foreach($dojoRequires as $req)
-				$rt .= "   dojo.require(\"$req\");\n";
-			$rt .= "   generateGraphs();\n";
-			$rt .= "   });\n";
-			$rt .= "</script>\n";
-			return $rt;
-		case "dashboard":
-			$rt .= "<style type=\"text/css\">\n";
-			$rt .= "   @import \"themes/$skin/css/dojo/$skin.css\";\n";
-			$rt .= "   @import \"css/dashboard.css\";\n";
-			$rt .= "</style>\n";
-			$rt .= "<script type=\"text/javascript\" src=\"js/dashboard.js?v=$v\"></script>\n";
-			$rt .= "<script type=\"text/javascript\" src=\"dojo/dojo/dojo.js\"\n";
-			$rt .= "   djConfig=\"parseOnLoad: true, locale: '$jslocale'\">\n";
-			$rt .= "</script>\n";
-			$rt .= $customfile;
-			$rt .= "<script type=\"text/javascript\">\n";
-			$rt .= "   dojo.addOnLoad(function() {\n";
-			foreach($dojoRequires as $req)
-				$rt .= "   dojo.require(\"$req\");\n";
-			$rt .= "   updateDashboard();\n";
-			$rt .= "   });\n";
-			$rt .= "</script>\n";
-			return $rt;
+        case "selectComputers":
+        case "viewComputerGroups":
+        case "submitComputerGroups":
+            $rt .= "<style type=\"text/css\">\n";
+            $rt .= "   @import \"themes/$skin/css/dojo/$skin.css\";\n";
+            $rt .= "</style>\n";
+            $rt .= "<script type=\"text/javascript\" src=\"js/computers.js?v=$v\"></script>\n";
+            $rt .= "<script type=\"text/javascript\" src=\"dojo/dojo/dojo.js\"\n";
+            $rt .= "   djConfig=\"parseOnLoad: true, locale: '$jslocale'\">\n";
+            $rt .= "</script>\n";
+            $rt .= $customfile;
+            $rt .= "<script type=\"text/javascript\">\n";
+            $rt .= "   dojo.addOnLoad(function() {\n";
+            foreach($dojoRequires as $req)
+                $rt .= "   dojo.require(\"$req\");\n";
+            $rt .= "   });\n";
+            if($mode != 'selectComputers') {
+                $rt .= "   dojo.addOnLoad(getCompsButton);\n";
+                $rt .= "   dojo.addOnLoad(getGroupsButton);\n";
+            }
+            $rt .= "</script>\n";
+            return $rt;
+        case 'editComputer':
+        case 'addComputer':
+        case 'bulkAddComputer':
+        case 'confirmEditComputer':
+        case 'confirmAddComputer':
+        case 'confirmAddBulkComputers':
+        case 'computerUtilities':
+            $rt .= "<style type=\"text/css\">\n";
+            $rt .= "   @import \"themes/$skin/css/dojo/$skin.css\";\n";
+            $rt .= "</style>\n";
+            $rt .= "<script type=\"text/javascript\" src=\"js/computers.js?v=$v\"></script>\n";
+            $rt .= "<script type=\"text/javascript\" src=\"dojo/dojo/dojo.js\"\n";
+            $rt .= "   djConfig=\"parseOnLoad: true, locale: '$jslocale'\">\n";
+            $rt .= "</script>\n";
+            $rt .= $customfile;
+            $rt .= "<script type=\"text/javascript\">\n";
+            $rt .= "   dojo.addOnLoad(function() {\n";
+            foreach($dojoRequires as $req)
+                $rt .= "   dojo.require(\"$req\");\n";
+            $rt .= "   });\n";
+            $rt .= "</script>\n";
+            return $rt;
+        case 'selectauth':
+            $rt .= "<script type=\"text/javascript\" src=\"dojo/dojo/dojo.js\"></script>\n";
+            $rt .= $customfile;
+            $rt .= "<script type=\"text/javascript\">\n";
+            foreach($dojoRequires as $req)
+                $rt .= "   dojo.require(\"$req\");\n";
+            $authtype = processInputVar("authtype", ARG_STRING);
+            $rt .= "   dojo.addOnLoad(function() {document.loginform.userid.focus(); document.loginform.userid.select();});\n";
+            $rt .= "</script>\n";
+            return $rt;
+        case "editVMInfo":
+            $rt .= "<style type=\"text/css\">\n";
+            $rt .= "   @import \"themes/$skin/css/dojo/$skin.css\";\n";
+            $rt .= "</style>\n";
+            $rt .= "<script type=\"text/javascript\" src=\"js/vm.js?v=$v\"></script>\n";
+            $rt .= "<script type=\"text/javascript\" src=\"dojo/dojo/dojo.js\"\n";
+            $rt .= "   djConfig=\"parseOnLoad: true, locale: '$jslocale'\">\n";
+            $rt .= "</script>\n";
+            $rt .= $customfile;
+            $rt .= "<script type=\"text/javascript\">\n";
+            $rt .= "   dojo.addOnLoad(function() {\n";
+            foreach($dojoRequires as $req)
+                $rt .= "   dojo.require(\"$req\");\n";
+            $rt .= "   });\n";
+            $rt .= "dojo.addOnLoad(function() {";
+            $rt .=                   "var dialog = dijit.byId('profileDlg'); ";
+            $rt .=                   "dojo.connect(dialog, 'hide', cancelVMprofileChange);});";
+            /*if($mode != 'selectComputers') {
+                $rt .= "   dojo.addOnLoad(getCompsButton);\n";
+                $rt .= "   dojo.addOnLoad(getGroupsButton);\n";
+            }*/
+            $rt .= "</script>\n";
+            return $rt;
+        case "viewNodes":
+            $rt .= "<style type=\"text/css\">\n";
+            $rt .= "   @import \"themes/$skin/css/dojo/$skin.css\";\n";
+            $rt .= "</style>\n";
+            $rt .= "<script type=\"text/javascript\" src=\"js/privileges.js?v=$v\"></script>\n";
+            $rt .= "<script type=\"text/javascript\" src=\"dojo/dojo/dojo.js\"\n";
+            $rt .= "   djConfig=\"parseOnLoad: true, locale: '$jslocale'\">\n";
+            $rt .= "</script>\n";
+            $rt .= $customfile;
+            $rt .= "<script type=\"text/javascript\">\n";
+            $rt .= "   dojo.addOnLoad(function() {\n";
+            foreach($dojoRequires as $req)
+                $rt .= "   dojo.require(\"$req\");\n";
+            $rt .= "      document.onmousemove = updateMouseXY;\n";
+            $rt .= "   });\n";
+            $rt .= "</script>\n";
+            return $rt;
+        case "siteMaintenance":
+            $rt .= "<style type=\"text/css\">\n";
+            $rt .= "   @import \"themes/$skin/css/dojo/$skin.css\";\n";
+            $rt .= "</style>\n";
+            $rt .= "<script type=\"text/javascript\" src=\"js/sitemaintenance.js?v=$v\"></script>\n";
+            $rt .= "<script type=\"text/javascript\" src=\"dojo/dojo/dojo.js\"\n";
+            $rt .= "   djConfig=\"parseOnLoad: true, locale: '$jslocale'\">\n";
+            $rt .= "</script>\n";
+            $rt .= $customfile;
+            $rt .= "<script type=\"text/javascript\">\n";
+            $rt .= "   dojo.addOnLoad(function() {\n";
+            foreach($dojoRequires as $req)
+                $rt .= "   dojo.require(\"$req\");\n";
+            $rt .= "   });\n";
+            $rt .= "</script>\n";
+            return $rt;
+        case "viewstats":
+            $rt .= "<style type=\"text/css\">\n";
+            $rt .= "   @import \"themes/$skin/css/dojo/$skin.css\";\n";
+            $rt .= "</style>\n";
+            $rt .= "<script type=\"text/javascript\" src=\"js/statistics.js?v=$v\"></script>\n";
+            $rt .= "<script type=\"text/javascript\" src=\"dojo/dojo/dojo.js\"\n";
+            $rt .= "   djConfig=\"parseOnLoad: true, locale: '$jslocale'\">\n";
+            $rt .= "</script>\n";
+            $rt .= $customfile;
+            $rt .= "<script type=\"text/javascript\">\n";
+            $rt .= "   dojo.addOnLoad(function() {\n";
+            foreach($dojoRequires as $req)
+                $rt .= "   dojo.require(\"$req\");\n";
+            $rt .= "   generateGraphs();\n";
+            $rt .= "   });\n";
+            $rt .= "</script>\n";
+            return $rt;
+        case "dashboard":
+            $rt .= "<style type=\"text/css\">\n";
+            $rt .= "   @import \"themes/$skin/css/dojo/$skin.css\";\n";
+            $rt .= "   @import \"css/dashboard.css\";\n";
+            $rt .= "</style>\n";
+            $rt .= "<script type=\"text/javascript\" src=\"js/dashboard.js?v=$v\"></script>\n";
+            $rt .= "<script type=\"text/javascript\" src=\"dojo/dojo/dojo.js\"\n";
+            $rt .= "   djConfig=\"parseOnLoad: true, locale: '$jslocale'\">\n";
+            $rt .= "</script>\n";
+            $rt .= $customfile;
+            $rt .= "<script type=\"text/javascript\">\n";
+            $rt .= "   dojo.addOnLoad(function() {\n";
+            foreach($dojoRequires as $req)
+                $rt .= "   dojo.require(\"$req\");\n";
+            $rt .= "   updateDashboard();\n";
+            $rt .= "   });\n";
+            $rt .= "</script>\n";
+            return $rt;
 
-		default:
-			$rt .= "<style type=\"text/css\">\n";
-			$rt .= "   @import \"themes/$skin/css/dojo/$skin.css\";\n";
-			$rt .= "</style>\n";
-			$rt .= "<script type=\"text/javascript\" src=\"dojo/dojo/dojo.js\"\n";
-			$rt .= "   djConfig=\"parseOnLoad: true, locale: '$jslocale'\">\n";
-			$rt .= "</script>\n";
-			$rt .= $customfile;
-			$rt .= "<script type=\"text/javascript\">\n";
-			$rt .= "   dojo.addOnLoad(function() {\n";
-			foreach($dojoRequires as $req)
-				$rt .= "   dojo.require(\"$req\");\n";
-			$rt .= "   });\n";
-			$rt .= "</script>\n";
-			return $rt;
-	}
-	return '';
+        default:
+            $rt .= "<style type=\"text/css\">\n";
+            $rt .= "   @import \"themes/$skin/css/dojo/$skin.css\";\n";
+            $rt .= "</style>\n";
+            $rt .= "<script type=\"text/javascript\" src=\"dojo/dojo/dojo.js\"\n";
+            $rt .= "   djConfig=\"parseOnLoad: true, locale: '$jslocale'\">\n";
+            $rt .= "</script>\n";
+            $rt .= $customfile;
+            $rt .= "<script type=\"text/javascript\">\n";
+            $rt .= "   dojo.addOnLoad(function() {\n";
+            foreach($dojoRequires as $req)
+                $rt .= "   dojo.require(\"$req\");\n";
+            $rt .= "   });\n";
+            $rt .= "</script>\n";
+            return $rt;
+    }
+    return '';
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -11603,10 +11617,10 @@ function getDojoHTML($refresh) {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function printHTMLFooter() {
-	global $mode, $noHTMLwrappers;
-	if(in_array($mode, $noHTMLwrappers))
-		return;
-	print getFooter();
+    global $mode, $noHTMLwrappers;
+    if(in_array($mode, $noHTMLwrappers))
+        return;
+    print getFooter();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -11617,18 +11631,18 @@ function printHTMLFooter() {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function changeLocale() {
-	global $locale;
-	$newlocale = getContinuationVar('locale');
-	$oldmode = getContinuationVar('oldmode');
-	$authtype = getContinuationVar('authtype', '');
-	$locale = $newlocale;
-	setcookie("VCLLOCALE", $locale, (time() + (86400 * 31)), "/", COOKIEDOMAIN);
-	$extra = '';
-	if($oldmode == 'selectauth' && ! empty($authtype))
-		$extra = "&authtype=$authtype";
-	header("Location: " . BASEURL . SCRIPT . "?mode=$oldmode$extra");
-	dbDisconnect();
-	exit;
+    global $locale;
+    $newlocale = getContinuationVar('locale');
+    $oldmode = getContinuationVar('oldmode');
+    $authtype = getContinuationVar('authtype', '');
+    $locale = $newlocale;
+    setcookie("VCLLOCALE", $locale, (time() + (86400 * 31)), "/", COOKIEDOMAIN);
+    $extra = '';
+    if($oldmode == 'selectauth' && ! empty($authtype))
+        $extra = "&authtype=$authtype";
+    header("Location: " . BASEURL . SCRIPT . "?mode=$oldmode$extra");
+    dbDisconnect();
+    exit;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -11639,28 +11653,28 @@ function changeLocale() {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function setVCLLocale() {
-	global $locale;
-	# set a cookie for the locale if it has not been set already
-	if(! array_key_exists('VCLLOCALE', $_COOKIE)) {
-		setcookie("VCLLOCALE", 'en_US', (time() + (86400 * 31)), "/", COOKIEDOMAIN);
-		$locale = DEFAULTLOCALE;
-	}
-	// if a cookie has already been set, just update the expiration time for it
-	else {
-		setcookie("VCLLOCALE", $_COOKIE['VCLLOCALE'], (time() + (86400 * 31)), "/", COOKIEDOMAIN);
-		$locale = $_COOKIE['VCLLOCALE'];
-	}
-	
-	#putenv('LC_ALL=' . $locale);
-	# use UTF8 encoding for any locales other than English (we may just be able
-	#   to always use UTF8)
-	if(preg_match('/^en/', $locale))
-		setlocale(LC_ALL,  $locale);
-	else
-		setlocale(LC_ALL,  $locale . '.UTF8');
-	bindtextdomain('vcl', './locale');
-	textdomain('vcl');
-	bind_textdomain_codeset('vcl', 'UTF-8');
+    global $locale;
+    # set a cookie for the locale if it has not been set already
+    if(! array_key_exists('VCLLOCALE', $_COOKIE)) {
+        setcookie("VCLLOCALE", 'en_US', (time() + (86400 * 31)), "/", COOKIEDOMAIN);
+        $locale = DEFAULTLOCALE;
+    }
+    // if a cookie has already been set, just update the expiration time for it
+    else {
+        setcookie("VCLLOCALE", $_COOKIE['VCLLOCALE'], (time() + (86400 * 31)), "/", COOKIEDOMAIN);
+        $locale = $_COOKIE['VCLLOCALE'];
+    }
+
+    #putenv('LC_ALL=' . $locale);
+    # use UTF8 encoding for any locales other than English (we may just be able
+    #   to always use UTF8)
+    if(preg_match('/^en/', $locale))
+        setlocale(LC_ALL,  $locale);
+    else
+        setlocale(LC_ALL,  $locale . '.UTF8');
+    bindtextdomain('vcl', './locale');
+    textdomain('vcl');
+    bind_textdomain_codeset('vcl', 'UTF-8');
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -11674,40 +11688,40 @@ function setVCLLocale() {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getSelectLanguagePulldown() {
-	global $locale, $user, $remoteIP, $mode, $authMechs;
-	$tmp = explode('/', $_SERVER['SCRIPT_FILENAME']);
-	array_pop($tmp);
-	array_push($tmp, 'locale');
+    global $locale, $user, $remoteIP, $mode, $authMechs;
+    $tmp = explode('/', $_SERVER['SCRIPT_FILENAME']);
+    array_pop($tmp);
+    array_push($tmp, 'locale');
 
-	$locales = getFSlocales();
+    $locales = getFSlocales();
 
-	if(count($locales) < 1)
-		return '';
+    if(count($locales) < 1)
+        return '';
 
-	if(! is_array($user))
-		$user['id'] = 0;
+    if(! is_array($user))
+        $user['id'] = 0;
 
-	$rt  = "<form name=\"localeform\" id=\"localeform\" action=\"" . BASEURL . SCRIPT . "\" method=post>\n";
-	$rt .= "<select name=\"continuation\" onChange=\"document.localeform.submit();\">\n";
-	$cdata = array('IP' => $remoteIP, 'oldmode' => $mode);
-	if($mode == 'selectauth') {
-		$type = processInputVar('authtype', ARG_STRING);
-		if(! empty($type) && array_key_exists($type, $authMechs))
-			$cdata['authtype'] = $type;
-	}
-	foreach($locales as $dir => $lang) {
-		$cdata['locale'] = $dir;
-		$tmp = explode('/', $dir);
-		$testlocale = array_pop($tmp);
-		$cont = addContinuationsEntry('changeLocale', $cdata, 86400);
-		if($locale == $testlocale)
-			$rt .= "<option value=\"$cont\" selected>{$lang}</option>\n";
-		else
-			$rt .= "<option value=\"$cont\">{$lang}</option>\n";
-	}
-	$rt .= "</select>\n";
-	$rt .= "</form> \n";
-	return $rt;
+    $rt  = "<form name=\"localeform\" id=\"localeform\" action=\"" . BASEURL . SCRIPT . "\" method=post>\n";
+    $rt .= "<select name=\"continuation\" onChange=\"document.localeform.submit();\">\n";
+    $cdata = array('IP' => $remoteIP, 'oldmode' => $mode);
+    if($mode == 'selectauth') {
+        $type = processInputVar('authtype', ARG_STRING);
+        if(! empty($type) && array_key_exists($type, $authMechs))
+            $cdata['authtype'] = $type;
+    }
+    foreach($locales as $dir => $lang) {
+        $cdata['locale'] = $dir;
+        $tmp = explode('/', $dir);
+        $testlocale = array_pop($tmp);
+        $cont = addContinuationsEntry('changeLocale', $cdata, 86400);
+        if($locale == $testlocale)
+            $rt .= "<option value=\"$cont\" selected>{$lang}</option>\n";
+        else
+            $rt .= "<option value=\"$cont\">{$lang}</option>\n";
+    }
+    $rt .= "</select>\n";
+    $rt .= "</form> \n";
+    return $rt;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -11722,41 +11736,41 @@ function getSelectLanguagePulldown() {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function getFSlocales() {
-	if(isset($_SESSION) && array_key_exists('locales', $_SESSION))
-		return $_SESSION['locales'];
-	$tmp = explode('/', $_SERVER['SCRIPT_FILENAME']);
-	array_pop($tmp);
-	$mainpath = implode('/', $tmp);
-	array_push($tmp, 'locale');
-	$localedir = implode('/', $tmp);
-	$dirs = glob("{$localedir}/*");
-	$locales = array('en_US' => 'English');
-	foreach($dirs as $dir) {
-		if(! file_exists("{$dir}/LC_MESSAGES/vcl.mo"))
-			continue;
-		if(! file_exists("{$dir}/language"))
-			continue;
-		$fh = fopen("{$dir}/language", 'r');
-		while($line = fgetss($fh)) {
-			if(preg_match('/(^#)|(^\s*$)/', $line)) {
-				continue;
-			}
-			else
-				break;
-		}
-		fclose($fh);
-		if(! $line)
-			continue;
-		$lang = htmlspecialchars(strip_tags(trim($line)));
-		$tmp = explode('/', $dir);
-		$dir = array_pop($tmp);
-		if($dir == 'po_files')
-			continue;
-		if(! file_exists("{$mainpath}/js/nls/{$dir}/messages.js"))
-			continue;
-		$locales[$dir] = $lang;
-	}
-	$_SESSION['locales'] = $locales;
-	return $locales;
+    if(isset($_SESSION) && array_key_exists('locales', $_SESSION))
+        return $_SESSION['locales'];
+    $tmp = explode('/', $_SERVER['SCRIPT_FILENAME']);
+    array_pop($tmp);
+    $mainpath = implode('/', $tmp);
+    array_push($tmp, 'locale');
+    $localedir = implode('/', $tmp);
+    $dirs = glob("{$localedir}/*");
+    $locales = array('en_US' => 'English');
+    foreach($dirs as $dir) {
+        if(! file_exists("{$dir}/LC_MESSAGES/vcl.mo"))
+            continue;
+        if(! file_exists("{$dir}/language"))
+            continue;
+        $fh = fopen("{$dir}/language", 'r');
+        while($line = fgetss($fh)) {
+            if(preg_match('/(^#)|(^\s*$)/', $line)) {
+                continue;
+            }
+            else
+                break;
+        }
+        fclose($fh);
+        if(! $line)
+            continue;
+        $lang = htmlspecialchars(strip_tags(trim($line)));
+        $tmp = explode('/', $dir);
+        $dir = array_pop($tmp);
+        if($dir == 'po_files')
+            continue;
+        if(! file_exists("{$mainpath}/js/nls/{$dir}/messages.js"))
+            continue;
+        $locales[$dir] = $lang;
+    }
+    $_SESSION['locales'] = $locales;
+    return $locales;
 }
 ?>

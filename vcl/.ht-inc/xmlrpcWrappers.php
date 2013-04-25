@@ -101,10 +101,10 @@ function XMLRPCgetImages() {
         $notes = getImageNotes($key);
         $images = getImages(0,$key);
         $tmp = array('id' => $key,
-                     'name' => $val,
-                     'description' => $notes['description'],
-                     'usage' => $notes['usage'],
-                     'ostype' => $images[$key]['ostype']);
+            'name' => $val,
+            'description' => $notes['description'],
+            'usage' => $notes['usage'],
+            'ostype' => $images[$key]['ostype']);
         array_push($return, $tmp);
     }
     return $return;
@@ -138,76 +138,85 @@ function XMLRPCgetImages() {
 ///
 ////////////////////////////////////////////////////////////////////////////////
 function XMLRPCaddRequest($imageid, $start, $length,$oneclickid='', $foruser='') {
-	global $user;
-	$imageid = processInputData($imageid, ARG_NUMERIC);
-	$start = processInputData($start, ARG_STRING, 1);
-	$length = processInputData($length, ARG_NUMERIC);
-	#$foruser = processInputData($foruser, ARG_STRING, 1);
+    global $user;
+    $imageid = processInputData($imageid, ARG_NUMERIC);
+    $start = processInputData($start, ARG_STRING, 1);
+    $length = processInputData($length, ARG_NUMERIC);
+    #$foruser = processInputData($foruser, ARG_STRING, 1);
 
-	// make sure user didn't submit a request for an image he 
-	// doesn't have access to
-	$resources = getUserResources(array("imageAdmin", "imageCheckOut"));
-	$validImageids = array_keys($resources['image']);
-	if(! in_array($imageid, $validImageids)) {
-		return array('status' => 'error',
-		             'errorcode' => 3,
-		             'errormsg' => "access denied to $imageid");
-	}
+    // make sure user didn't submit a request for an image he
+    // doesn't have access to
+    $resources = getUserResources(array("imageAdmin", "imageCheckOut"));
+    $validImageids = array_keys($resources['image']);
+    if(! in_array($imageid, $validImageids)) {
+        return array('status' => 'error',
+            'errorcode' => 3,
+            'errormsg' => "access denied to $imageid");
+    }
 
-	# validate $start
-	if($start != 'now' && ! is_numeric($start)) {
-		return array('status' => 'error',
-		             'errorcode' => 4,
-		             'errormsg' => "received invalid input for start");
-	}
+    # validate $start
+    if($start != 'now' && ! is_numeric($start)) {
+        return array('status' => 'error',
+            'errorcode' => 4,
+            'errormsg' => "received invalid input for start");
+    }
 
-	# validate $length
-	$maxtimes = getUserMaxTimes();
-	if($maxtimes['initial'] < $length) {
-		return array('status' => 'error',
-		             'errorcode' => 6,
-		             'errormsg' => "max allowed initial length is {$maxtimes['initial']} minutes");
-	}
+    # validate $length
+    $maxtimes = getUserMaxTimes();
+    if($maxtimes['initial'] < $length) {
+        return array('status' => 'error',
+            'errorcode' => 6,
+            'errormsg' => "max allowed initial length is {$maxtimes['initial']} minutes");
+    }
 
-	$nowfuture = 'future';
-	if($start == 'now') {
-		$start = time();
-		$nowfuture = 'now';
-	}
-	else
-		if($start < (time() - 30))
-			return array('status' => 'error',
-			             'errorcode' => 5,
-			             'errormsg' => "start time is in the past");
-	$start = unixFloor15($start);
-	$end = $start + $length * 60;
-	if($end % (15 * 60))
-		$end = unixFloor15($end) + (15 * 60);
+    $nowfuture = 'future';
+    if($start == 'now') {
+        $start = time();
+        $nowfuture = 'now';
+    }
+    else
+        if($start < (time() - 30))
+            return array('status' => 'error',
+                'errorcode' => 5,
+                'errormsg' => "start time is in the past");
+    $start = unixFloor15($start);
+    $end = $start + $length * 60;
+    if($end % (15 * 60))
+        $end = unixFloor15($end) + (15 * 60);
 
-	$max = getMaxOverlap($user['id']);
-	if(checkOverlap($start, $end, $max)) {
-		return array('status' => 'error',
-		             'errorcode' => 7,
-		             'errormsg' => "reservation overlaps with another one you "
-		                         . "have, and you are allowed $max "
-		                         . "overlapping reservations at a time");
-	}
+    $max = getMaxOverlap($user['id']);
+    if ($oneclickid != '') {
+        $request_id = checkReservationForOneClick($oneclickid);
+    }
+    if ($request_id == NULL)  {
+        if(checkOverlap($start, $end, $max)) {
+            return array('status' => 'error',
+                'errorcode' => 7,
+                'errormsg' => "reservation overlaps with another one you "
+                    . "have, and you are allowed $max "
+                    . "overlapping reservations at a time");
+        }
+    }
+    $images = getImages();
+    $revisionid = getProductionRevisionid($imageid);
 
-	$images = getImages();
-	$revisionid = getProductionRevisionid($imageid);
-	$rc = isAvailable($images, $imageid, $revisionid, $start, $end);
-	if($rc < 1) {
-		addLogEntry($nowfuture, unixToDatetime($start), 
-		            unixToDatetime($end), 0, $imageid);
-		return array('status' => 'notavailable');
-	}
-	if ($oneclickid == '') {
-		$return['requestid']= addRequest(0);
-	} else {
-		$return['requestid']= addRequest($oneclickid);
-	}
-	$return['status'] = 'success';
-	return $return;
+    if ($request_id != NULL) {
+        $rc = isAvailable($images, $imageid, $revisionid, $start, $end,$request_id);
+    } else {
+        $rc = isAvailable($images, $imageid, $revisionid, $start, $end);
+    }
+    if($rc < 1) {
+        addLogEntry($nowfuture, unixToDatetime($start),
+            unixToDatetime($end), 0, $imageid);
+        return array('status' => 'notavailable');
+    }
+    if ($oneclickid == '') {
+        $return['requestid']= addRequest(0);
+    } else {
+        $return['requestid']= addRequest($oneclickid);
+    }
+    $return['status'] = 'success';
+    return $return;
 }
 ////////////////////////////////////////////////////////////////////////////////
 ///
@@ -248,8 +257,8 @@ function XMLRPCaddRequestWithEnding($imageid, $start, $end, $foruser='') {
     $members = getUserGroupMembers($groupid);
     if(! array_key_exists($user['id'], $members)) {
         return array('status' => 'error',
-                     'errorcode' => 35,
-                     'errormsg' => "access denied to specify end time");
+            'errorcode' => 35,
+            'errormsg' => "access denied to specify end time");
     }
 
     // make sure user didn't submit a request for an image he
@@ -258,27 +267,27 @@ function XMLRPCaddRequestWithEnding($imageid, $start, $end, $foruser='') {
     $validImageids = array_keys($resources['image']);
     if(! in_array($imageid, $validImageids)) {
         return array('status' => 'error',
-                     'errorcode' => 3,
-                     'errormsg' => "access denied to $imageid");
+            'errorcode' => 3,
+            'errormsg' => "access denied to $imageid");
     }
 
     # validate $start
     if($start != 'now' && ! is_numeric($start)) {
         return array('status' => 'error',
-                     'errorcode' => 4,
-                     'errormsg' => "received invalid input for start");
+            'errorcode' => 4,
+            'errormsg' => "received invalid input for start");
     }
 
     # validate $end
     if(! is_numeric($end)) {
         return array('status' => 'error',
-                     'errorcode' => 36,
-                     'errormsg' => "received invalid input for end");
+            'errorcode' => 36,
+            'errormsg' => "received invalid input for end");
     }
     if($start != 'now' && $start >= $end) {
         return array('status' => 'error',
-                     'errorcode' => 37,
-                     'errormsg' => "start must be less than end");
+            'errorcode' => 37,
+            'errormsg' => "start must be less than end");
     }
 
     $nowfuture = 'future';
@@ -289,8 +298,8 @@ function XMLRPCaddRequestWithEnding($imageid, $start, $end, $foruser='') {
     else
         if($start < (time() - 30))
             return array('status' => 'error',
-                         'errorcode' => 5,
-                         'errormsg' => "start time is in the past");
+                'errorcode' => 5,
+                'errormsg' => "start time is in the past");
     $start = unixFloor15($start);
     if($end % (15 * 60))
         $end = unixFloor15($end) + (15 * 60);
@@ -298,10 +307,10 @@ function XMLRPCaddRequestWithEnding($imageid, $start, $end, $foruser='') {
     $max = getMaxOverlap($user['id']);
     if(checkOverlap($start, $end, $max)) {
         return array('status' => 'error',
-                     'errorcode' => 7,
-                     'errormsg' => "reservation overlaps with another one you "
-                                 . "have, and you are allowed $max "
-                                 . "overlapping reservations at a time");
+            'errorcode' => 7,
+            'errormsg' => "reservation overlaps with another one you "
+                . "have, and you are allowed $max "
+                . "overlapping reservations at a time");
     }
 
     $images = getImages();
@@ -309,7 +318,7 @@ function XMLRPCaddRequestWithEnding($imageid, $start, $end, $foruser='') {
     $rc = isAvailable($images, $imageid, $revisionid, $start, $end);
     if($rc < 1) {
         addLogEntry($nowfuture, unixToDatetime($start),
-                    unixToDatetime($end), 0, $imageid);
+            unixToDatetime($end), 0, $imageid);
         return array('status' => 'notavailable');
     }
     $return['requestid']= addRequest();
@@ -356,8 +365,8 @@ function XMLRPCgetRequestStatus($requestid) {
     }
     if(! $found)
         return array('status' => 'error',
-                     'errorcode' => 1,
-                     'errormsg' => 'unknown requestid');
+            'errorcode' => 1,
+            'errormsg' => 'unknown requestid');
 
     $now = time();
     # request is ready
@@ -370,9 +379,9 @@ function XMLRPCgetRequestStatus($requestid) {
     elseif(datetimeToUnix($request["start"]) < $now) {
         # request has timed out
         if($request["currstateid"] == 12 ||
-           $request["currstateid"] == 11 ||
-           ($request["currstateid"] == 14 &&
-           $request["laststateid"] == 11)) {
+            $request["currstateid"] == 11 ||
+            ($request["currstateid"] == 14 &&
+                $request["laststateid"] == 11)) {
             return array('status' => 'timedout');
         }
         # computer is loading
@@ -440,14 +449,14 @@ function XMLRPCgetUserGroups($groupType=0, $affiliationid=0) {
     foreach($groups as $id => $group){
         if($group['ownerid'] == $user['id'] ||
             (array_key_exists("editgroupid", $group) &&
-            array_key_exists($group['editgroupid'], $user["groups"])) ||
+                array_key_exists($group['editgroupid'], $user["groups"])) ||
             (array_key_exists($id, $user["groups"]))){
             array_push($usergroups, $group);
         }
     }
     return array(
-            "status" => "success",
-            "groups" => $usergroups);
+        "status" => "success",
+        "groups" => $usergroups);
 }
 
 
@@ -482,13 +491,13 @@ function XMLRPCgetRequestConnectData($requestid, $remoteIP) {
     $requestid = processInputData($requestid, ARG_NUMERIC);
     $remoteIP = processInputData($remoteIP, ARG_STRING, 1);
     if(! preg_match('/^([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})\.([0-9]{1,3})$/', $remoteIP, $matches) ||
-       $matches[1] < 1 || $matches[1] > 223 ||
-       $matches[2] > 255 ||
+        $matches[1] < 1 || $matches[1] > 223 ||
+        $matches[2] > 255 ||
         $matches[3] > 255 ||
         $matches[4] > 255) {
         return array('status' => 'error',
-                     'errorcode' => 2,
-                     'errormsg' => 'invalid IP address');
+            'errorcode' => 2,
+            'errormsg' => 'invalid IP address');
     }
     $userRequests = getUserRequests('all', $user['id']);
     $found = 0;
@@ -501,23 +510,23 @@ function XMLRPCgetRequestConnectData($requestid, $remoteIP) {
     }
     if(! $found)
         return array('status' => 'error',
-                     'errorcode' => 1,
-                     'errormsg' => 'unknown requestid');
+            'errorcode' => 1,
+            'errormsg' => 'unknown requestid');
 
     // FIXME - add support for cluster requests
     if(requestIsReady($request)) {
         $requestData = getRequestInfo($requestid);
         $query = "UPDATE reservation "
-               . "SET remoteIP = '$remoteIP' "
-               . "WHERE requestid = $requestid";
+            . "SET remoteIP = '$remoteIP' "
+            . "WHERE requestid = $requestid";
         $qh = doQuery($query, 101);
         addChangeLogEntry($requestData["logid"], $remoteIP);
         $serverIP = $requestData["reservations"][0]["reservedIP"];
         $passwd = $requestData["reservations"][0]["password"];
         $connectport = $requestData["reservations"][0]["connectport"];
         $connectMethods = getImageConnectMethodTexts(
-                $requestData["reservations"][0]["imageid"],
-                $requestData["reservations"][0]["imagerevisionid"]);
+            $requestData["reservations"][0]["imageid"],
+            $requestData["reservations"][0]["imagerevisionid"]);
         if($requestData["forimaging"])
             $thisuser = 'Administrator';
         else
@@ -534,11 +543,11 @@ function XMLRPCgetRequestConnectData($requestid, $remoteIP) {
             $connectMethods[$key]["connecttext"] = $connecttext;
         }
         return array('status' => 'ready',
-                     'serverIP' => $serverIP,
-                     'user' => $thisuser,
-                     'password' => $passwd,
-                     'connectport' => $connectport,
-                     'connectMethods' => $connectMethods);
+            'serverIP' => $serverIP,
+            'user' => $thisuser,
+            'password' => $passwd,
+            'connectport' => $connectport,
+            'connectMethods' => $connectMethods);
     }
     return array('status' => 'notready');
 }
@@ -578,8 +587,8 @@ function XMLRPCextendRequest($requestid, $extendtime) {
     }
     if(! $found)
         return array('status' => 'error',
-                     'errorcode' => 1,
-                     'errormsg' => 'unknown requestid');
+            'errorcode' => 1,
+            'errormsg' => 'unknown requestid');
 
     $startts = datetimeToUnix($request['start']);
     $endts = datetimeToUnix($request['end']);
@@ -590,33 +599,33 @@ function XMLRPCextendRequest($requestid, $extendtime) {
     // check that reservation has started
     if($startts > time()) {
         return array('status' => 'error',
-                     'errorcode' => 38,
-                     'errormsg' => 'reservation has not started');
+            'errorcode' => 38,
+            'errormsg' => 'reservation has not started');
     }
 
     // check for allowed extension length
     $maxtimes = getUserMaxTimes();
     if($extendtime > $maxtimes['extend']) {
         return array('status' => 'error',
-                     'errorcode' => 39,
-                     'errormsg' => 'extendtime exceeds allowable extension',
-                     'allowed' => $maxtimes['extend']);
+            'errorcode' => 39,
+            'errormsg' => 'extendtime exceeds allowable extension',
+            'allowed' => $maxtimes['extend']);
     }
     $newlength = ($endts - $startts) / 60 + $extendtime;
     if($newlength > $maxtimes['total']) {
         return array('status' => 'error',
-                     'errorcode' => 40,
-                     'errormsg' => 'new reservation length exceeds allowable length',
-                     'allowed' => $maxtimes['total']);
+            'errorcode' => 40,
+            'errormsg' => 'new reservation length exceeds allowable length',
+            'allowed' => $maxtimes['total']);
     }
 
     // check for overlap
     $max = getMaxOverlap($user['id']);
     if(checkOverlap($startts, $newendts, $max, $requestid)) {
         return array('status' => 'error',
-                     'errorcode' => 41,
-                     'errormsg' => 'overlapping reservation restriction',
-                     'maxoverlap' => $max);
+            'errorcode' => 41,
+            'errormsg' => 'overlapping reservation restriction',
+            'maxoverlap' => $max);
     }
 
     // check for computer being available for extended time?
@@ -637,44 +646,44 @@ function XMLRPCextendRequest($requestid, $extendtime) {
         // reservation immediately after this one, cannot extend
         if($timeToNext < 15) {
             return array('status' => 'error',
-                         'errorcode' => 42,
-                         'errormsg' => 'cannot extend due to another reservation immediately after this one');
+                'errorcode' => 42,
+                'errormsg' => 'cannot extend due to another reservation immediately after this one');
         }
         // check that requested extension < $timeToNext
         elseif($extendtime > $timeToNext) {
             $extra = $timeToNext - ($timeToNext % 15);
             return array('status' => 'error',
-                         'errorcode' => 43,
-                         'errormsg' => 'cannot extend by requested amount',
-                         'availablelength' => $extra);
+                'errorcode' => 43,
+                'errormsg' => 'cannot extend by requested amount',
+                'availablelength' => $extra);
         }
     }
     $rc = isAvailable(getImages(), $request['reservations'][0]["imageid"],
-                      $request['reservations'][0]['imagerevisionid'],
-                      $startts, $newendts, $requestid);
+        $request['reservations'][0]['imagerevisionid'],
+        $startts, $newendts, $requestid);
     // conflicts with scheduled maintenance
     if($rc == -2) {
         addChangeLogEntry($request["logid"], NULL, unixToDatetime($newendts),
-                          $request['start'], NULL, NULL, 0);
+            $request['start'], NULL, NULL, 0);
         return array('status' => 'error',
-                     'errorcode' => 46,
-                     'errormsg' => 'requested time is during a maintenance window');
+            'errorcode' => 46,
+            'errormsg' => 'requested time is during a maintenance window');
     }
     // concurrent license overlap
     elseif($rc == -1) {
         addChangeLogEntry($request["logid"], NULL, unixToDatetime($newendts),
-                          $request['start'], NULL, NULL, 0);
+            $request['start'], NULL, NULL, 0);
         return array('status' => 'error',
-                     'errorcode' => 44,
-                     'errormsg' => 'concurrent license restriction');
+            'errorcode' => 44,
+            'errormsg' => 'concurrent license restriction');
     }
     // could not extend for some other reason
     elseif($rc == 0) {
         addChangeLogEntry($request["logid"], NULL, unixToDatetime($newendts),
-                          $request['start'], NULL, NULL, 0);
+            $request['start'], NULL, NULL, 0);
         return array('status' => 'error',
-                     'errorcode' => 45,
-                     'errormsg' => 'cannot extend at this time');
+            'errorcode' => 45,
+            'errormsg' => 'cannot extend at this time');
     }
     // success
     updateRequest($requestid);
@@ -705,26 +714,26 @@ function XMLRPCremoveImageFromGroup($name, $imageid){
     if($groupid = getResourceGroupID("image/$name")){
         if(!array_key_exists($groupid, $groups['image'])){
             return array('status' => 'error',
-                         'errorcode' => 46,
-                         'errormsg' => 'Unable to access image group');
+                'errorcode' => 46,
+                'errormsg' => 'Unable to access image group');
         }
         $resources = getUserResources(array("imageAdmin"), array("manageGroup"));
         if(!array_key_exists($imageid, $resources['image'])){
             return array('status' => 'error',
-                         'errorcode' => 47,
-                         'errormsg' => 'Unable to access image');
+                'errorcode' => 47,
+                'errormsg' => 'Unable to access image');
         }
 
         $allimages = getImages();
         $query = "DELETE FROM resourcegroupmembers "
-               . "WHERE resourceid={$allimages[$imageid]['resourceid']} "
-               . "AND resourcegroupid=$groupid";
+            . "WHERE resourceid={$allimages[$imageid]['resourceid']} "
+            . "AND resourcegroupid=$groupid";
         doQuery($query, 287);
         return array('status' => 'success');
     } else {
         return array('status' => 'error',
-                     'errorcode' => 83,
-                     'errormsg' => 'invalid resource group name');
+            'errorcode' => 83,
+            'errormsg' => 'invalid resource group name');
     }
 }
 
@@ -752,26 +761,26 @@ function XMLRPCaddImageToGroup($name, $imageid){
     if($groupid = getResourceGroupID("image/$name")){
         if(!array_key_exists($groupid, $groups['image'])){
             return array('status' => 'error',
-                         'errorcode' => 46,
-                         'errormsg' => 'Unable to access image group');
+                'errorcode' => 46,
+                'errormsg' => 'Unable to access image group');
         }
         $resources = getUserResources(array("imageAdmin"), array("manageGroup"));
         if(!array_key_exists($imageid, $resources['image'])){
             return array('status' => 'error',
-                         'errorcode' => 47,
-                         'errormsg' => 'Unable to access image');
+                'errorcode' => 47,
+                'errormsg' => 'Unable to access image');
         }
 
         $allimages = getImages();
         $query = "INSERT IGNORE INTO resourcegroupmembers "
-               . "(resourceid, resourcegroupid) VALUES "
-               . "({$allimages[$imageid]['resourceid']}, $groupid)";
+            . "(resourceid, resourcegroupid) VALUES "
+            . "({$allimages[$imageid]['resourceid']}, $groupid)";
         doQuery($query, 287);
         return array('status' => 'success');
     } else {
         return array('status' => 'error',
-                     'errorcode' => 83,
-                     'errormsg' => 'invalid resource group name');
+            'errorcode' => 83,
+            'errormsg' => 'invalid resource group name');
     }
 }
 
@@ -796,22 +805,22 @@ function XMLRPCgetGroupImages($name){
     if($groupid = getResourceGroupID("image/$name")){
         $membership = getResourceGroupMemberships('image');
         $resources = getUserResources(array("imageAdmin"),
-                                      array("manageGroup"));
+            array("manageGroup"));
 
         $images = array();
         foreach($resources['image'] as $imageid => $image){
             if(array_key_exists($imageid, $membership['image']) &&
-                    in_array($groupid, $membership['image'][$imageid])){
+                in_array($groupid, $membership['image'][$imageid])){
                 array_push($images, array('id' => $imageid, 'name' => $image));
             }
         }
         return array('status' => 'success',
-                     'images' => $images);
+            'images' => $images);
 
     } else {
         return array('status' => 'error',
-                     'errorcode' => 83,
-                     'errormsg' => 'invalid resource group name');
+            'errorcode' => 83,
+            'errormsg' => 'invalid resource group name');
     }
 }
 
@@ -838,40 +847,40 @@ function XMLRPCaddImageGroupToComputerGroup($imageGroup, $computerGroup){
     $compid = getResourceGroupID("computer/$computerGroup");
     if($imageid && $compid){
         $tmp = getUserResources(array("imageAdmin"),
-                                array("manageMapping"), 1);
+            array("manageMapping"), 1);
         $imagegroups = $tmp['image'];
         $tmp = getUserResources(array("computerAdmin"),
-                                array("manageMapping"), 1);
+            array("manageMapping"), 1);
         $computergroups = $tmp['computer'];
 
         if(array_key_exists($compid, $computergroups) &&
             array_key_exists($imageid, $imagegroups)){
             $mapping = getResourceMapping("image", "computer",
-                                          $imageid,
-                                          $compid);
+                $imageid,
+                $compid);
             if(!array_key_exists($imageid, $mapping) ||
                 !array_key_exists($compid, $mapping[$imageid])){
                 $query = "INSERT INTO resourcemap "
-                       .        "(resourcegroupid1, "
-                       .        "resourcetypeid1, "
-                       .        "resourcegroupid2, "
-                       .        "resourcetypeid2) "
-                       . "VALUES ($imageid, "
-                       .         "13, "
-                       .         "$compid, "
-                       .         "12)";
+                    .        "(resourcegroupid1, "
+                    .        "resourcetypeid1, "
+                    .        "resourcegroupid2, "
+                    .        "resourcetypeid2) "
+                    . "VALUES ($imageid, "
+                    .         "13, "
+                    .         "$compid, "
+                    .         "12)";
                 doQuery($query, 101);
             }
             return array('status' => 'success');
         } else {
             return array('status' => 'error',
-                         'errorcode' => 84,
-                         'errormsg' => 'cannot access computer and/or image group');
+                'errorcode' => 84,
+                'errormsg' => 'cannot access computer and/or image group');
         }
     } else {
         return array('status' => 'error',
-                     'errorcode' => 83,
-                     'errormsg' => 'invalid resource group name');
+            'errorcode' => 83,
+            'errormsg' => 'invalid resource group name');
     }
 }
 
@@ -899,36 +908,36 @@ function XMLRPCremoveImageGroupFromComputerGroup($imageGroup, $computerGroup){
     $compid = getResourceGroupID("computer/$computerGroup");
     if($imageid && $compid){
         $tmp = getUserResources(array("imageAdmin"),
-                                array("manageMapping"), 1);
+            array("manageMapping"), 1);
         $imagegroups = $tmp['image'];
         $tmp = getUserResources(array("computerAdmin"),
-                                array("manageMapping"), 1);
+            array("manageMapping"), 1);
         $computergroups = $tmp['computer'];
 
         if(array_key_exists($compid, $computergroups) &&
             array_key_exists($imageid, $imagegroups)){
             $mapping = getResourceMapping("image", "computer",
-                                          $imageid,
-                                          $compid);
+                $imageid,
+                $compid);
             if(array_key_exists($imageid, $mapping) &&
                 array_key_exists($compid, $mapping[$imageid])){
                 $query = "DELETE FROM resourcemap "
-                       . "WHERE resourcegroupid1 = $imageid AND "
-                       .       "resourcetypeid1 = 13 AND "
-                       .       "resourcegroupid2 = $compid AND "
-                       .       "resourcetypeid2 = 12";
+                    . "WHERE resourcegroupid1 = $imageid AND "
+                    .       "resourcetypeid1 = 13 AND "
+                    .       "resourcegroupid2 = $compid AND "
+                    .       "resourcetypeid2 = 12";
                 doQuery($query, 101);
             }
             return array('status' => 'success');
         } else {
             return array('status' => 'error',
-                         'errorcode' => 84,
-                         'errormsg' => 'cannot access computer and/or image group');
+                'errorcode' => 84,
+                'errormsg' => 'cannot access computer and/or image group');
         }
     } else {
         return array('status' => 'error',
-                     'errorcode' => 83,
-                     'errormsg' => 'invalid resource group name');
+            'errorcode' => 83,
+            'errormsg' => 'invalid resource group name');
     }
 }
 
@@ -1005,8 +1014,8 @@ function XMLRPCnodeExists($nodeName, $parentNode){
     if(in_array("nodeAdmin", $user['privileges'])){
         // does a node with this name already exist?
         $query = "SELECT id "
-               . "FROM privnode "
-               . "WHERE name = '$nodeName' AND parent = $parentNode";
+            . "FROM privnode "
+            . "WHERE name = '$nodeName' AND parent = $parentNode";
         $qh = doQuery($query, 335);
         if(mysql_num_rows($qh)){
             return array('status' => 'success', 'exists' => TRUE);
@@ -1057,10 +1066,10 @@ function XMLRPCremoveNode($nodeID){
     array_push($nodes, $nodeID);
     $deleteNodes = implode(',', $nodes);
     $query = "DELETE FROM privnode "
-           . "WHERE id IN ($deleteNodes)";
+        . "WHERE id IN ($deleteNodes)";
     doQuery($query, 345);
     return array(
-            'status' => 'success');
+        'status' => 'success');
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1094,39 +1103,39 @@ function XMLRPCaddNode($nodeName, $parentNode){
 
         if(!preg_match("/^[-A-Za-z0-9_\. ]+$/", $nodeName)){
             return array('status' => 'error',
-                         'errorcode' => 48,
-                         'errormsg' => 'Invalid node name');
+                'errorcode' => 48,
+                'errormsg' => 'Invalid node name');
         }
 
         if(checkUserHasPriv("nodeAdmin", $user['id'], $parentNode)){
             $nodeInfo = getNodeInfo($parentNode);
             $query = "SELECT id "
-                   . "FROM privnode "
-                   . "WHERE name = '$nodeName' AND parent = $parentNode";
+                . "FROM privnode "
+                . "WHERE name = '$nodeName' AND parent = $parentNode";
             $qh = doQuery($query, 335);
             if(mysql_num_rows($qh)){
                 return array('status' => 'error',
-                             'errorcode' => 50,
-                             'errormsg' => 'A node of that name already exists under ' . $nodeInfo['name']);
+                    'errorcode' => 50,
+                    'errormsg' => 'A node of that name already exists under ' . $nodeInfo['name']);
             }
             $query = "INSERT IGNORE INTO privnode "
-                   .        "(parent, name) "
-                   . "VALUES "
-                   .        "($parentNode, '$nodeName')";
+                .        "(parent, name) "
+                . "VALUES "
+                .        "($parentNode, '$nodeName')";
             doQuery($query, 337);
             $qh = doQuery("SELECT LAST_INSERT_ID() FROM privnode", 101);
             if(!$row = mysql_fetch_row($qh)){
                 return array('status' => 'error',
-                             'errorcode' => 51,
-                             'errormsg' => 'Could not add node to database');
+                    'errorcode' => 51,
+                    'errormsg' => 'Could not add node to database');
             }
             $nodeid = $row[0];
             return array('status' => 'success',
-                         'nodeid' => $nodeid);
+                'nodeid' => $nodeid);
         } else {
             return array('status' => 'error',
-                         'errorcode' => 49,
-                         'errormsg' => 'Unable to add node at this location');
+                'errorcode' => 49,
+                'errormsg' => 'Unable to add node at this location');
         }
     } else {
         return array(
@@ -1164,22 +1173,22 @@ function XMLRPCremoveResourceGroupPriv($name, $type, $nodeid, $permissions){
 
     if(! checkUserHasPriv("resourceGrant", $user['id'], $nodeid)){
         return array('status' => 'error',
-                     'errorcode' => 53,
-                     'errormsg' => 'Unable to remove group privileges on this node');
+            'errorcode' => 53,
+            'errormsg' => 'Unable to remove group privileges on this node');
     }
     if($typeid = getResourceTypeID($type)){
         if(!checkForGroupName($name, 'resource', '', $typeid)){
             return array('status' => 'error',
-                         'errorcode' => 28,
-                         'errormsg' => 'resource group does not exist');
+                'errorcode' => 28,
+                'errormsg' => 'resource group does not exist');
         }
         $perms = explode(':', $permissions);
         updateResourcePrivs("$type/$name", $nodeid, array(), $perms);
         return array('status' => 'success');
     } else {
         return array('status' => 'error',
-                     'errorcode' => 56,
-                     'errormsg' => 'Invalid resource type');
+            'errorcode' => 56,
+            'errormsg' => 'Invalid resource type');
     }
 }
 
@@ -1210,12 +1219,12 @@ function XMLRPCgetUserGroupPrivs($name, $affiliation, $nodeid){
 
     if(! checkUserHasPriv("userGrant", $user['id'], $nodeid)){
         return array('status' => 'error',
-                     'errorcode' => 53,
-                     'errormsg' => 'Unable to add resource group to this node');
+            'errorcode' => 53,
+            'errormsg' => 'Unable to add resource group to this node');
     }
 
     $validate = array('name' => $name,
-                      'affiliation' => $affiliation);
+        'affiliation' => $affiliation);
     $rc = validateAPIgroupInput($validate, 1);
     if($rc['status'] == 'error')
         return $rc;
@@ -1228,7 +1237,7 @@ function XMLRPCgetUserGroupPrivs($name, $affiliation, $nodeid){
     if(array_key_exists($name, $cngp)){
         foreach($cngp[$name]['privs'] as $p){
             if(! array_key_exists($name, $ngp) ||
-                    ! in_array("block", $ngp[$name]['privs'])){
+                ! in_array("block", $ngp[$name]['privs'])){
                 array_push($privileges, $p);
             }
         }
@@ -1273,15 +1282,15 @@ function XMLRPCgetResourceGroupPrivs($name, $type, $nodeid){
 
     if(! checkUserHasPriv("resourceGrant", $user['id'], $nodeid)){
         return array('status' => 'error',
-                     'errorcode' => 53,
-                     'errormsg' => 'Unable to add resource group to this node');
+            'errorcode' => 53,
+            'errormsg' => 'Unable to add resource group to this node');
     }
 
     if($typeid = getResourceTypeID($type)){
         if(!checkForGroupName($name, 'resource', '', $typeid)){
             return array('status' => 'error',
-                         'errorcode' => 28,
-                         'errormsg' => 'resource group does not exist');
+                'errorcode' => 28,
+                'errormsg' => 'resource group does not exist');
         }
         $nodePrivileges = getNodePrivileges($nodeid, 'resources');
         $nodePrivileges = getNodeCascadePrivileges($nodeid, 'resources', $nodePrivileges);
@@ -1298,8 +1307,8 @@ function XMLRPCgetResourceGroupPrivs($name, $type, $nodeid){
             'errormsg' => 'could not find resource name in privilege list');
     } else {
         return array('status' => 'error',
-                     'errorcode' => 56,
-                     'errormsg' => 'Invalid resource type');
+            'errorcode' => 56,
+            'errormsg' => 'Invalid resource type');
     }
 }
 
@@ -1330,23 +1339,23 @@ function XMLRPCaddResourceGroupPriv($name, $type, $nodeid, $permissions){
 
     if(! checkUserHasPriv("resourceGrant", $user['id'], $nodeid)){
         return array('status' => 'error',
-                     'errorcode' => 53,
-                     'errormsg' => 'Unable to add resource group to this node');
+            'errorcode' => 53,
+            'errormsg' => 'Unable to add resource group to this node');
     }
 
     if($typeid = getResourceTypeID($type)){
         if(!checkForGroupName($name, 'resource', '', $typeid)){
             return array('status' => 'error',
-                         'errorcode' => 28,
-                         'errormsg' => 'resource group does not exist');
+                'errorcode' => 28,
+                'errormsg' => 'resource group does not exist');
         }
         $perms = explode(':', $permissions);
         updateResourcePrivs("$type/$name", $nodeid, $perms, array());
         return array('status' => 'success');
     } else {
         return array('status' => 'error',
-                     'errorcode' => 56,
-                     'errormsg' => 'Invalid resource type');
+            'errorcode' => 56,
+            'errormsg' => 'Invalid resource type');
     }
 }
 
@@ -1378,12 +1387,12 @@ function XMLRPCremoveUserGroupPriv($name, $affiliation, $nodeid, $permissions){
 
     if(! checkUserHasPriv("userGrant", $user['id'], $nodeid)){
         return array('status' => 'error',
-                     'errorcode' => 53,
-                     'errormsg' => 'Unable to remove group privileges on this node');
+            'errorcode' => 53,
+            'errormsg' => 'Unable to remove group privileges on this node');
     }
 
     $validate = array('name' => $name,
-                      'affiliation' => $affiliation);
+        'affiliation' => $affiliation);
     $rc = validateAPIgroupInput($validate, 1);
     if($rc['status'] == 'error')
         return $rc;
@@ -1405,12 +1414,12 @@ function XMLRPCremoveUserGroupPriv($name, $affiliation, $nodeid, $permissions){
         $diff = array_diff($cascadePrivs['usergroups'][$groupname], $removegroupprivs);
         if(count($diff) == 1 && in_array("cascade", $diff)){
             array_push($removegroupprivs, "cascade");
-    }
+        }
     }
     if(empty($removegroupprivs)){
         return array('status' => 'error',
-                     'errorcode' => 53,
-                     'errormsg' => 'Invalid or missing permissions list supplied');
+            'errorcode' => 53,
+            'errormsg' => 'Invalid or missing permissions list supplied');
     }
 
     updateUserOrGroupPrivs($groupid, $nodeid, array(), $removegroupprivs, "group");
@@ -1444,12 +1453,12 @@ function XMLRPCaddUserGroupPriv($name, $affiliation, $nodeid, $permissions){
 
     if(! checkUserHasPriv("userGrant", $user['id'], $nodeid)){
         return array('status' => 'error',
-                     'errorcode' => 52,
-                     'errormsg' => 'Unable to add a user group to this node');
+            'errorcode' => 52,
+            'errormsg' => 'Unable to add a user group to this node');
     }
 
     $validate = array('name' => $name,
-                      'affiliation' => $affiliation);
+        'affiliation' => $affiliation);
     $rc = validateAPIgroupInput($validate, 1);
     if($rc['status'] == 'error')
         return $rc;
@@ -1465,10 +1474,10 @@ function XMLRPCaddUserGroupPriv($name, $affiliation, $nodeid, $permissions){
             array_push($newgroupprivs, $type);
     }
     if(empty($newgroupprivs) || (count($newgroupprivs) == 1 &&
-           in_array("cascade", $newgroupprivs))) {
+        in_array("cascade", $newgroupprivs))) {
         return array('status' => 'error',
-                    'errorcode' => 53,
-                    'errormsg' => 'Invalid or missing permissions list supplied');
+            'errorcode' => 53,
+            'errormsg' => 'Invalid or missing permissions list supplied');
     }
     updateUserOrGroupPrivs($groupid, $nodeid, $newgroupprivs, array(), "group");
     return array('status' => 'success');
@@ -1512,16 +1521,16 @@ function XMLRPCsetRequestEnding($requestid, $end) {
     }
     if(! $found)
         return array('status' => 'error',
-                     'errorcode' => 1,
-                     'errormsg' => 'unknown requestid');
+            'errorcode' => 1,
+            'errormsg' => 'unknown requestid');
 
     // make sure user is a member of the 'Specify End Time' group
     $groupid = getUserGroupID('Specify End Time');
     $members = getUserGroupMembers($groupid);
     if(! $request['serverrequest'] && ! array_key_exists($user['id'], $members)) {
         return array('status' => 'error',
-                     'errorcode' => 35,
-                     'errormsg' => "access denied to specify end time");
+            'errorcode' => 35,
+            'errormsg' => "access denied to specify end time");
     }
 
     $end = processInputData($end, ARG_NUMERIC);
@@ -1533,17 +1542,17 @@ function XMLRPCsetRequestEnding($requestid, $end) {
     // check that reservation has started
     if($startts > time()) {
         return array('status' => 'error',
-                     'errorcode' => 38,
-                     'errormsg' => 'reservation has not started');
+            'errorcode' => 38,
+            'errormsg' => 'reservation has not started');
     }
 
     // check for overlap
     $max = getMaxOverlap($user['id']);
     if(checkOverlap($startts, $end, $max, $requestid)) {
         return array('status' => 'error',
-                     'errorcode' => 41,
-                     'errormsg' => 'overlapping reservation restriction',
-                     'maxoverlap' => $max);
+            'errorcode' => 41,
+            'errormsg' => 'overlapping reservation restriction',
+            'maxoverlap' => $max);
     }
 
     // check for computer being available for extended time?
@@ -1565,44 +1574,44 @@ function XMLRPCsetRequestEnding($requestid, $end) {
         // reservation immediately after this one, cannot extend
         if($timeToNext < 15) {
             return array('status' => 'error',
-                         'errorcode' => 42,
-                         'errormsg' => 'cannot extend due to another reservation immediately after this one');
+                'errorcode' => 42,
+                'errormsg' => 'cannot extend due to another reservation immediately after this one');
         }
         // check that requested extension < $timeToNext
         elseif((($end - $oldendts) / 60) > $timeToNext) {
             $maxend = $oldendts + ($timeToNext * 60);
             return array('status' => 'error',
-                         'errorcode' => 43,
-                         'errormsg' => 'cannot extend by requested amount due to another reservation',
-                         'maxend' => $maxend);
+                'errorcode' => 43,
+                'errormsg' => 'cannot extend by requested amount due to another reservation',
+                'maxend' => $maxend);
         }
     }
     $rc = isAvailable(getImages(), $request['reservations'][0]["imageid"],
-                      $request['reservations'][0]['imagerevisionid'],
-                      $startts, $end, $requestid);
+        $request['reservations'][0]['imagerevisionid'],
+        $startts, $end, $requestid);
     // conflicts with scheduled maintenance
     if($rc == -2) {
         addChangeLogEntry($request["logid"], NULL, unixToDatetime($end),
-                          $request['start'], NULL, NULL, 0);
+            $request['start'], NULL, NULL, 0);
         return array('status' => 'error',
-                     'errorcode' => 46,
-                     'errormsg' => 'requested time is during a maintenance window');
+            'errorcode' => 46,
+            'errormsg' => 'requested time is during a maintenance window');
     }
     // concurrent license overlap
     elseif($rc == -1) {
         addChangeLogEntry($request["logid"], NULL, unixToDatetime($end),
-                          $request['start'], NULL, NULL, 0);
+            $request['start'], NULL, NULL, 0);
         return array('status' => 'error',
-                     'errorcode' => 44,
-                     'errormsg' => 'concurrent license restriction');
+            'errorcode' => 44,
+            'errormsg' => 'concurrent license restriction');
     }
     // could not extend for some other reason
     elseif($rc == 0) {
         addChangeLogEntry($request["logid"], NULL, unixToDatetime($end),
-                          $request['start'], NULL, NULL, 0);
+            $request['start'], NULL, NULL, 0);
         return array('status' => 'error',
-                     'errorcode' => 45,
-                     'errormsg' => 'cannot extend at this time');
+            'errorcode' => 45,
+            'errormsg' => 'cannot extend at this time');
     }
     // success
     updateRequest($requestid);
@@ -1640,8 +1649,8 @@ function XMLRPCendRequest($requestid) {
     }
     if(! $found)
         return array('status' => 'error',
-                     'errorcode' => 1,
-                     'errormsg' => 'unknown requestid');
+            'errorcode' => 1,
+            'errormsg' => 'unknown requestid');
 
     deleteRequest($request);
     return array('status' => 'success');
@@ -1679,11 +1688,11 @@ function XMLRPCgetRequestIds() {
         $start = datetimeToUnix($req['start']);
         $end = datetimeToUnix($req['end']);
         $tmp = array('requestid' => $req['id'],
-                     'imageid' => $req['imageid'],
-                     'imagename' => $req['prettyimage'],
-                     'ostype' => $req['ostype'],
-                     'start' => $start,
-                     'end' => $end);
+            'imageid' => $req['imageid'],
+            'imagename' => $req['prettyimage'],
+            'ostype' => $req['ostype'],
+            'start' => $start,
+            'end' => $end);
         array_push($ret, $tmp);
     }
     return array('status' => 'success', 'requests' => $ret);
@@ -1742,50 +1751,50 @@ function XMLRPCblockAllocation($imageid, $start, $end, $numMachines,
     global $user, $xmlrpcBlockAPIUsers;
     if(! in_array($user['id'], $xmlrpcBlockAPIUsers)) {
         return array('status' => 'error',
-                     'errorcode' => 34,
-                     'errormsg' => 'access denied for managing block allocations');
+            'errorcode' => 34,
+            'errormsg' => 'access denied for managing block allocations');
     }
     $ownerid = getUserlistID('vclreload@Local');
     $name = "API:$start";
     $managementnodes = getManagementNodes('future');
     if(empty($managementnodes)) {
         return array('status' => 'error',
-                     'errorcode' => 12,
-                     'errormsg' => 'could not allocate a management node to handle block allocation');
+            'errorcode' => 12,
+            'errormsg' => 'could not allocate a management node to handle block allocation');
     }
     $mnid = array_rand($managementnodes);
     $query = "INSERT INTO blockRequest "
-           .        "(name, "
-           .        "imageid, "
-           .        "numMachines, "
-           .        "groupid, "
-           .        "repeating, "
-           .        "ownerid, "
-           .        "admingroupid, "
-           .        "managementnodeid, "
-           .        "expireTime, "
-           .        "status) "
-           . "VALUES "
-           .        "('$name', "
-           .        "$imageid, "
-           .        "$numMachines, "
-           .        "$usergroupid, "
-           .        "'list', "
-           .        "$ownerid, "
-           .        "0, "
-           .        "$mnid, "
-           .        "'$end', "
-           .        "'accepted')";
+        .        "(name, "
+        .        "imageid, "
+        .        "numMachines, "
+        .        "groupid, "
+        .        "repeating, "
+        .        "ownerid, "
+        .        "admingroupid, "
+        .        "managementnodeid, "
+        .        "expireTime, "
+        .        "status) "
+        . "VALUES "
+        .        "('$name', "
+        .        "$imageid, "
+        .        "$numMachines, "
+        .        "$usergroupid, "
+        .        "'list', "
+        .        "$ownerid, "
+        .        "0, "
+        .        "$mnid, "
+        .        "'$end', "
+        .        "'accepted')";
     doQuery($query, 101);
     $brid = dbLastInsertID();
     $query = "INSERT INTO blockTimes "
-           .        "(blockRequestid, "
-           .        "start, "
-           .        "end) "
-           . "VALUES "
-           .        "($brid, "
-           .        "'$start', "
-           .        "'$end')";
+        .        "(blockRequestid, "
+        .        "start, "
+        .        "end) "
+        . "VALUES "
+        .        "($brid, "
+        .        "'$start', "
+        .        "'$end')";
     doQuery($query, 101);
     $btid = dbLastInsertID();
     $return = XMLRPCprocessBlockTime($btid, $ignoreprivileges);
@@ -1839,37 +1848,37 @@ function XMLRPCprocessBlockTime($blockTimesid, $ignoreprivileges=0) {
     global $requestInfo, $user, $xmlrpcBlockAPIUsers;
     if(! in_array($user['id'], $xmlrpcBlockAPIUsers)) {
         return array('status' => 'error',
-                     'errorcode' => 34,
-                     'errormsg' => 'access denied for managing block allocations');
+            'errorcode' => 34,
+            'errormsg' => 'access denied for managing block allocations');
     }
     $return = array('status' => 'success');
     $query = "SELECT bt.start, "
-           .        "bt.end, "
-           .        "br.imageid, "
-           .        "br.numMachines, "
-           .        "br.groupid, "
-           .        "br.expireTime "
-           . "FROM blockRequest br, "
-           .      "blockTimes bt "
-           . "WHERE bt.blockRequestid = br.id AND "
-           .       "bt.id = $blockTimesid";
+        .        "bt.end, "
+        .        "br.imageid, "
+        .        "br.numMachines, "
+        .        "br.groupid, "
+        .        "br.expireTime "
+        . "FROM blockRequest br, "
+        .      "blockTimes bt "
+        . "WHERE bt.blockRequestid = br.id AND "
+        .       "bt.id = $blockTimesid";
     $qh = doQuery($query, 101);
     if(! $rqdata = mysql_fetch_assoc($qh)) {
         return array('status' => 'error',
-                     'errorcode' => 8,
-                     'errormsg' => 'unknown blockTimesid');
+            'errorcode' => 8,
+            'errormsg' => 'unknown blockTimesid');
     }
     if(datetimeToUnix($rqdata['expireTime']) < time()) {
         return array('status' => 'error',
-                     'errorcode' => 9,
-                     'errormsg' => 'expired block allocation');
+            'errorcode' => 9,
+            'errormsg' => 'expired block allocation');
     }
 
     $images = getImages(0, $rqdata['imageid']);
     if(empty($images)) {
         return array('status' => 'error',
-                     'errorcode' => 10,
-                     'errormsg' => 'invalid image associated with block allocation');
+            'errorcode' => 10,
+            'errormsg' => 'invalid image associated with block allocation');
     }
 
     $unixstart = datetimeToUnix($rqdata['start']);
@@ -1887,18 +1896,18 @@ function XMLRPCprocessBlockTime($blockTimesid, $ignoreprivileges=0) {
         ## find reservations by users
         $allids = implode(',', $userids);
         $query = "SELECT rq.id AS reqid, "
-               .        "UNIX_TIMESTAMP(rq.start) AS start, "
-               .        "rq.userid "
-               . "FROM request rq, "
-               .      "reservation rs "
-               . "WHERE rs.requestid = rq.id AND "
-               .       "rq.userid IN ($allids) AND "
-               .       "rq.start < '{$rqdata['end']}' AND "
-               .       "rq.end > '{$rqdata['start']}' AND "
-               .       "rs.imageid = {$rqdata['imageid']} AND "
-               .       "rs.computerid NOT IN (SELECT computerid "
-               .                             "FROM blockComputers "
-               .                             "WHERE blockTimeid = $blockTimesid)";
+            .        "UNIX_TIMESTAMP(rq.start) AS start, "
+            .        "rq.userid "
+            . "FROM request rq, "
+            .      "reservation rs "
+            . "WHERE rs.requestid = rq.id AND "
+            .       "rq.userid IN ($allids) AND "
+            .       "rq.start < '{$rqdata['end']}' AND "
+            .       "rq.end > '{$rqdata['start']}' AND "
+            .       "rs.imageid = {$rqdata['imageid']} AND "
+            .       "rs.computerid NOT IN (SELECT computerid "
+            .                             "FROM blockComputers "
+            .                             "WHERE blockTimeid = $blockTimesid)";
         $qh = doQuery($query);
         $donereqids = array();
         $blockCompVals = array();
@@ -1921,15 +1930,15 @@ function XMLRPCprocessBlockTime($blockTimesid, $ignoreprivileges=0) {
             }
             # check to see if computer is available for whole block
             $rc = isAvailable($images, $rqdata['imageid'], $revisionid, $checkstart,
-                              $unixend, $row['reqid'], $row['userid'],
-                              $ignoreprivileges, 0, '', '', 1);
+                $unixend, $row['reqid'], $row['userid'],
+                $ignoreprivileges, 0, '', '', 1);
             // if not available for whole block, just skip this one
             if($rc < 1)
                 continue;
             $compid = $requestInfo['computers'][0];
             # create reload reservation
             $reqid = simpleAddRequest($compid, $rqdata['imageid'], $revisionid,
-                                      $reloadstart, $reloadend, 19, $vclreloadid);
+                $reloadstart, $reloadend, 19, $vclreloadid);
             if($reqid == 0)
                 continue;
             # add to blockComputers
@@ -1943,38 +1952,38 @@ function XMLRPCprocessBlockTime($blockTimesid, $ignoreprivileges=0) {
                 $blockCompVals[] = "($blockTimesid, $compid, $subimageid, $reqid)";
 
                 $query = "INSERT INTO reservation "
-                         .        "(requestid, "
-                         .        "computerid, "
-                         .        "imageid, "
-                         .        "imagerevisionid, "
-                         .        "managementnodeid) "
-                         . "VALUES "
-                         .       "($reqid, "
-                         .       "$compid, "
-                         .       "$subimageid, "
-                         .       "$subrevid, "
-                         .       "$mgmtnodeid)";
+                    .        "(requestid, "
+                    .        "computerid, "
+                    .        "imageid, "
+                    .        "imagerevisionid, "
+                    .        "managementnodeid) "
+                    . "VALUES "
+                    .       "($reqid, "
+                    .       "$compid, "
+                    .       "$subimageid, "
+                    .       "$subrevid, "
+                    .       "$mgmtnodeid)";
                 doQuery($query, 101);
             }
         }
         if(count($blockCompVals)) {
             $blockComps = implode(',', $blockCompVals);
             $query = "INSERT INTO blockComputers "
-                   .        "(blockTimeid, computerid, imageid, reloadrequestid) "
-                   . "VALUES $blockComps";
+                .        "(blockTimeid, computerid, imageid, reloadrequestid) "
+                . "VALUES $blockComps";
             doQuery($query);
         }
     }
 
     # check to see if all computers have been allocated
     $query = "SELECT COUNT(computerid) AS allocated "
-           . "FROM blockComputers "
-           . "WHERE blockTimeid = $blockTimesid";
+        . "FROM blockComputers "
+        . "WHERE blockTimeid = $blockTimesid";
     $qh = doQuery($query, 101);
     if(! $row = mysql_fetch_assoc($qh)) {
         return array('status' => 'error',
-                     'errorcode' => 15,
-                     'errormsg' => 'failure to communicate with database');
+            'errorcode' => 15,
+            'errormsg' => 'failure to communicate with database');
     }
     $compCompleted = $row['allocated'];
     if(array_key_exists('subimages', $images[$rqdata['imageid']]))
@@ -1985,8 +1994,8 @@ function XMLRPCprocessBlockTime($blockTimesid, $ignoreprivileges=0) {
     if($toallocate == 0) {
         if(count($blockCompVals)) {
             return array('status' => 'success',
-                         'allocated' => $rqdata['numMachines'],
-                         'unallocated' => 0);
+                'allocated' => $rqdata['numMachines'],
+                'unallocated' => 0);
         }
         return array('status' => 'completed');
     }
@@ -1996,8 +2005,8 @@ function XMLRPCprocessBlockTime($blockTimesid, $ignoreprivileges=0) {
         # get userids in user group
         if(empty($groupmembers)) {
             return array('status' => 'error',
-                         'errorcode' => 11,
-                         'errormsg' => 'empty user group and ignoreprivileges set to 0');
+                'errorcode' => 11,
+                'errormsg' => 'empty user group and ignoreprivileges set to 0');
         }
         # make length of $userids match $reqToAlloc by duplicating or trimming some users
         while($reqToAlloc > count($userids))
@@ -2040,14 +2049,14 @@ function XMLRPCprocessBlockTime($blockTimesid, $ignoreprivileges=0) {
             $userid = array_pop($userids);
         # use end of block time to find available computers, but...
         $rc = isAvailable($images, $rqdata['imageid'], $revisionid, $stagunixstart,
-                          $unixend, 0, $userid, $ignoreprivileges);
+            $unixend, 0, $userid, $ignoreprivileges);
         if($rc < 1)
             continue;
 
         $compid = $requestInfo['computers'][0];
         # ...use start of block time as end of reload reservation
         $reqid = simpleAddRequest($compid, $rqdata['imageid'], $revisionid,
-                                  $stagstart, $rqdata['start'], 19, $vclreloadid);
+            $stagstart, $rqdata['start'], 19, $vclreloadid);
         if($reqid == 0)
             continue;
 
@@ -2064,24 +2073,24 @@ function XMLRPCprocessBlockTime($blockTimesid, $ignoreprivileges=0) {
             $blockCompVals[] = "($blockTimesid, $compid, $subimageid, $reqid)";
 
             $query = "INSERT INTO reservation "
-                     .        "(requestid, "
-                     .        "computerid, "
-                     .        "imageid, "
-                     .        "imagerevisionid, "
-                     .        "managementnodeid) "
-                     . "VALUES "
-                     .       "($reqid, "
-                     .       "$compid, "
-                     .       "$subimageid, "
-                     .       "$subrevid, "
-                     .       "$mgmtnodeid)";
+                .        "(requestid, "
+                .        "computerid, "
+                .        "imageid, "
+                .        "imagerevisionid, "
+                .        "managementnodeid) "
+                . "VALUES "
+                .       "($reqid, "
+                .       "$compid, "
+                .       "$subimageid, "
+                .       "$subrevid, "
+                .       "$mgmtnodeid)";
             doQuery($query, 101);
         }
         semUnlock();
         $blockComps = implode(',', $blockCompVals);
         $query = "INSERT INTO blockComputers "
-               .        "(blockTimeid, computerid, imageid, reloadrequestid) "
-               . "VALUES $blockComps";
+            .        "(blockTimeid, computerid, imageid, reloadrequestid) "
+            . "VALUES $blockComps";
         doQuery($query, 101);
         $blockCompVals = array();
     }
@@ -2133,36 +2142,36 @@ function XMLRPCaddUserGroup($name, $affiliation, $owner, $managingGroup,
     global $user;
     if(! in_array('groupAdmin', $user['privileges'])) {
         return array('status' => 'error',
-                     'errorcode' => 16,
-                     'errormsg' => 'access denied for managing user groups');
+            'errorcode' => 16,
+            'errormsg' => 'access denied for managing user groups');
     }
     $validate = array('name' => $name,
-                      'affiliation' => $affiliation,
-                      'owner' => $owner,
-                      'managingGroup' => $managingGroup,
-                      'initialMaxTime' => $initialMaxTime,
-                      'totalMaxTime' => $totalMaxTime,
-                      'maxExtendTime' => $maxExtendTime,
-                      'custom' => $custom);
+        'affiliation' => $affiliation,
+        'owner' => $owner,
+        'managingGroup' => $managingGroup,
+        'initialMaxTime' => $initialMaxTime,
+        'totalMaxTime' => $totalMaxTime,
+        'maxExtendTime' => $maxExtendTime,
+        'custom' => $custom);
     $rc = validateAPIgroupInput($validate, 0);
     if($rc['status'] == 'error')
         return $rc;
     if($custom != 0 && $custom != 1)
         $custom = 1;
     $data = array('type' => 'user',
-                  'owner' => $owner,
-                  'name' => $name,
-                  'affiliationid' => $rc['affiliationid'],
-                  'editgroupid' => $rc['managingGroupID'],
-                  'initialmax' => $initialMaxTime,
-                  'totalmax' => $totalMaxTime,
-                  'maxextend' => $maxExtendTime,
-                  'overlap' => 0,
-                  'custom' => $custom);
+        'owner' => $owner,
+        'name' => $name,
+        'affiliationid' => $rc['affiliationid'],
+        'editgroupid' => $rc['managingGroupID'],
+        'initialmax' => $initialMaxTime,
+        'totalmax' => $totalMaxTime,
+        'maxextend' => $maxExtendTime,
+        'overlap' => 0,
+        'custom' => $custom);
     if(! addGroup($data)) {
         return array('status' => 'error',
-                     'errorcode' => 26,
-                     'errormsg' => 'failure while adding group to database');
+            'errorcode' => 26,
+            'errormsg' => 'failure while adding group to database');
     }
     return array('status' => 'success');
 }
@@ -2222,8 +2231,8 @@ function XMLRPCremoveResourceGroup($name, $type){
     global $user;
     if(! in_array("groupAdmin", $user['privileges'])){
         return array('status' => 'error',
-                     'errorcode' => 16,
-                     'errormsg' => 'access denied for managing user groups');
+            'errorcode' => 16,
+            'errormsg' => 'access denied for managing user groups');
     }
 
     if($groupid = getResourceGroupID("$type/$name")){
@@ -2233,15 +2242,15 @@ function XMLRPCremoveResourceGroup($name, $type){
         if(array_key_exists($type, $userresources)){
             if(array_key_exists($groupid, $userresources[$type])){
                 $query = "DELETE FROM resourcegroup "
-                       . "WHERE id = $groupid";
+                    . "WHERE id = $groupid";
                 doQuery($query, 315);
                 return array('status' => 'success');
             }
         }
     }
     return array('status' => 'error',
-                 'errorcode' => 39,
-                 'errormsg' => 'invalid resource group name');
+        'errorcode' => 39,
+        'errormsg' => 'invalid resource group name');
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2267,8 +2276,8 @@ function XMLRPCremoveUserGroup($name, $affiliation){
 
     if(! in_array("groupAdmin", $user['privileges'])){
         return array('status' => 'error',
-                     'errorcode' => 16,
-                     'errormsg' => 'access denied for managing user groups');
+            'errorcode' => 16,
+            'errormsg' => 'access denied for managing user groups');
     }
 
     $validate = array(
@@ -2284,11 +2293,11 @@ function XMLRPCremoveUserGroup($name, $affiliation){
     if(array_key_exists($groupid, $groups)){
         $group = $groups[$groupid];
         if($group['ownerid'] == $user['id'] ||
-                (array_key_exists("editgroupid", $group) &&
+            (array_key_exists("editgroupid", $group) &&
                 array_key_exists($group['editgroupid'], $user["groups"])) ||
-                (array_key_exists($groupid, $user["groups"]))){
+            (array_key_exists($groupid, $user["groups"]))){
             $query = "DELETE FROM usergroup "
-                   . "WHERE id = $groupid";
+                . "WHERE id = $groupid";
             doQuery($query, 315);
             return array('status' => 'success');
         }
@@ -2322,8 +2331,8 @@ function XMLRPCaddResourceGroup($name, $managingGroup, $type){
     global $user;
     if(! in_array("groupAdmin", $user['privileges'])){
         return array('status' => 'error',
-                     'errorcode' => 16,
-                     'errormsg' => 'access denied for managing user groups');
+            'errorcode' => 16,
+            'errormsg' => 'access denied for managing user groups');
     }
 
     $validate = array(
@@ -2336,8 +2345,8 @@ function XMLRPCaddResourceGroup($name, $managingGroup, $type){
     if($typeid = getResourceTypeID($type)){
         if(checkForGroupName($name, 'resource', '', $typeid)){
             return array('status' => 'error',
-                         'errorcode' => 28,
-                         'errormsg' => 'resource group already exists');
+                'errorcode' => 28,
+                'errormsg' => 'resource group already exists');
         }
         $data = array(
             'type' => $type,
@@ -2346,13 +2355,13 @@ function XMLRPCaddResourceGroup($name, $managingGroup, $type){
             'name' => $name);
         if(! addGroup($data)){
             return array('status' => 'error',
-                         'errorcode' => 26,
-                         'errormsg' => 'failure while adding group to database');
+                'errorcode' => 26,
+                'errormsg' => 'failure while adding group to database');
         }
     } else {
         return array('status' => 'error',
-                     'errorcode' => 68,
-                     'errormsg' => 'invalid resource type');
+            'errorcode' => 68,
+            'errormsg' => 'invalid resource type');
     }
     return array('status' => 'success');
 }
@@ -2389,50 +2398,50 @@ function XMLRPCgetUserGroupAttributes($name, $affiliation) {
     global $user;
     if(! in_array('groupAdmin', $user['privileges'])) {
         return array('status' => 'error',
-                     'errorcode' => 16,
-                     'errormsg' => 'access denied for managing user groups');
+            'errorcode' => 16,
+            'errormsg' => 'access denied for managing user groups');
     }
     $validate = array('name' => $name,
-                      'affiliation' => $affiliation);
+        'affiliation' => $affiliation);
     $rc = validateAPIgroupInput($validate, 1);
     if($rc['status'] == 'error')
         return $rc;
     $query = "SELECT ug.id, "
-           .        "ug.ownerid, "
-           .        "CONCAT(u.unityid, '@', a.name) AS owner, "
-           .        "ug.editusergroupid AS editgroupid, "
-           .        "eug.name AS editgroup, "
-           .        "eug.affiliationid AS editgroupaffiliationid, "
-           .        "euga.name AS editgroupaffiliation, "
-           .        "ug.initialmaxtime, "
-           .        "ug.totalmaxtime, "
-           .        "ug.maxextendtime, "
-           .        "ug.overlapResCount "
-           . "FROM usergroup ug "
-           . "LEFT JOIN user u ON (ug.ownerid = u.id) "
-           . "LEFT JOIN affiliation a ON (u.affiliationid = a.id) "
-           . "LEFT JOIN usergroup eug ON (ug.editusergroupid = eug.id) "
-           . "LEFT JOIN affiliation euga ON (eug.affiliationid = euga.id) "
-           . "WHERE ug.id = {$rc['id']}";
+        .        "ug.ownerid, "
+        .        "CONCAT(u.unityid, '@', a.name) AS owner, "
+        .        "ug.editusergroupid AS editgroupid, "
+        .        "eug.name AS editgroup, "
+        .        "eug.affiliationid AS editgroupaffiliationid, "
+        .        "euga.name AS editgroupaffiliation, "
+        .        "ug.initialmaxtime, "
+        .        "ug.totalmaxtime, "
+        .        "ug.maxextendtime, "
+        .        "ug.overlapResCount "
+        . "FROM usergroup ug "
+        . "LEFT JOIN user u ON (ug.ownerid = u.id) "
+        . "LEFT JOIN affiliation a ON (u.affiliationid = a.id) "
+        . "LEFT JOIN usergroup eug ON (ug.editusergroupid = eug.id) "
+        . "LEFT JOIN affiliation euga ON (eug.affiliationid = euga.id) "
+        . "WHERE ug.id = {$rc['id']}";
     $qh = doQuery($query, 101);
     if(! $row = mysql_fetch_assoc($qh)) {
         return array('status' => 'error',
-                     'errorcode' => 18,
-                     'errormsg' => 'user group with submitted name and affiliation does not exist');
+            'errorcode' => 18,
+            'errormsg' => 'user group with submitted name and affiliation does not exist');
     }
     # if not owner and not member of managing group, no access
     if($user['id'] != $row['ownerid'] &&
-       ! array_key_exists($row['editgroupid'], $user['groups'])) {
+        ! array_key_exists($row['editgroupid'], $user['groups'])) {
         return array('status' => 'error',
-                     'errorcode' => 28,
-                     'errormsg' => 'access denied to user group with submitted name and affiliation');
+            'errorcode' => 28,
+            'errormsg' => 'access denied to user group with submitted name and affiliation');
     }
     return array('status' => 'success',
-                 'owner' => $row['owner'],
-                 'managingGroup' => "{$row['editgroup']}@{$row['editgroupaffiliation']}",
-                 'initialMaxTime' => $row['initialmaxtime'],
-                 'totalMaxTime' => $row['totalmaxtime'],
-                 'maxExtendTime' => $row['maxextendtime']);
+        'owner' => $row['owner'],
+        'managingGroup' => "{$row['editgroup']}@{$row['editgroupaffiliation']}",
+        'initialMaxTime' => $row['initialmaxtime'],
+        'totalMaxTime' => $row['totalmaxtime'],
+        'maxExtendTime' => $row['maxextendtime']);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2457,37 +2466,37 @@ function XMLRPCdeleteUserGroup($name, $affiliation) {
     global $user, $mysql_link_vcl;
     if(! in_array('groupAdmin', $user['privileges'])) {
         return array('status' => 'error',
-                     'errorcode' => 16,
-                     'errormsg' => 'access denied for managing user groups');
+            'errorcode' => 16,
+            'errormsg' => 'access denied for managing user groups');
     }
     $validate = array('name' => $name,
-                      'affiliation' => $affiliation);
+        'affiliation' => $affiliation);
     $rc = validateAPIgroupInput($validate, 1);
     if($rc['status'] == 'error')
         return $rc;
     $query = "SELECT ownerid "
-           . "FROM usergroup "
-           . "WHERE id = {$rc['id']}";
+        . "FROM usergroup "
+        . "WHERE id = {$rc['id']}";
     $qh = doQuery($query, 101);
     if(! $row = mysql_fetch_assoc($qh)) {
         return array('status' => 'error',
-                     'errorcode' => 18,
-                     'errormsg' => 'user group with submitted name and affiliation does not exist');
+            'errorcode' => 18,
+            'errormsg' => 'user group with submitted name and affiliation does not exist');
     }
     # if not owner no access to delete group
     if($user['id'] != $row['ownerid']) {
         return array('status' => 'error',
-                     'errorcode' => 29,
-                     'errormsg' => 'access denied to delete user group with submitted name and affiliation');
+            'errorcode' => 29,
+            'errormsg' => 'access denied to delete user group with submitted name and affiliation');
     }
     $query = "DELETE FROM usergroup "
-             . "WHERE id = {$rc['id']}";
+        . "WHERE id = {$rc['id']}";
     doQuery($query, 101);
     # validate something deleted
     if(mysql_affected_rows($mysql_link_vcl) == 0) {
         return array('status' => 'error',
-                     'errorcode' => 30,
-                     'errormsg' => 'failure while deleting group from database');
+            'errorcode' => 30,
+            'errormsg' => 'failure while deleting group from database');
     }
     return array('status' => 'success');
 }
@@ -2536,8 +2545,8 @@ function XMLRPCeditUserGroup($name, $affiliation, $newName, $newAffiliation,
     global $user, $mysql_link_vcl;
     if(! in_array('groupAdmin', $user['privileges'])) {
         return array('status' => 'error',
-                     'errorcode' => 16,
-                     'errormsg' => 'access denied for managing user groups');
+            'errorcode' => 16,
+            'errormsg' => 'access denied for managing user groups');
     }
 
     $updates = array();
@@ -2545,7 +2554,7 @@ function XMLRPCeditUserGroup($name, $affiliation, $newName, $newAffiliation,
     # validate group exists and new values other than newName and newAffiliation
     #   are valid
     $validate = array('name' => $name,
-                      'affiliation' => $affiliation);
+        'affiliation' => $affiliation);
     if(! empty($newOwner))
         $validate['owner'] = $newOwner;
     if(! empty($newManagingGroup))
@@ -2568,25 +2577,25 @@ function XMLRPCeditUserGroup($name, $affiliation, $newName, $newAffiliation,
 
     # get info about group
     $query = "SELECT ownerid "
-           . "FROM usergroup "
-           . "WHERE id = {$rc['id']}";
+        . "FROM usergroup "
+        . "WHERE id = {$rc['id']}";
     $qh = doQuery($query, 101);
     if(! $row = mysql_fetch_assoc($qh)) {
         return array('status' => 'error',
-                     'errorcode' => 18,
-                     'errormsg' => 'user group with submitted name and affiliation does not exist');
+            'errorcode' => 18,
+            'errormsg' => 'user group with submitted name and affiliation does not exist');
     }
     # if not owner no access to edit group attributes
     if($user['id'] != $row['ownerid']) {
         return array('status' => 'error',
-                     'errorcode' => 32,
-                     'errormsg' => 'access denied to modify attributes for user group with submitted name and affiliation');
+            'errorcode' => 32,
+            'errormsg' => 'access denied to modify attributes for user group with submitted name and affiliation');
     }
 
     # validate that newName and newAffiliation are valid
     if(! empty($newName) || ! empty($newAffiliation)) {
         $validate = array('name' => $name,
-                          'affiliation' => $affiliation);
+            'affiliation' => $affiliation);
         if(! empty($newName)) {
             $validate['name'] = $newName;
             $tmp = mysql_real_escape_string($newName);
@@ -2616,12 +2625,12 @@ function XMLRPCeditUserGroup($name, $affiliation, $newName, $newAffiliation,
     $sets = implode(',', $updates);
     if(count($updates) == 0) {
         return array('status' => 'error',
-                     'errorcode' => 33,
-                     'errormsg' => 'no new values submitted');
+            'errorcode' => 33,
+            'errormsg' => 'no new values submitted');
     }
     $query = "UPDATE usergroup "
-           . "SET $sets "
-           . "WHERE id = {$rc['id']}";
+        . "SET $sets "
+        . "WHERE id = {$rc['id']}";
     doQuery($query, 101);
     return array('status' => 'success');
 }
@@ -2651,44 +2660,44 @@ function XMLRPCgetUserGroupMembers($name, $affiliation) {
     global $user;
     if(! in_array('groupAdmin', $user['privileges'])) {
         return array('status' => 'error',
-                     'errorcode' => 16,
-                     'errormsg' => 'access denied for managing user groups');
+            'errorcode' => 16,
+            'errormsg' => 'access denied for managing user groups');
     }
     $validate = array('name' => $name,
-                      'affiliation' => $affiliation);
+        'affiliation' => $affiliation);
     $rc = validateAPIgroupInput($validate, 1);
     if($rc['status'] == 'error')
         return $rc;
     $query = "SELECT ownerid, "
-           .        "editusergroupid AS editgroupid "
-           . "FROM usergroup "
-           . "WHERE id = {$rc['id']}";
+        .        "editusergroupid AS editgroupid "
+        . "FROM usergroup "
+        . "WHERE id = {$rc['id']}";
     $qh = doQuery($query, 101);
     if(! $row = mysql_fetch_assoc($qh)) {
         return array('status' => 'error',
-                     'errorcode' => 18,
-                     'errormsg' => 'user group with submitted name and affiliation does not exist');
+            'errorcode' => 18,
+            'errormsg' => 'user group with submitted name and affiliation does not exist');
     }
     # if not owner and not member of managing group, no access
     if($user['id'] != $row['ownerid'] &&
-       ! array_key_exists($row['editgroupid'], $user['groups'])) {
+        ! array_key_exists($row['editgroupid'], $user['groups'])) {
         return array('status' => 'error',
-                     'errorcode' => 28,
-                     'errormsg' => 'access denied to user group with submitted name and affiliation');
+            'errorcode' => 28,
+            'errormsg' => 'access denied to user group with submitted name and affiliation');
     }
     $query = "SELECT CONCAT(u.unityid, '@', a.name) AS member "
-           . "FROM usergroupmembers ugm, "
-           .      "user u, "
-           .      "affiliation a "
-           . "WHERE ugm.usergroupid = {$rc['id']} AND "
-           .       "ugm.userid = u.id AND "
-           .       "u.affiliationid = a.id";
+        . "FROM usergroupmembers ugm, "
+        .      "user u, "
+        .      "affiliation a "
+        . "WHERE ugm.usergroupid = {$rc['id']} AND "
+        .       "ugm.userid = u.id AND "
+        .       "u.affiliationid = a.id";
     $qh = doQuery($query, 101);
     $members = array();
     while($row = mysql_fetch_assoc($qh))
         $members[] = $row['member'];
     return array('status' => 'success',
-                 'members' => $members);
+        'members' => $members);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2722,30 +2731,30 @@ function XMLRPCaddUsersToGroup($name, $affiliation, $users) {
     global $user;
     if(! in_array('groupAdmin', $user['privileges'])) {
         return array('status' => 'error',
-                     'errorcode' => 16,
-                     'errormsg' => 'access denied for managing user groups');
+            'errorcode' => 16,
+            'errormsg' => 'access denied for managing user groups');
     }
     $validate = array('name' => $name,
-                      'affiliation' => $affiliation);
+        'affiliation' => $affiliation);
     $rc = validateAPIgroupInput($validate, 1);
     if($rc['status'] == 'error')
         return $rc;
     $query = "SELECT ownerid, "
-           .        "editusergroupid AS editgroupid "
-           . "FROM usergroup "
-           . "WHERE id = {$rc['id']}";
+        .        "editusergroupid AS editgroupid "
+        . "FROM usergroup "
+        . "WHERE id = {$rc['id']}";
     $qh = doQuery($query, 101);
     if(! $row = mysql_fetch_assoc($qh)) {
         return array('status' => 'error',
-                     'errorcode' => 18,
-                     'errormsg' => 'user group with submitted name and affiliation does not exist');
+            'errorcode' => 18,
+            'errormsg' => 'user group with submitted name and affiliation does not exist');
     }
     # if not owner and not member of managing group, no access
     if($user['id'] != $row['ownerid'] &&
-       ! array_key_exists($row['editgroupid'], $user['groups'])) {
+        ! array_key_exists($row['editgroupid'], $user['groups'])) {
         return array('status' => 'error',
-                     'errorcode' => 28,
-                     'errormsg' => 'access denied to user group with submitted name and affiliation');
+            'errorcode' => 28,
+            'errormsg' => 'access denied to user group with submitted name and affiliation');
     }
     $fails = array();
     foreach($users as $_user) {
@@ -2765,9 +2774,9 @@ function XMLRPCaddUsersToGroup($name, $affiliation, $users) {
             $code = 35;
         }
         return array('status' => 'warning',
-                     'failedusers' => $fails,
-                     'warningcode' => $code,
-                     'warningmsg' => "failed to add $cnt users to user group");
+            'failedusers' => $fails,
+            'warningcode' => $code,
+            'warningmsg' => "failed to add $cnt users to user group");
     }
     return array('status' => 'success');
 }
@@ -2803,30 +2812,30 @@ function XMLRPCremoveUsersFromGroup($name, $affiliation, $users) {
     global $user, $findAffilFuncs;
     if(! in_array('groupAdmin', $user['privileges'])) {
         return array('status' => 'error',
-                     'errorcode' => 16,
-                     'errormsg' => 'access denied for managing user groups');
+            'errorcode' => 16,
+            'errormsg' => 'access denied for managing user groups');
     }
     $validate = array('name' => $name,
-                      'affiliation' => $affiliation);
+        'affiliation' => $affiliation);
     $rc = validateAPIgroupInput($validate, 1);
     if($rc['status'] == 'error')
         return $rc;
     $query = "SELECT ownerid, "
-           .        "editusergroupid AS editgroupid "
-           . "FROM usergroup "
-           . "WHERE id = {$rc['id']}";
+        .        "editusergroupid AS editgroupid "
+        . "FROM usergroup "
+        . "WHERE id = {$rc['id']}";
     $qh = doQuery($query, 101);
     if(! $row = mysql_fetch_assoc($qh)) {
         return array('status' => 'error',
-                     'errorcode' => 18,
-                     'errormsg' => 'user group with submitted name and affiliation does not exist');
+            'errorcode' => 18,
+            'errormsg' => 'user group with submitted name and affiliation does not exist');
     }
     # if not owner and not member of managing group, no access
     if($user['id'] != $row['ownerid'] &&
-       ! array_key_exists($row['editgroupid'], $user['groups'])) {
+        ! array_key_exists($row['editgroupid'], $user['groups'])) {
         return array('status' => 'error',
-                     'errorcode' => 28,
-                     'errormsg' => 'access denied to user group with submitted name and affiliation');
+            'errorcode' => 28,
+            'errormsg' => 'access denied to user group with submitted name and affiliation');
     }
     $fails = array();
     foreach($users as $_user) {
@@ -2858,9 +2867,9 @@ function XMLRPCremoveUsersFromGroup($name, $affiliation, $users) {
             $code = 37;
         }
         return array('status' => 'warning',
-                     'failedusers' => $fails,
-                     'warningcode' => $code,
-                     'warningmsg' => "failed to remove $cnt users from user group");
+            'failedusers' => $fails,
+            'warningcode' => $code,
+            'warningmsg' => "failed to remove $cnt users from user group");
     }
     return array('status' => 'success');
 }
@@ -2887,75 +2896,75 @@ function XMLRPCautoCapture($requestid) {
     global $user, $xmlrpcBlockAPIUsers;
     if(! in_array($user['id'], $xmlrpcBlockAPIUsers)) {
         return array('status' => 'error',
-                     'errorcode' => 47,
-                     'errormsg' => 'access denied to XMLRPCautoCapture');
+            'errorcode' => 47,
+            'errormsg' => 'access denied to XMLRPCautoCapture');
     }
     $query = "SELECT id FROM request WHERE id = $requestid";
     $qh = doQuery($query, 101);
     if(! mysql_num_rows($qh)) {
         return array('status' => 'error',
-                     'errorcode' => 52,
-                     'errormsg' => 'specified request does not exist');
+            'errorcode' => 52,
+            'errormsg' => 'specified request does not exist');
     }
     $reqData = getRequestInfo($requestid);
     # check state of reservation
     if($reqData['stateid'] != 14 || $reqData['laststateid'] != 8) {
         return array('status' => 'error',
-                     'errorcode' => 51,
-                     'errormsg' => 'reservation not in valid state');
+            'errorcode' => 51,
+            'errormsg' => 'reservation not in valid state');
     }
     # check that not a cluster reservation
     if(count($reqData['reservations']) > 1) {
         return array('status' => 'error',
-                     'errorcode' => 48,
-                     'errormsg' => 'cannot image a cluster reservation');
+            'errorcode' => 48,
+            'errormsg' => 'cannot image a cluster reservation');
     }
     require_once(".ht-inc/images.php");
     $imageid = $reqData['reservations'][0]['imageid'];
     $imageData = getImages(0, $imageid);
     $captime = unixToDatetime(time());
     $comments = "start: {$reqData['start']}<br>"
-              . "end: {$reqData['end']}<br>"
-              . "computer: {$reqData['reservations'][0]['reservedIP']}<br>"
-              . "capture time: $captime";
+        . "end: {$reqData['end']}<br>"
+        . "computer: {$reqData['reservations'][0]['reservedIP']}<br>"
+        . "capture time: $captime";
     # create new revision if requestor is owner and not a kickstart image
     if($imageData[$imageid]['installtype'] != 'kickstart' &&
-       $reqData['userid'] == $imageData[$imageid]['ownerid']) {
+        $reqData['userid'] == $imageData[$imageid]['ownerid']) {
         $rc = updateExistingImage($requestid, $reqData['userid'], $comments, 1);
         if($rc == 0) {
             return array('status' => 'error',
-                         'errorcode' => 49,
-                         'errormsg' => 'error encountered while attempting to create new revision');
+                'errorcode' => 49,
+                'errormsg' => 'error encountered while attempting to create new revision');
         }
     }
     # create a new image if requestor is not owner or a kickstart image
     else {
         $ownerdata = getUserInfo($reqData['userid'], 1, 1);
         $desc = "This is an autocaptured image.<br>"
-              . "captured from image: {$reqData['reservations'][0]['prettyimage']}<br>"
-              . "captured on: $captime<br>"
-              . "owner: {$ownerdata['unityid']}@{$ownerdata['affiliation']}<br>";
+            . "captured from image: {$reqData['reservations'][0]['prettyimage']}<br>"
+            . "captured on: $captime<br>"
+            . "owner: {$ownerdata['unityid']}@{$ownerdata['affiliation']}<br>";
         $connectmethods = getImageConnectMethods($imageid, $reqData['reservations'][0]['imagerevisionid']);
         $data = array('requestid' => $requestid,
-                      'description' => $desc,
-                      'usage' => '',
-                      'owner' => "{$ownerdata['unityid']}@{$ownerdata['affiliation']}",
-                      'prettyname' => "Autocaptured ({$ownerdata['unityid']} - $requestid)",
-                      'minram' => 64,
-                      'minprocnumber' => 1,
-                      'minprocspeed' => 500,
-                      'minnetwork' => 10,
-                      'maxconcurrent' => '',
-                      'checkuser' => 1,
-                      'rootaccess' => 1,
-                      'sysprep' => 1,
-                      'comments' => $comments,
-                      'connectmethodids' => implode(',', array_keys($connectmethods)));
+            'description' => $desc,
+            'usage' => '',
+            'owner' => "{$ownerdata['unityid']}@{$ownerdata['affiliation']}",
+            'prettyname' => "Autocaptured ({$ownerdata['unityid']} - $requestid)",
+            'minram' => 64,
+            'minprocnumber' => 1,
+            'minprocspeed' => 500,
+            'minnetwork' => 10,
+            'maxconcurrent' => '',
+            'checkuser' => 1,
+            'rootaccess' => 1,
+            'sysprep' => 1,
+            'comments' => $comments,
+            'connectmethodids' => implode(',', array_keys($connectmethods)));
         $rc = submitAddImage($data, 1);
         if($rc == 0) {
             return array('status' => 'error',
-                         'errorcode' => 50,
-                         'errormsg' => 'error encountered while attempting to create image');
+                'errorcode' => 50,
+                'errormsg' => 'error encountered while attempting to create image');
         }
     }
     return array('status' => 'success');
@@ -3004,18 +3013,18 @@ function XMLRPCdeployServer($imageid, $start, $end, $admingroup='',
     global $user, $remoteIP;
     if(! in_array("serverProfileAdmin", $user["privileges"])) {
         return array('status' => 'error',
-                     'errorcode' => 60,
-                     'errormsg' => "access denied to deploy server");
+            'errorcode' => 60,
+            'errormsg' => "access denied to deploy server");
     }
     $imageid = processInputData($imageid, ARG_NUMERIC);
     $resources = getUserResources(array("imageAdmin", "imageCheckOut"));
     $images = removeNoCheckout($resources["image"]);
     $extraimages = getServerProfileImages($user['id']);
     if(! array_key_exists($imageid, $images) &&
-       ! array_key_exists($imageid, $extraimages)) {
+        ! array_key_exists($imageid, $extraimages)) {
         return array('status' => 'error',
-                     'errorcode' => 3,
-                     'errormsg' => "access denied to $imageid");
+            'errorcode' => 3,
+            'errormsg' => "access denied to $imageid");
     }
     if($admingroup != '' || $logingroup != '')
         $usergroups = getUserEditGroups($user['id']);
@@ -3027,8 +3036,8 @@ function XMLRPCdeployServer($imageid, $start, $end, $admingroup='',
             $affilid = getAffiliationID(mysql_real_escape_string($tmp[1]));
             if(is_null($affilid)) {
                 return array('status' => 'error',
-                             'errorcode' => 51,
-                             'errormsg' => "unknown affiliation for admin user group: {$tmp[1]}");
+                    'errorcode' => 51,
+                    'errormsg' => "unknown affiliation for admin user group: {$tmp[1]}");
             }
         }
         else {
@@ -3036,21 +3045,21 @@ function XMLRPCdeployServer($imageid, $start, $end, $admingroup='',
             $affilid = DEFAULT_AFFILID;
         }
         $query = "SELECT id "
-               . "FROM usergroup "
-               . "WHERE name = '$escadmingroup' AND "
-               .       "affiliationid = $affilid";
+            . "FROM usergroup "
+            . "WHERE name = '$escadmingroup' AND "
+            .       "affiliationid = $affilid";
         $qh = doQuery($query, 300);
         if($row = mysql_fetch_assoc($qh))
             $admingroupid = $row['id'];
         else {
             return array('status' => 'error',
-                         'errorcode' => 52,
-                         'errormsg' => "unknown admin user group: $admingroup");
+                'errorcode' => 52,
+                'errormsg' => "unknown admin user group: $admingroup");
         }
         if(! array_key_exists($admingroupid, $usergroups)) {
             return array('status' => 'error',
-                         'errorcode' => 53,
-                         'errormsg' => "access denied to admin user group: $admingroup");
+                'errorcode' => 53,
+                'errormsg' => "access denied to admin user group: $admingroup");
         }
     }
     else
@@ -3063,8 +3072,8 @@ function XMLRPCdeployServer($imageid, $start, $end, $admingroup='',
             $affilid = getAffiliationID(mysql_real_escape_string($tmp[1]));
             if(is_null($affilid)) {
                 return array('status' => 'error',
-                             'errorcode' => 54,
-                             'errormsg' => "unknown affiliation for login user group: {$tmp[1]}");
+                    'errorcode' => 54,
+                    'errormsg' => "unknown affiliation for login user group: {$tmp[1]}");
             }
         }
         else {
@@ -3072,21 +3081,21 @@ function XMLRPCdeployServer($imageid, $start, $end, $admingroup='',
             $affilid = DEFAULT_AFFILID;
         }
         $query = "SELECT id "
-               . "FROM usergroup "
-               . "WHERE name = '$esclogingroup' AND "
-               .       "affiliationid = $affilid";
+            . "FROM usergroup "
+            . "WHERE name = '$esclogingroup' AND "
+            .       "affiliationid = $affilid";
         $qh = doQuery($query, 300);
         if($row = mysql_fetch_assoc($qh))
             $logingroupid = $row['id'];
         else {
             return array('status' => 'error',
-                         'errorcode' => 55,
-                         'errormsg' => "unknown login user group: $logingroup");
+                'errorcode' => 55,
+                'errormsg' => "unknown login user group: $logingroup");
         }
         if(! array_key_exists($logingroupid, $usergroups)) {
             return array('status' => 'error',
-                         'errorcode' => 56,
-                         'errormsg' => "access denied to login user group: $logingroup");
+                'errorcode' => 56,
+                'errormsg' => "access denied to login user group: $logingroup");
         }
     }
     else
@@ -3099,16 +3108,16 @@ function XMLRPCdeployServer($imageid, $start, $end, $admingroup='',
         $ipaddrArr[2] < 0 || $ipaddrArr[2] > 255 ||
         $ipaddrArr[3] < 0 || $ipaddrArr[3] > 255)) {
         return array('status' => 'error',
-                     'errorcode' => 57,
-                     'errormsg' => "Invalid IP address. Must be w.x.y.z with each of "
-                                 . "w, x, y, and z being between 1 and 255 (inclusive)");
+            'errorcode' => 57,
+            'errormsg' => "Invalid IP address. Must be w.x.y.z with each of "
+                . "w, x, y, and z being between 1 and 255 (inclusive)");
     }
     $macaddr = processInputData($macaddr, ARG_STRING);
     if($macaddr != '' && ! preg_match('/^(([A-Fa-f0-9]){2}:){5}([A-Fa-f0-9]){2}$/', $macaddr)) {
         return array('status' => 'error',
-                     'errorcode' => 58,
-                     'errormsg' => "Invalid MAC address.  Must be XX:XX:XX:XX:XX:XX "
-                                 . "with each pair of XX being from 00 to FF (inclusive)");
+            'errorcode' => 58,
+            'errormsg' => "Invalid MAC address.  Must be XX:XX:XX:XX:XX:XX "
+                . "with each pair of XX being from 00 to FF (inclusive)");
     }
     $monitored = processInputData($monitored, ARG_NUMERIC);
     if($monitored != 0 && $monitored != 1)
@@ -3120,14 +3129,14 @@ function XMLRPCdeployServer($imageid, $start, $end, $admingroup='',
     # validate $start
     if($start != 'now' && ! is_numeric($start)) {
         return array('status' => 'error',
-                     'errorcode' => 4,
-                     'errormsg' => "received invalid input for start");
+            'errorcode' => 4,
+            'errormsg' => "received invalid input for start");
     }
     # validate $end
     if($end != 'indefinite' && ! is_numeric($end)) {
         return array('status' => 'error',
-                     'errorcode' => 59,
-                     'errormsg' => "received invalid input for end");
+            'errorcode' => 59,
+            'errormsg' => "received invalid input for end");
     }
 
     $nowfuture = 'future';
@@ -3138,8 +3147,8 @@ function XMLRPCdeployServer($imageid, $start, $end, $admingroup='',
     else
         if($start < (time() - 30))
             return array('status' => 'error',
-                         'errorcode' => 5,
-                         'errormsg' => "start time is in the past");
+                'errorcode' => 5,
+                'errormsg' => "start time is in the past");
     if($end == 'indefinite')
         $end = datetimeToUnix("2038-01-01 00:00:00");
     elseif($end % (15 * 60))
@@ -3148,25 +3157,25 @@ function XMLRPCdeployServer($imageid, $start, $end, $admingroup='',
     $max = getMaxOverlap($user['id']);
     if(checkOverlap($start, $end, $max)) {
         return array('status' => 'error',
-                     'errorcode' => 7,
-                     'errormsg' => "reservation overlaps with another one you "
-                                 . "have, and you are allowed $max "
-                                 . "overlapping reservations at a time");
+            'errorcode' => 7,
+            'errormsg' => "reservation overlaps with another one you "
+                . "have, and you are allowed $max "
+                . "overlapping reservations at a time");
     }
 
     $images = getImages();
     $revisionid = getProductionRevisionid($imageid);
     $rc = isAvailable($images, $imageid, $revisionid, $start, $end,
-                      0, 0, 0, 0, $ipaddr, $macaddr);
+        0, 0, 0, 0, $ipaddr, $macaddr);
     if($rc < 1) {
         addLogEntry($nowfuture, unixToDatetime($start),
-                    unixToDatetime($end), 0, $imageid);
+            unixToDatetime($end), 0, $imageid);
         return array('status' => 'notavailable');
     }
     $return['requestid']= addRequest();
     $query = "UPDATE reservation "
-           . "SET remoteIP = '$remoteIP' "
-           . "WHERE requestid = {$return['requestid']}";
+        . "SET remoteIP = '$remoteIP' "
+        . "WHERE requestid = {$return['requestid']}";
     doQuery($query);
     $fields = array('requestid');
     $values = array($return['requestid']);
@@ -3216,8 +3225,8 @@ function XMLRPCdeployServer($imageid, $start, $end, $admingroup='',
 function XMLRPCtest($string) {
     $string = processInputData($string, ARG_STRING);
     return array('status' => 'success',
-                 'message' => 'RPC call worked successfully',
-                 'string' => $string);
+        'message' => 'RPC call worked successfully',
+        'string' => $string);
 }
 
 
@@ -3240,8 +3249,8 @@ function XMLRPCgetOneClicks() {
     //print_r($user['privileges']);
     if(! in_array('oneClick', $user['privileges'])) {
         return array('status' => 'error',
-                         'errorcode' => 5,
-                         'errormsg' => "The user is not allowed to use OneClick functionality.");
+            'errorcode' => 5,
+            'errormsg' => "The user is not allowed to use OneClick functionality.");
     }
 
     $query = "SELECT oneclick.id oneclickid, oneclick.userid userid, oneclick.imageid imageid, image.prettyname imagename,
@@ -3298,8 +3307,8 @@ function XMLRPCgetOneClickParams($oneclickid) {
     //print_r($user['privileges']);
     if(! in_array('oneClick', $user['privileges'])) {
         return array('status' => 'error',
-                         'errorcode' => 5,
-                         'errormsg' => "The user is not allowed to use OneClick functionality.");
+            'errorcode' => 5,
+            'errormsg' => "The user is not allowed to use OneClick functionality.");
     }
     $query = "SELECT oneclick.id id, oneclick.userid userid, oneclick.imageid imageid, image.prettyname imagename,
             OS.`type` ostype, oneclick.name name, oneclick.duration duration,
@@ -3342,8 +3351,8 @@ function XMLRPCaddOneClick($name, $imageid, $duration, $autologin,$path='') {
     global $user;
     if(! in_array('oneClick', $user['privileges'])) {
         return array('status' => 'error',
-                         'errorcode' => 5,
-                         'errormsg' => "The user is not allowed to use OneClick functionality.");
+            'errorcode' => 5,
+            'errormsg' => "The user is not allowed to use OneClick functionality.");
     }
 
     $userid = $user['id'];
@@ -3356,20 +3365,20 @@ function XMLRPCaddOneClick($name, $imageid, $duration, $autologin,$path='') {
     //connect to the database to insert one button entry
     //dbConnect();
     $query = "INSERT INTO oneclick"
-            . "(userid, "
-            . "imageid, "
-            . "name, "
-            . "duration, "
-            . "autologin, "
-            . "status, "
-            . "path) "
-            . "VALUES "
-            . "($userid, "
-            . "$imageid, "
-            . "'$name', "
-            . "$duration, "
-            . "$autologin, "
-            . "1,'$path') ";
+        . "(userid, "
+        . "imageid, "
+        . "name, "
+        . "duration, "
+        . "autologin, "
+        . "status, "
+        . "path) "
+        . "VALUES "
+        . "($userid, "
+        . "$imageid, "
+        . "'$name', "
+        . "$duration, "
+        . "$autologin, "
+        . "1,'$path') ";
     $qh = doQuery($query, 101);
     if(!$qh) {
         return array('status' => 'error',
@@ -3379,13 +3388,13 @@ function XMLRPCaddOneClick($name, $imageid, $duration, $autologin,$path='') {
     $return = array();
     $qh = doQuery("SELECT LAST_INSERT_ID()", 101);
     if(!$row = mysql_fetch_row($qh)){
-                return array('status' => 'error',
-                              'errorcode' => 1,
-				              'errormsg' => "Unable to create OneClick.");
+        return array('status' => 'error',
+            'errorcode' => 1,
+            'errormsg' => "Unable to create OneClick.");
     }
 
 //    $return['oneclickid']= @mysql_insert_id($qh);
-	$return['oneclickid'] = $row[0];
+    $return['oneclickid'] = $row[0];
     $return['status'] = 'success';
     return $return;
 }
@@ -3394,8 +3403,8 @@ function XMLRPCdeleteOneClick($oneclickid) {
     global $user;
     if(! in_array('oneClick', $user['privileges'])) {
         return array('status' => 'error',
-                         'errorcode' => 5,
-                         'errormsg' => "The user is not allowed to use OneClick functionality.");
+            'errorcode' => 5,
+            'errormsg' => "The user is not allowed to use OneClick functionality.");
     }
     $userid = $user['id'];
     $oneclickid = processInputData($oneclickid, ARG_NUMERIC);
@@ -3417,8 +3426,8 @@ function XMLRPCeditOneClick($oneclickid, $name, $imageid, $duration, $autologin,
     global $user;
     if(! in_array('oneClick', $user['privileges'])) {
         return array('status' => 'error',
-                         'errorcode' => 5,
-                         'errormsg' => "The user is not allowed to use OneClick functionality.");
+            'errorcode' => 5,
+            'errormsg' => "The user is not allowed to use OneClick functionality.");
     }
     $oneclickid = processInputData($oneclickid, ARG_NUMERIC)+0;
     $userid = $user['id'];
@@ -3436,27 +3445,27 @@ function XMLRPCeditOneClick($oneclickid, $name, $imageid, $duration, $autologin,
     $row = @mysql_fetch_assoc($qh);
     if(!$row) {
         return array('status' => 'error',
-                     'errorcode' => 4,
-                     'errormsg' => "The OneClick with ID $oneclickid does not exist.");
+            'errorcode' => 4,
+            'errormsg' => "The OneClick with ID $oneclickid does not exist.");
     }
     elseif($row['userid'] != $user['id']){
         return array('status' => 'error',
-                     'errorcode' => 6,
-                     'errormsg' => "The OneClick with ID $oneclickid does not belong to the user that requested it.");
+            'errorcode' => 6,
+            'errormsg' => "The OneClick with ID $oneclickid does not belong to the user that requested it.");
     }
 
     $query = "UPDATE oneclick SET "
-    . "imageid={$imageid}, "
-    . "name='$name', "
-    . "duration=$duration, "
-    . "autologin=$autologin, "
-    . "path='$path' "
-    . "WHERE id={$oneclickid} AND userid={$userid}";
+        . "imageid={$imageid}, "
+        . "name='$name', "
+        . "duration=$duration, "
+        . "autologin=$autologin, "
+        . "path='$path' "
+        . "WHERE id={$oneclickid} AND userid={$userid}";
     $qh = doQuery($query, 101);
     if(!$qh) {
         return array('status' => 'error',
-                     'errorcode' => 1,
-                     'errormsg' => "Unable to update OneClick.");
+            'errorcode' => 1,
+            'errormsg' => "Unable to update OneClick.");
     }
 
 
