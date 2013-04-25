@@ -38,8 +38,5 @@ ALTER TABLE `reservation`
   ON UPDATE CASCADE ON DELETE SET NULL; 
 
 ALTER TABLE `reservation` 
-  ADD `userid` MEDIUMINT(8) UNSIGNED after `oneclickid`; 
-
-ALTER TABLE `reservation` 
   ADD CONSTRAINT `useridfkey` FOREIGN KEY (`userid`) REFERENCES `user` (`id`) ON UPDATE 
   CASCADE ON DELETE SET NULL;

@@ -4971,7 +4971,9 @@ function addRequest($oneclickid=0,$forimaging=0, $revisionid=array()) {
 
 function checkReservationForOneClick($oneclickid) {
     global $user;
-    $query = "SELECT requestid from reservation where oneclickid = $oneclickid AND userid = {$user['id']}";
+    //$query = "SELECT requestid from reservation where oneclickid = $oneclickid AND userid = {$user['id']}";
+    $query = "SELECT requestid from request inner join reservation on request.id = reservation.requestid where reservation.oneclickid = $oneclickid AND request.userid = {$user['id']}";
+
     $sq = doQuery($query);
     if($rowsq = mysql_fetch_row($sq)) {
         return $rowsq[0];
