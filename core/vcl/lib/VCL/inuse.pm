@@ -342,7 +342,7 @@ sub process {
 
 		# ONECLICK MOD BEGINS
 		if ($oneclickid ne -1 && $check_connection eq "timeout") {
-			if($time_difference < (45*60))) {
+			if($time_difference < (45*60)) {
 				my $time_left = floor($time_difference/60);
 				$self->_notify_user_endtime("$time_left minutes");
 				sleep (($time_left - 10)*60);
