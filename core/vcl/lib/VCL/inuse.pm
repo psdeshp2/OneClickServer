@@ -78,6 +78,7 @@ use 5.008000;
 use strict;
 use warnings;
 use diagnostics;
+use POSIX;
 
 use VCL::utils;
 
@@ -341,10 +342,19 @@ sub process {
 
 		# ONECLICK MOD BEGINS
 		if ($oneclickid ne -1 && $check_connection eq "timeout") {
-			$self->_notify_user_before_timeout("45 minutes");
-			notify($ERRORS{'OK'}, 0, "kicking in extended timeout for oneclick user");
-			$check_connection = $self->os->is_user_connected(45);
-			$connect_timeout_limit = 60;
+			if($time_difference < (45*60))) {
+				my $time_left = floor($time_difference/60);
+				$self->_notify_user_endtime("$time_left minutes");
+				sleep (($time_left - 10)*60);
+				$request_checktime = "end";
+				goto ENDTIME;
+			} 
+			else {
+				$self->_notify_user_before_timeout("45 minutes");
+				notify($ERRORS{'OK'}, 0, "kicking in extended timeout for oneclick user");
+				$check_connection = $self->os->is_user_connected(45);
+				$connect_timeout_limit = 60;
+			}
 		}
 		# ONECLICK MOD ENDS
 
