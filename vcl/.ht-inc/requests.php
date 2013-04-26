@@ -738,7 +738,7 @@ function submitRequest() {
 		print getFooter();
 	}
 	elseif($availablerc > 0) {
-		$requestid = addRequest(0,$imaging, $data["revisionid"]);
+		$requestid = addRequest(0,0,$imaging, $data["revisionid"]);
 		if($data["time"] == "now") {
 			$cdata = array('lengthchanged' => $data['lengthchanged']);
 			$cont = addContinuationsEntry('viewRequests', $cdata);

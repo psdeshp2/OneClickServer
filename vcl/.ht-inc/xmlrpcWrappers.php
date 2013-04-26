@@ -137,7 +137,7 @@ function XMLRPCgetImages() {
 /// \brief tries to make a request\n
 ///
 ////////////////////////////////////////////////////////////////////////////////
-function XMLRPCaddRequest($imageid, $start, $length,$oneclickid='', $foruser='') {
+function XMLRPCaddRequest($imageid, $start, $length,$oneclickid='',$forceNew=1, $foruser='') {
     global $user;
     $imageid = processInputData($imageid, ARG_NUMERIC);
     $start = processInputData($start, ARG_STRING, 1);
@@ -184,9 +184,10 @@ function XMLRPCaddRequest($imageid, $start, $length,$oneclickid='', $foruser='')
     if($end % (15 * 60))
         $end = unixFloor15($end) + (15 * 60);
 
+	$request_id=NULL;
     $max = getMaxOverlap($user['id']);
-    if ($oneclickid != '') {
-        $request_id = checkReservationForOneClick($oneclickid);
+    if ($forceNew != 1) {
+        $request_id = checkReservationForOneClick($imageid);
     }
     if ($request_id == NULL)  {
         if(checkOverlap($start, $end, $max)) {
@@ -210,10 +211,14 @@ function XMLRPCaddRequest($imageid, $start, $length,$oneclickid='', $foruser='')
             unixToDatetime($end), 0, $imageid);
         return array('status' => 'notavailable');
     }
-    if ($oneclickid == '') {
-        $return['requestid']= addRequest(0);
+  if ($forceNew == 1) {
+    	if ($oneclickid == '') {
+    		$return['requestid']= addRequest();
+    	} else {
+    		$return['requestid']= addRequest($oneclickid);
+    	}
     } else {
-        $return['requestid']= addRequest($oneclickid);
+        $return['requestid']= addRequest($oneclickid,$imageid);
     }
     $return['status'] = 'success';
     return $return;

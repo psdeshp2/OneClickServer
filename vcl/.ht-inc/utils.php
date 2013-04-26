@@ -4774,9 +4774,9 @@ function getMaxOverlap($userid) {
 }   */
 
 
-
-function addRequest($oneclickid=0,$forimaging=0, $revisionid=array()) {
+function addRequest($oneclickid=0,$imageid=0,$forimaging=0, $revisionid=array()) {
     global $requestInfo, $user;
+    $requestid = NULL;
     $startstamp = unixToDatetime($requestInfo["start"]);
     $endstamp = unixToDatetime($requestInfo["end"]);
     $now = time();
@@ -4878,13 +4878,9 @@ function addRequest($oneclickid=0,$forimaging=0, $revisionid=array()) {
                 $mgmtnodeid, $fromblock, $blockdata);
         }
     } else {
-        // Query request table for selected oneclick and user id and return that if exist
-        // or make new entry
-//      $query = "SELECT requestid from reservation where oneclickid = $oneclickid AND userid = {$user['id']}";
-//      $sq = doQuery($query);
-
-        $requestid = checkReservationForOneClick($oneclickid);
-//  if(!$rowsq = mysql_fetch_row($sq)) {
+	if ($imageid != 0) {
+          $requestid = checkReservationForOneClick($imageid);
+	}
         if($requestid == NULL) {
             // make a new entry with the given oneclickid and userid
             # add single entry to request table
@@ -4957,10 +4953,6 @@ function addRequest($oneclickid=0,$forimaging=0, $revisionid=array()) {
 
             }
         }
-//      else {
-        // return the already existing request id from reservation table
-//      $requestid = $request_id;
-//  }   // release semaphore lock
     }
     semUnlock();
 
@@ -4968,10 +4960,10 @@ function addRequest($oneclickid=0,$forimaging=0, $revisionid=array()) {
 }
 
 
-function checkReservationForOneClick($oneclickid) {
+function checkReservationForOneClick($imageid) {
     global $user;
     //$query = "SELECT requestid from reservation where oneclickid = $oneclickid AND userid = {$user['id']}";
-    $query = "SELECT requestid from request inner join reservation on request.id = reservation.requestid where reservation.oneclickid = $oneclickid AND request.userid = {$user['id']}";
+    $query = "SELECT requestid from request inner join reservation on request.id = reservation.requestid where reservation.imageid = $imageid AND request.userid = {$user['id']}";
 
     $sq = doQuery($query);
     if($rowsq = mysql_fetch_row($sq)) {
