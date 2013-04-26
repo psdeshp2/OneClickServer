@@ -948,7 +948,7 @@ sub reserve {
 	
 	# ONECLICK MOD BEGINS
         if (!$self->set_oneclickapp()) {
-                notify($ERRORS{'CRITICAL'}, 0, "Failed to set_oneclickapp");
+                notify($ERRORS{'DEBUG'}, 0, "\nFailed to set_oneclickapp");
                 return 0;
         }
  	# ONECLICK MOD ENDS
@@ -981,12 +981,17 @@ sub set_oneclickapp {
 	if($oneclickapp eq -1) {
                 return 1;
         }	
-		
-        my $update_bash_script = "sed \-i \-e \"\\\$a". $oneclickapp . "\" \/home\/" . $self->data->get_user_login_id() . "\/\.bashrc" ;
+        
+	my $update_bash_script = "sed \-i \-e \"\\\$a". $oneclickapp . "\" \/home\/" . $self->data->get_user_login_id() . "\/\.bashrc" ;
 
 	        
 	if (run_ssh_command($computer_node_name, $management_node_keys, $update_bash_script, "root")) {
-                notify($ERRORS{'DEBUG'}, 0, "set vi editor to launch");
+                notify($ERRORS{'OK'}, 0, "\nSet target  application to launch.");
+		return 1;
+        }
+	else {
+                notify($ERRORS{'WARNING'}, 0, "\nUnable to set target application to launch.");
+		return 0;
         }
 
         return 1;
@@ -1229,8 +1234,56 @@ sub sanitize {
 	}
 
 	notify($ERRORS{'OK'}, 0, "$computer_node_name has been sanitized");
+	
+	# ONECLICK MOD BEGINS
+	#
+    #    if (!$self->clear_oneclickapp()) {
+    #            notify($ERRORS{'WARNING'}, 0, "failed to clear_oneclickapp");
+    #    }
+
+        # ONECLICK MOD ENDS
+
 	return 1;
 } ## end sub sanitize
+
+#/////////////////////////////////////////////////////////////////////////////
+
+=head2 clear_oneclickapp
+
+ Parameters  : none
+ Returns     : 0 if failed, if successful
+ Description : Clear the default application (if any) that is configured to launch at startup for a OneClick reservation
+
+
+
+sub clear_oneclickapp {
+
+        my $self = shift;
+        if (ref($self) !~ /VCL::Module/) {
+                notify($ERRORS{'CRITICAL'}, 0, "subroutine was called as a function, it must be called as a class method");
+                return;
+        }
+
+        my $computer_node_name   = $self->data->get_computer_node_name();
+        my $management_node_keys = $self->data->get_management_node_keys();
+        my $oneclickapp          = $self->data->get_oneclickapp();
+	my $temppath		 = "\/home\/" .$self->data->get_user_login_id(). "\/\.bashrc";
+	my $command 		 = "$temppath > $temppath";
+	my $sanitize_bash_script = "perl -nlpe s/$oneclickapp//g $command";
+
+	print "\nsanitize script: $sanitize_bash_script";
+	
+	if (run_ssh_command($computer_node_name, $management_node_keys, $sanitize_bash_script, "root")) {
+                notify($ERRORS{'OK'}, 0, "\nSanitized bashrc profile file.");
+       			return 1;
+        }
+        else {
+                notify($ERRORS{'WARNING'}, 0, "\nUnable to sanitize bashrc profile file.");
+				return 0;
+        }
+}
+=cut
+# ONECLICK MOD ENDS
 
 #/////////////////////////////////////////////////////////////////////////////
 
